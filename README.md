@@ -11,6 +11,15 @@ Nichelle | <img src="https://github.com/StanfordCS194/Team-5/blob/master/team-ph
 Rey | <img src="https://github.com/StanfordCS194/Team-5/blob/master/team-photos/rey.JPG" width="200">
 Chris | <img src="https://github.com/StanfordCS194/Team-5/blob/master/team-photos/chris.jpg" width="200">
 
+# Team Skills Matrix
+
+Member | Strengths | Weaknesses | Personal Traits | Desired Growth
+-------|-----------|------------|-----------------|---------------
+Alison | Frontend and application, development, graphic design, UX/UI | Moving fast, working without a clear plan and direction, being productive with small chunks of time | Planner, creative but also likes structure, works best in quiet, uncluttered spaces | End to end, full stack development working with APIs, databases
+Nichelle | Backend web dev, databases, security development, software testing, comfortable with communicating with figures of authority | Not communicating every step of the way, attention to detail, unwilling to pull all-nighters | Independent, creative, enjoys working with a great playlist, prefers to code laying down and/or surrounded by pillows | Full stack development, API, ML frameworks (and their integration into software), attention to detail
+Rey | NLP, dataset preprocessing, backend, codebase design, ML | Not good under pressure, prefers working alone | Planning, communicative, organized, morning person | Frontend, UI design, end to end, marketing
+Chris | ML frameworks, NLU, databases & backend, planning & organization, communicates a lot | Not good at confrontation, overthinks designs & details, not good under time pressure | Needs quiet or own music to work, detail-oriented, likes structure & clarity, works best in morning & nights | Design & prototyping, end to end development, ML system implementation
+
 # Team Communication
 
 1. Facebook Messenger
@@ -25,3 +34,7 @@ Rey | rbarcelo@stanford.edu
 Chris | koenig97@stanford.edu
 
 3. [Github](https://github.com/StanfordCS194/Team-5)
+
+# SGM Link
+
+[SGM Google Form](https://docs.google.com/forms/d/e/1FAIpQLSfohqkzUyHiHjbjURVoxJaKaGtp2X4c6nxA6ubu8QXNaHemOw/viewform?usp=sf_link)
