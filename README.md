@@ -1,5 +1,7 @@
 # CozyCo
 
+<img src="https://github.com/StanfordCS194/Team-5/blob/master/team-photos/cozyco-logo.png" width="325">
+
 # Team Members
 
 Member | Photograph
