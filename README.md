@@ -37,4 +37,4 @@ Chris | koenig97@stanford.edu
 
 # SGM Link
 
-[SGM Google Form](https://docs.google.com/forms/d/e/1FAIpQLSfohqkzUyHiHjbjURVoxJaKaGtp2X4c6nxA6ubu8QXNaHemOw/viewform?usp=sf_link)
+[SGM Google Form](https://docs.google.com/forms/d/1HbJbDRqm--NoXr7eyy5GHqTBrXsWf_WzLvG0Lwza3IA/edit)
