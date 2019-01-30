@@ -15,7 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from intention_app.views import logo_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', logo_view, name='logo')
 ]
