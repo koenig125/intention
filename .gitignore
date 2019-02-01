@@ -119,4 +119,4 @@ dmypy.json
 .DS_Store
 
 # IDE .idea files
-.idea/* 
+.idea/ 
