@@ -2,8 +2,8 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 
-FREQUNCY_CHOICES = (('day', 'DAY'), ('week', 'WEEK'), ('month', 'MONTH'),)
-PRIORITY_CHOICES = (('high', 'HIGH'), ('middle', 'MIDDLE'), ('low', 'LOW'),)
+FREQUNCY_CHOICES = (('DAY', 'day'), ('WEEK', 'week'), ('MONTH', 'month'),)
+PRIORITY_CHOICES = (('HIGH', 'high'), ('MIDDLE', 'middle'), ('LOW', 'low'),)
 
 class Schedule(models.Model):
     name = models.CharField(max_length=200)
