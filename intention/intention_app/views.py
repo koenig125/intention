@@ -5,7 +5,7 @@ from .forms import scheduleForm
 
 # Renders the Intention App homepage
 def homepage_view(request):
-    template = loader.get_template('home.html')
+    template = loader.get_template('index.html')
     context = {}
     if request.method == "POST":
         form = scheduleForm(request.POST)
