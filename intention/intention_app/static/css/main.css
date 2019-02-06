@@ -52,7 +52,7 @@ table {
 }
 
 body {
-	-webkit-text-size-adjust: none;
+	-webkit-text-size-adjust: none; 
 }
 
 mark {
@@ -875,16 +875,16 @@ input, select, textarea {
 		}
 
 		.image[data-position] img {
-			-moz-object-fit: cover;
-			-webkit-object-fit: cover;
-			-ms-object-fit: cover;
-			object-fit: cover;
+			-moz-object-fit: contain;
+			-webkit-object-fit: contain;
+			-ms-object-fit: contain;
+			object-fit: contain;
 			display: block;
 			position: absolute;
 			top: 0;
 			left: 0;
 			width: 100%;
-			height: 100%;
+			height: auto;
 		}
 
 		.image[data-position="top left"] img {
@@ -3279,10 +3279,10 @@ input, select, textarea {
 		}
 
 			.panel.banner .image img {
-				-moz-object-fit: cover;
-				-webkit-object-fit: cover;
-				-ms-object-fit: cover;
-				object-fit: cover;
+				-moz-object-fit: contain;
+				-webkit-object-fit: contain;
+				-ms-object-fit: contain;
+				object-fit: contain;
 				display: block;
 				position: absolute;
 				top: 0;
@@ -3401,10 +3401,10 @@ input, select, textarea {
 		}
 
 			.panel.spotlight .image img {
-				-moz-object-fit: cover;
-				-webkit-object-fit: cover;
-				-ms-object-fit: cover;
-				object-fit: cover;
+				-moz-object-fit: contain;
+				-webkit-object-fit: contain;
+				-ms-object-fit: contain;
+				object-fit: contain;
 				display: block;
 				position: absolute;
 				top: 0;
