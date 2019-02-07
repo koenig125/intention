@@ -11,17 +11,19 @@ def homepage_view(request):
         form = scheduleForm(request.POST)
         print(form.errors)
         if form.is_valid():
-            name = request.POST['name']
-            length = request.POST['length']
-            frequency = request.POST['frequency']
-            priority = request.POST['priority']
+            form_data = {}
+            form_data['user_email'] = request.POST['user_email']
+            form_data['name'] = request.POST['name']
+            form_data['length'] = request.POST['length']
+            form_data['frequency'] = request.POST['frequency']
+            form_data['priority'] = request.POST['priority']
+            # TODO: pass form_data to the schedule_view function
             return HttpResponseRedirect('schedule')
     else:
         form = scheduleForm()
         context = {
           'message': 'Let\'s get productive!',
           'form': form,
-          'user_id': 'reymbarcelo'
         }
     return HttpResponse(template.render(context, request))
 
@@ -30,6 +32,6 @@ def schedule_view(request):
     template = loader.get_template('schedule.html')
     context = {
         'message': 'Here is your new calendar!',
-        'user_email': user_email
+        'user_email': ''
     }
     return HttpResponse(template.render(context, request))
