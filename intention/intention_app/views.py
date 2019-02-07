@@ -7,16 +7,15 @@ from .forms import scheduleForm
 def homepage_view(request):
     template = loader.get_template('index.html')
     context = {}
-    # Handle form submission and return user's new schedule.
     if request.method == "POST":
         form = scheduleForm(request.POST)
         print(form.errors)
         if form.is_valid():
-            print("POST IS VALID")
-            # form.save()
-            # need to set up database table in order to save the form in line above
+            name = request.POST['name']
+            length = request.POST['length']
+            frequency = request.POST['frequency']
+            priority = request.POST['priority']
             return HttpResponseRedirect('schedule')
-    # Render the form page upon the user first visiting the site.
     else:
         form = scheduleForm()
         context = {
