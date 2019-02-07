@@ -6,12 +6,13 @@
     <body>
         <h1>Intention App</h1>
         <p>{{ message }}</p>
-        <form method="POST"> {% csrf_token %}
+        <form action="" method="POST"> {% csrf_token %}
                 <p>I want to 
                     {{form.name}} for 
                     {{form.length}} hours a 
                     {{form.frequency}}. 
                     This is a {{form.priority}} priority.
+                    My email is {{form.user_email}}
                 </p>
                 <button type='submit'>Schedule!</button>
             </form>

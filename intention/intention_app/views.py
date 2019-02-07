@@ -7,6 +7,7 @@ from .forms import scheduleForm
 def homepage_view(request):
     template = loader.get_template('index.html')
     context = {}
+    # Handle form submission and return user's new schedule.
     if request.method == "POST":
         form = scheduleForm(request.POST)
         print(form.errors)
@@ -15,18 +16,21 @@ def homepage_view(request):
             # form.save()
             # need to set up database table in order to save the form in line above
             return HttpResponseRedirect('schedule')
-    else: 
+    # Render the form page upon the user first visiting the site.
+    else:
         form = scheduleForm()
         context = {
           'message': 'Let\'s get productive!',
           'form': form,
+          'user_id': 'reymbarcelo'
         }
     return HttpResponse(template.render(context, request))
-    
+
 # A view that will allow people to view their updated calendar schedule.
 def schedule_view(request):
     template = loader.get_template('schedule.html')
     context = {
         'message': 'Here is your new calendar!',
+        'user_email': user_email
     }
     return HttpResponse(template.render(context, request))
