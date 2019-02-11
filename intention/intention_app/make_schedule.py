@@ -5,16 +5,26 @@ import os.path
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+from datetime import date
 
 # If modifying these scopes, delete the file token.pickle.
-SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 def make_schedule(form_data):
 	service = get_credentials()
 	add_events_to_calendar(form_data, service)
 
 def add_events_to_calendar(form_data, service):
-	print(service)
+	event = {
+		'summary': form_data['name'],
+		'start': {
+			'dateTime': '2019-02-11T12:00:00-08:00',
+		},
+		'end': {
+			'dateTime': '2019-02-11T13:00:00-08:00',
+		},
+	}
+	service.events().insert(calendarId='primary', body=event).execute()
 
 def get_credentials():
     """Shows basic usage of the Google Calendar API.
@@ -54,5 +64,4 @@ def get_credentials():
     for event in events:
         start = event['start'].get('dateTime', event['start'].get('date'))
         print(start, event['summary'])
-
-	return service
+    return service
