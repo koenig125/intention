@@ -120,3 +120,6 @@ dmypy.json
 
 # IDE .idea files
 .idea/ 
+
+# Google OAth credentials
+.credentials.json

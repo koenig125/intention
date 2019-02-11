@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
 from .forms import scheduleForm
+from .make_schedule import *
 
 # Renders the Intention App homepage
 def homepage_view(request):
@@ -18,7 +19,7 @@ def homepage_view(request):
             form_data['length'] = request.POST['length']
             form_data['frequency'] = request.POST['frequency']
             form_data['priority'] = request.POST['priority']
-            # TODO: Insert call to scheduler logic.
+            make_schedule(form_data)
             request.session['user_email'] = request.POST['user_email']
             return HttpResponseRedirect('schedule')
     else:
