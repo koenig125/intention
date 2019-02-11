@@ -1,7 +1,7 @@
 from __future__ import print_function
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from dateutil.parser import parse
 from pytz import timezone
 
@@ -72,8 +72,12 @@ def get_first_free_time(busy_times, localtz, duration):
     event_index = 0
     while (event_index < len(busy_times) and
            conflicts(start_time, start_time + timedelta(hours=1), busy_times[event_index])):
-        start_time += timedelta(hours=1)
-        end_time += timedelta(hours=1)
+        if end_time.time() == time(0, 0): # if time is midnight, skip to next day at 8am.
+            start_time += timedelta(hours=9)
+            end_time += timedelta(hours=9)
+        else:
+            start_time += timedelta(hours=1)
+            end_time += timedelta(hours=1)
         if start_time > parse(busy_times[event_index]['end']):
             event_index += 1
     return start_time, end_time
