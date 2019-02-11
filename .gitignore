@@ -122,4 +122,4 @@ dmypy.json
 .idea/ 
 
 # Google OAth credentials
-.credentials.json
+credentials.json
