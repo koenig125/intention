@@ -12,8 +12,8 @@ API_VERSION = 'v3'
 
 
 def make_schedule(form_data):
-	service = get_credentials()
-	add_events_to_calendar(form_data, service)
+    service = get_credentials()
+    add_events_to_calendar(form_data, service)
 
 
 def get_credentials():
@@ -24,10 +24,10 @@ def get_credentials():
 
 
 def add_events_to_calendar(form_data, service):
+    duration = int(form_data['length'])
     localtz = get_local_timezone(service)
     busy_times = get_busy_times(service, localtz)
-    start_time = get_first_free_time(busy_times, localtz)
-    end_time = start_time + timedelta(hours=1)
+    start_time, end_time = get_first_free_time(busy_times, localtz, duration)
     event = {
 		'summary': form_data['name'],
 		'start': {
@@ -66,15 +66,17 @@ def get_busy_times(service, localtz):
     return busy_times["calendars"]["primary"]["busy"]
 
 
-def get_first_free_time(busy_times, localtz):
+def get_first_free_time(busy_times, localtz, duration):
     start_time = get_start_next_day(localtz)
+    end_time = start_time + timedelta(hours=duration)
     event_index = 0
     while (event_index < len(busy_times) and
            conflicts(start_time, start_time + timedelta(hours=1), busy_times[event_index])):
         start_time += timedelta(hours=1)
+        end_time += timedelta(hours=1)
         if start_time > parse(busy_times[event_index]['end']):
             event_index += 1
-    return start_time
+    return start_time, end_time
 
 
 def conflicts(start_time, end_time, existing_event):
