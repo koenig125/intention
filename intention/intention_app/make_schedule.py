@@ -38,27 +38,32 @@ def add_events_to_calendar(form_data, service):
 
 def schedule_day(service, form_data, frequency, duration, timeunit, localtz):
     events = []
-    start_next_day = get_next_day_8am(localtz, datetime.utcnow())
-    end_next_day = get_end_of_day(localtz, start_next_day)
+    days_left = get_days_left_in_week(datetime.utcnow()) - 1
+    start_of_day = get_next_day_8am(localtz, datetime.utcnow())
+    end_of_day = get_end_of_day(localtz, start_of_day)
 
-
-    for i in range(frequency):
-        busy_times = get_busy_times(service, start_next_day, end_next_day)
-        success, start_time, end_time = get_first_free_time(busy_times, duration, timeunit, start_next_day,
-                                                            end_next_day, localtz)
-        if not success: return False  # Schedule did not have room for candidate event. Abort.
-        event = {
-            'summary': form_data['name'],
-            'start': {
-                'dateTime': start_time.isoformat(),
-            },
-            'end': {
-                'dateTime': end_time.isoformat(),
-            },
-        }
-        events.append(event)
-        start_next_day = get_next_day_8am(localtz, start_time)
-        end_next_day = get_end_of_day(localtz, start_next_day)
+    for i in range(days_left):
+        busy_times = get_busy_times(service, start_of_day, end_of_day)
+        event_start_time = start_of_day
+        last_time_event_can_be_scheduled = decrement_duration(end_of_day, duration, timeunit)
+        event_index = 0
+        for j in range(frequency):
+            success, start_time, end_time, event_index = get_first_free_time(busy_times, duration, timeunit,
+                                            event_start_time, last_time_event_can_be_scheduled, localtz, event_index)
+            if not success: return False  # Schedule did not have room for candidate event. Abort.
+            event = {
+                'summary': form_data['name'],
+                'start': {
+                    'dateTime': start_time.isoformat(),
+                },
+                'end': {
+                    'dateTime': end_time.isoformat(),
+                },
+            }
+            events.append(event)
+            event_start_time = end_time
+        start_of_day += timedelta(days=1)
+        end_of_day = get_end_of_day(localtz, start_of_day)
 
     for event in events:
         service.events().insert(calendarId='primary', body=event).execute()
@@ -68,15 +73,17 @@ def schedule_day(service, form_data, frequency, duration, timeunit, localtz):
 def schedule_week(service, form_data, frequency, duration, timeunit, localtz):
     events = []
     start_next_day = get_next_day_8am(localtz, datetime.utcnow())
-    last_possible_day = get_end_of_week(start_next_day)
+    end_of_week = get_end_of_week(start_next_day)
+    last_time_event_can_be_scheduled = decrement_duration(end_of_week, duration, timeunit)
+    days_left = get_days_left_in_week(datetime.utcnow()) - 1
+    if frequency > days_left: # Not enough days in week to schedule all instances of intention. Abort.
+        return False # Revisit later once have more advanced functionality, this is placeholder.
 
     for i in range(frequency):
-        if start_next_day > last_possible_day:
-            return False # Not enough days in week to schedule all instances of intention. Abort.
-        busy_times = get_busy_times(service, start_next_day, last_possible_day)
-        success, start_time, end_time = get_first_free_time(busy_times, duration, timeunit, start_next_day,
-                                                            last_possible_day, localtz)
-        if not success: return False # Schedule did not have room for candidate event. Abort.
+        busy_times = get_busy_times(service, start_next_day, end_of_week)
+        success, start_time, end_time, event_index = get_first_free_time(busy_times, duration, timeunit, start_next_day,
+                                                                         last_time_event_can_be_scheduled, localtz, 0)
+        if not success: return False # Schedule did not have room for candidate event or reached end of week. Abort.
         event = {
             'summary': form_data['name'],
             'start': {
@@ -108,26 +115,20 @@ def get_busy_times(service, start, end):
     return busy_times["calendars"]["primary"]["busy"]
 
 
-def get_first_free_time(busy_times, duration, timeunit, start_time, last_possible_day, localtz):
-    end_time = get_event_end_time(start_time, duration, timeunit)
-    event_index = 0
-    while (event_index < len(busy_times) and start_time < last_possible_day and
+def get_first_free_time(busy_times, duration, timeunit, start_time, last_time_event_can_be_scheduled, localtz, event_index):
+    end_time = increment_duration(start_time, duration, timeunit)
+    while (event_index < len(busy_times) and start_time <= last_time_event_can_be_scheduled and
            conflicts(start_time, end_time, busy_times[event_index])):
         if start_time.date() < end_time.date(): # if end_time extends past midnight, skip to next day (for now).
             start_time = get_next_day_8am(localtz, start_time)
-            end_time = get_event_end_time(start_time, duration, timeunit)
+            end_time = increment_duration(start_time, duration, timeunit)
         else:
             start_time += timedelta(minutes=1)
             end_time += timedelta(minutes=1)
         if start_time >= parse(busy_times[event_index]['end']):
             event_index += 1
-    search_successful = start_time < last_possible_day
-    return search_successful, start_time, end_time
-
-
-def get_event_end_time(start_time, duration, timeunit):
-    if timeunit == "HOURS": return start_time + timedelta(hours=duration)
-    elif timeunit == "MINUTES": return start_time + timedelta(minutes=duration)
+    search_successful = start_time <= last_time_event_can_be_scheduled
+    return search_successful, start_time, end_time, event_index
 
 
 def conflicts(start_time, end_time, existing_event):
@@ -159,9 +160,22 @@ def get_end_of_week(current_day):
 
 
 def get_days_left_in_week(day):
+    # days left in week includes the current day
+    # weekdays are 0-indexed starting from Monday
+    # ie index(Sunday) = 6 and index(Monday) = 0
     dayIndex = (day.weekday() + 1) % 7
     return 7 - dayIndex
 
 
 def make_midnight(day):
     return day.replace(hour=0, minute=0, second=0, microsecond=0)
+
+
+def increment_duration(day, duration, timeunit):
+    if timeunit == "HOURS": return day + timedelta(hours=duration)
+    elif timeunit == "MINUTES": return day + timedelta(minutes=duration)
+
+
+def decrement_duration(day, duration, timeunit):
+    if timeunit == "HOURS": return day - timedelta(hours=duration)
+    elif timeunit == "MINUTES": return day - timedelta(minutes=duration)
