@@ -8,9 +8,10 @@
         <p>{{ message }}</p>
         <form action="" method="POST"> {% csrf_token %}
                 <p>I want to 
-                    {{form.name}} for 
-                    {{form.length}} hours a 
-                    {{form.frequency}}. 
+                    {{form.name}}
+                    {{form.frequency}} times a
+                    {{form.period}} for
+                    {{form.duration}} hours.
                     This is a {{form.priority}} priority.
                     My email is {{form.user_email}}.
                 </p>

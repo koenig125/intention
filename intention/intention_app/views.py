@@ -13,11 +13,12 @@ def homepage_view(request):
         print(form.errors)
         if form.is_valid():
             form_data = {}
-            form_data['user_email'] = request.POST['user_email']
             form_data['name'] = request.POST['name']
-            form_data['length'] = request.POST['length']
             form_data['frequency'] = request.POST['frequency']
+            form_data['period'] = request.POST['period']
+            form_data['duration'] = request.POST['duration']
             form_data['priority'] = request.POST['priority']
+            form_data['user_email'] = request.POST['user_email']
             make_schedule(form_data)
             request.session['user_email'] = request.POST['user_email']
             return HttpResponseRedirect('schedule')

@@ -24,7 +24,7 @@ def get_credentials():
 
 
 def add_events_to_calendar(form_data, service):
-    duration = int(form_data['length'])
+    duration = int(form_data['duration'])
     localtz = get_local_timezone(service)
     busy_times = get_busy_times(service, localtz)
     start_time, end_time = get_first_free_time(busy_times, localtz, duration)
