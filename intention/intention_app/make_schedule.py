@@ -1,7 +1,7 @@
 from __future__ import print_function
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta
 from dateutil.parser import parse
 from pytz import timezone
 
@@ -28,6 +28,7 @@ def add_events_to_calendar(form_data, service):
     events = []
     duration = int(form_data['duration'])
     frequency = int(form_data['frequency'])
+    timeunit = form_data['timeunit']
     localtz = get_local_timezone(service)
     start_next_day = get_start_next_day(localtz, datetime.utcnow())
     last_possible_day = get_last_possible_day(start_next_day)
@@ -36,7 +37,7 @@ def add_events_to_calendar(form_data, service):
         if start_next_day > last_possible_day:
             return False # Not enough days in week to schedule all instances of intention. Abort.
         busy_times = get_busy_times(service, start_next_day, last_possible_day)
-        success, start_time, end_time = get_first_free_time(busy_times, duration, start_next_day, last_possible_day, localtz)
+        success, start_time, end_time = get_first_free_time(busy_times, duration, timeunit, start_next_day, last_possible_day, localtz)
         if not success: return False # Schedule did not have room for candidate event. Abort.
         event = {
             'summary': form_data['name'],
@@ -74,17 +75,22 @@ def get_last_possible_day(start):
     return end
 
 
-def get_first_free_time(busy_times, duration, start_time, last_possible_day, localtz):
-    end_time = start_time + timedelta(hours=duration)
+def get_end_time(start_time, duration, timeunit):
+    if timeunit == "HOURS": return start_time + timedelta(hours=duration)
+    elif timeunit == "MINUTES": return start_time + timedelta(minutes=duration)
+
+
+def get_first_free_time(busy_times, duration, timeunit, start_time, last_possible_day, localtz):
+    end_time = get_end_time(start_time, duration, timeunit)
     event_index = 0
     while (event_index < len(busy_times) and start_time < last_possible_day and
            conflicts(start_time, end_time, busy_times[event_index])):
         if start_time.date() < end_time.date(): # if end_time extends past midnight, skip to next day (for now).
             start_time = get_start_next_day(localtz, start_time)
-            end_time = start_time + timedelta(hours=duration)
+            end_time = get_end_time(start_time, duration, timeunit)
         else:
-            start_time += timedelta(hours=1)
-            end_time += timedelta(hours=1)
+            start_time += timedelta(minutes=1)
+            end_time += timedelta(minutes=1)
         if start_time >= parse(busy_times[event_index]['end']):
             event_index += 1
     search_successful = start_time < last_possible_day

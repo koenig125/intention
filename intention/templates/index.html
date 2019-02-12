@@ -44,12 +44,12 @@
 									<h2 class="major">{{ message }}</h2>
 									<form method="POST"> {% csrf_token %}
 										<p>I want to
-                                            {{form.name}}
-                                            {{form.frequency}} times a
-                                            {{form.period}} for
-                                            {{form.duration}} hours.
-                                            This is a {{form.priority}} priority.
-                                            My email is {{form.user_email}}.
+                                            {{ form.name }}
+                                            {{ form.frequency }} times a
+                                            {{ form.period }} for
+                                            {{ form.duration }} {{ form.timeunit }}
+                                            This is a {{ form.priority }} priority.
+                                            My email is {{ form.user_email }}.
                                         </p>
 										<button type='submit'>Schedule!</button>
 									</form>

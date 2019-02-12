@@ -17,6 +17,7 @@ def homepage_view(request):
             form_data['frequency'] = request.POST['frequency']
             form_data['period'] = request.POST['period']
             form_data['duration'] = request.POST['duration']
+            form_data['timeunit'] = request.POST['timeunit']
             form_data['priority'] = request.POST['priority']
             form_data['user_email'] = request.POST['user_email']
             success = make_schedule(form_data)
