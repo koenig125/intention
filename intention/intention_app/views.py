@@ -19,13 +19,22 @@ def homepage_view(request):
             form_data['duration'] = request.POST['duration']
             form_data['priority'] = request.POST['priority']
             form_data['user_email'] = request.POST['user_email']
-            make_schedule(form_data)
-            request.session['user_email'] = request.POST['user_email']
-            return HttpResponseRedirect('schedule')
+            success = make_schedule(form_data)
+
+            if not success: # Couldn't schedule user's request.
+                form = scheduleForm()
+                context = {
+                    'message': 'Sorry, you\'re overbooked! Try again.',
+                    'form': form,
+                }
+                return HttpResponse(template.render(context, request))
+            else:
+                request.session['user_email'] = request.POST['user_email']
+                return HttpResponseRedirect('schedule')
     else:
         form = scheduleForm()
         context = {
-          'message': 'Let\'s get productive!',
+          'message': 'What do you want to accomplish?',
           'form': form,
         }
     return HttpResponse(template.render(context, request))
