@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from .forms import scheduleForm
-from .make_schedule import *
+from .scheduler import make_schedule
 
 # Renders the Intention App homepage
 def homepage_view(request):

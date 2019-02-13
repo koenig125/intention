@@ -5,7 +5,6 @@ TIMEUNIT_CHOICES = (('HOURS', 'hours'), ('MINUTES', 'minutes'),)
 PRIORITY_CHOICES = (('HIGH', 'high'), ('MIDDLE', 'middle'), ('LOW', 'low'),)
 
 
-
 class Schedule(models.Model):
     name = models.CharField(max_length=200)
     frequency = models.IntegerField(choices = [(x, x) for x in range(1, 8)], default = 1)
