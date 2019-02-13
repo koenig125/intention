@@ -34,60 +34,18 @@ def get_credentials():
 def schedule_events(form_data, service):
     name, frequency, period, duration, timeunit = unpack_form(form_data)
     localtz = get_local_timezone(service)
-
-    event_start_time = get_next_day_start(localtz, datetime.utcnow())
+    event_start_time = get_next_day_start(localtz, datetime.now(localtz))
     event_end_time_max = get_event_end_time_max(period, localtz, event_start_time)
     event_start_time_max = decrement_time(event_end_time_max, timeunit, duration)
+    num_iters = get_number_iterations(period, datetime.now(localtz), localtz)
 
-    if period == "DAY": return schedule_day(service, form_data, localtz, event_start_time, event_end_time_max, event_start_time_max)
-    elif period == "WEEK": return schedule_week(service, form_data, localtz, event_start_time, event_end_time_max, event_start_time_max)
-    elif period == "MONTH": return schedule_month(service, form_data, localtz, event_start_time, event_end_time_max, event_start_time_max)
-
-
-def schedule_day(service, form_data, localtz, event_start_time, event_end_time_max, event_start_time_max):
-    days_left_in_week = get_days_left_in_week(datetime.utcnow()) - 1
-    timeunit = form_data['timeunit']
-    duration = int(form_data['duration'])
     events = []
-    for i in range(days_left_in_week):
-        events_for_single_day = map_events_to_times(service, form_data, localtz, event_start_time,
-                                                    event_end_time_max, event_start_time_max)
-        if not events_for_single_day: return None
-        else: events.extend(events_for_single_day)
-        event_start_time += timedelta(days=1)
-        event_end_time_max = get_end_of_day(localtz, event_start_time)
-        event_start_time_max = decrement_time(event_end_time_max, timeunit, duration)
-    return events
-
-
-def schedule_week(service, form_data, localtz, event_start_time, event_end_time_max, event_start_time_max):
-    weeks_left_in_month = get_weeks_left_in_month(localtz, datetime.utcnow())
-    timeunit = form_data['timeunit']
-    duration = int(form_data['duration'])
-    events = []
-    for i in range(weeks_left_in_month):
-        events_for_single_week = map_events_to_times(service, form_data, localtz, event_start_time,
-                                                     event_end_time_max, event_start_time_max)
-        if not events_for_single_week: return None
-        else: events.extend(events_for_single_week)
-        event_start_time = get_next_week_start(localtz, event_start_time)
-        event_end_time_max = get_end_of_week(localtz, event_start_time)
-        event_start_time_max = decrement_time(event_end_time_max, timeunit, duration)
-    return events
-
-
-def schedule_month(service, form_data, localtz, event_start_time, event_end_time_max, event_start_time_max):
-    months_left_in_quarter = MONTHS_TO_SCHEDULE
-    timeunit = form_data['timeunit']
-    duration = int(form_data['duration'])
-    events = []
-    for i in range(months_left_in_quarter):
-        events_for_single_month = map_events_to_times(service, form_data, localtz, event_start_time,
-                                                      event_end_time_max, event_start_time_max)
-        if not events_for_single_month: return None
-        else: events.extend(events_for_single_month)
-        event_start_time = get_next_month_start(localtz, event_start_time)
-        event_end_time_max = get_end_of_month(localtz, event_start_time)
+    for i in range(num_iters):
+        events_for_single_period = map_events_to_times(service, form_data, localtz, event_start_time,
+                                                       event_end_time_max, event_start_time_max)
+        if not events_for_single_period: return None
+        else: events.extend(events_for_single_period)
+        event_start_time, event_end_time_max = update_period_start_time(period, localtz, event_start_time)
         event_start_time_max = decrement_time(event_end_time_max, timeunit, duration)
     return events
 
@@ -155,6 +113,24 @@ def create_event(name, start_time, end_time):
 def add_events_to_calendar(service, events):
     for event in events:
         service.events().insert(calendarId='primary', body=event).execute()
+
+
+def get_number_iterations(period, day, localtz):
+    if period == "DAY": return get_days_left_in_week(day) - 1
+    elif period == "WEEK": return get_weeks_left_in_month(localtz, day)
+    elif period == "MONTH": return MONTHS_TO_SCHEDULE
+
+
+def update_period_start_time(period, localtz, event_start_time):
+    if period == "DAY":
+        updated_start_time = event_start_time + timedelta(days=1)
+        return updated_start_time, get_end_of_day(localtz, updated_start_time)
+    elif period == "WEEK":
+        updated_start_time = get_next_week_start(localtz, event_start_time)
+        return updated_start_time, get_end_of_week(localtz, updated_start_time)
+    elif period == "MONTH":
+        updated_start_time = get_next_month_start(localtz, event_start_time)
+        return updated_start_time, get_end_of_month(localtz, updated_start_time)
 
 
 def update_event_start_time(period, start_time, end_time, localtz):
