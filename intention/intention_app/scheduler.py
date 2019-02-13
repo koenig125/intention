@@ -60,7 +60,19 @@ def schedule_day(service, form_data, localtz, event_start_time, event_end_time_m
 
 
 def schedule_week(service, form_data, localtz, event_start_time, event_end_time_max, event_start_time_max):
-    return map_events_to_times(service, form_data, localtz, event_start_time, event_end_time_max, event_start_time_max)
+    weeks_left_in_month = get_weeks_left_in_month(localtz, datetime.utcnow())
+    timeunit = form_data['timeunit']
+    duration = int(form_data['duration'])
+    events = []
+    for i in range(weeks_left_in_month):
+        events_for_single_week = map_events_to_times(service, form_data, localtz, event_start_time,
+                                                     event_end_time_max, event_start_time_max)
+        if not events_for_single_week: return None
+        else: events.extend(events_for_single_week)
+        event_start_time = get_next_sunday_start(localtz, event_start_time)
+        event_end_time_max = get_end_of_week(localtz, event_start_time)
+        event_start_time_max = decrement_time(event_end_time_max, timeunit, duration)
+    return events
 
 
 def schedule_month(service, form_data, localtz, event_start_time, event_end_time_max, event_start_time_max):
@@ -193,6 +205,18 @@ def get_days_left_in_month(day):
     # days left in month, including the inputted day
     days_in_month = monthrange(day.year, day.month)[1]
     return days_in_month - day.day + 1
+
+
+def get_weeks_left_in_month(localtz, day):
+    last_sunday = get_last_sunday_in_month(localtz, day)
+    if day.day >= last_sunday.day: return 0
+    return ((last_sunday.day - day.day - 1) // 7) + 1
+
+
+def get_last_sunday_in_month(localtz, day):
+    end_of_month = get_end_of_month(localtz, day)
+    print(end_of_month)
+    return end_of_month - timedelta(days=(end_of_month.weekday() + 1))
 
 
 def make_midnight(day):
