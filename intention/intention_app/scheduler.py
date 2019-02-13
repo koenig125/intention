@@ -1,7 +1,7 @@
 from __future__ import print_function
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta
 from dateutil.parser import parse
 from pytz import timezone
 from calendar import monthrange
@@ -53,7 +53,7 @@ def schedule_events_for_multiple_periods(form_data, service):
 
     events = []
     for i in range(num_periods):
-        events_for_single_period = schedule_events_for_single_period(service, form_data, period_start_time,
+        events_for_single_period = schedule_events_for_single_period(service, form_data, localtz, period_start_time,
                                                                      period_end_time, event_start_time_max)
         if not events_for_single_period: return None
         else: events.extend(events_for_single_period)
@@ -63,51 +63,39 @@ def schedule_events_for_multiple_periods(form_data, service):
     return events
 
 
-def schedule_events_for_single_period(service, form_data, period_start_time, period_end_time, event_start_time_max):
+def schedule_events_for_single_period(service, form_data, localtz, period_start_time,
+                                      period_end_time, event_start_time_max):
     name, frequency, period, duration, timeunit = unpack_form(form_data)
+    busy_times = get_busy_times(service, period_start_time, period_end_time)
     event_start_time = period_start_time
+    event_index = 0
     events = []
     for i in range(frequency):
         if event_start_time > event_start_time_max: return None
-        busy_times = get_busy_times(service, event_start_time, period_end_time)
-        success, start_time, end_time, event_index = get_time_for_single_event(busy_times, duration, timeunit,
-                                                                               event_start_time, event_start_time_max,
-                                                                               0)
+        success, start_time, end_time = get_time_for_single_event(busy_times, localtz, duration, timeunit,
+                                                                  event_start_time, event_start_time_max, event_index)
         if not success: return None
         events.append(create_event(name, start_time, end_time))
         event_start_time = get_next_event_start_time(period, start_time, end_time)
+        event_index = update_event_index(busy_times, event_start_time, event_index)
     return events
 
 
-def get_time_for_single_event(busy_times, duration, timeunit, start, start_time_max, event_index):
+def get_time_for_single_event(busy_times, localtz, duration, timeunit, start, start_time_max, event_index):
     end = increment_time(start, timeunit, duration)
     end_of_day = get_day_end_datetime(start)
     while (event_index < len(busy_times) and start <= start_time_max and
            conflicts(start, end, busy_times[event_index])):
+        start = parse(busy_times[event_index]['end']).astimezone(localtz)
+        end = increment_time(start, timeunit, duration)
+        event_index += 1
         if end > end_of_day:
-            start = get_next_day_start(start)
+            start = make_start_time(end_of_day)
             end = increment_time(start, timeunit, duration)
             end_of_day = get_day_end_datetime(start)
-        else:
-            start += timedelta(minutes=1)
-            end += timedelta(minutes=1)
-        if start >= parse(busy_times[event_index]['end']):
-            event_index += 1
+            event_index = update_event_index(busy_times, start, event_index)
     search_successful = start <= start_time_max
-    return search_successful, start, end, event_index
-
-
-def conflicts(start_time, end_time, existing_event):
-    event_start = parse(existing_event['start'])
-    event_end = parse(existing_event['end'])
-    return (event_start <= start_time < event_end or
-            event_start < end_time <= event_end or
-            (start_time < event_start and end_time > event_end))
-
-
-def get_day_end_datetime(day):
-    hours_to_add = ((DAY_END_TIME + HOURS_IN_DAY) - DAY_START_TIME) % HOURS_IN_DAY
-    return make_start_time(day) + timedelta(hours=hours_to_add)
+    return search_successful, start, end
 
 
 def get_number_periods(period, day):
@@ -132,6 +120,25 @@ def get_next_event_start_time(period, start_time, time_last_event_was_scheduled)
     if period == DAY: return time_last_event_was_scheduled
     elif period == WEEK: return get_next_day_start(start_time)
     elif period == MONTH: return get_next_week_start(start_time)
+
+
+def update_event_index(busy_times, event_start_time, event_index):
+    while event_index < len(busy_times) and parse(busy_times[event_index]['end']) < event_start_time:
+        event_index += 1
+    return event_index
+
+
+def get_day_end_datetime(day):
+    hours_to_add = ((DAY_END_TIME + HOURS_IN_DAY) - DAY_START_TIME) % HOURS_IN_DAY
+    return make_start_time(day) + timedelta(hours=hours_to_add)
+
+
+def conflicts(start_time, end_time, existing_event):
+    event_start = parse(existing_event['start'])
+    event_end = parse(existing_event['end'])
+    return (event_start <= start_time < event_end or
+            event_start < end_time <= event_end or
+            (start_time < event_start and end_time > event_end))
 
 
 def get_busy_times(service, start, end):
