@@ -13,6 +13,7 @@ API_VERSION = 'v3'
 
 DAY_START_TIME = 8
 DAYS_IN_WEEK = 7
+MONTHS_TO_SCHEDULE = 3
 
 
 def make_schedule(form_data):
@@ -69,14 +70,26 @@ def schedule_week(service, form_data, localtz, event_start_time, event_end_time_
                                                      event_end_time_max, event_start_time_max)
         if not events_for_single_week: return None
         else: events.extend(events_for_single_week)
-        event_start_time = get_next_sunday_start(localtz, event_start_time)
+        event_start_time = get_next_week_start(localtz, event_start_time)
         event_end_time_max = get_end_of_week(localtz, event_start_time)
         event_start_time_max = decrement_time(event_end_time_max, timeunit, duration)
     return events
 
 
 def schedule_month(service, form_data, localtz, event_start_time, event_end_time_max, event_start_time_max):
-    return map_events_to_times(service, form_data, localtz, event_start_time, event_end_time_max, event_start_time_max)
+    months_left_in_quarter = MONTHS_TO_SCHEDULE
+    timeunit = form_data['timeunit']
+    duration = int(form_data['duration'])
+    events = []
+    for i in range(months_left_in_quarter):
+        events_for_single_month = map_events_to_times(service, form_data, localtz, event_start_time,
+                                                      event_end_time_max, event_start_time_max)
+        if not events_for_single_month: return None
+        else: events.extend(events_for_single_month)
+        event_start_time = get_next_month_start(localtz, event_start_time)
+        event_end_time_max = get_end_of_month(localtz, event_start_time)
+        event_start_time_max = decrement_time(event_end_time_max, timeunit, duration)
+    return events
 
 
 def map_events_to_times(service, form_data, localtz, event_start_time, event_end_time_max, event_start_time_max):
@@ -147,7 +160,7 @@ def add_events_to_calendar(service, events):
 def update_event_start_time(period, start_time, end_time, localtz):
     if period == "DAY": return end_time
     elif period == "WEEK": return get_next_day_start(localtz, start_time)
-    elif period == "MONTH": return get_next_sunday_start(localtz, start_time)
+    elif period == "MONTH": return get_next_week_start(localtz, start_time)
 
 
 def get_local_timezone(service):
@@ -170,8 +183,12 @@ def get_next_day_start(localtz, day):
     return get_end_of_day(localtz, day) + timedelta(hours=DAY_START_TIME)
 
 
-def get_next_sunday_start(localtz, day):
+def get_next_week_start(localtz, day):
     return get_end_of_week(localtz, day) + timedelta(hours=DAY_START_TIME)
+
+
+def get_next_month_start(localtz, day):
+    return get_end_of_month(localtz, day) + timedelta(hours=DAY_START_TIME)
 
 
 def get_end_of_day(localtz, day):
@@ -215,7 +232,6 @@ def get_weeks_left_in_month(localtz, day):
 
 def get_last_sunday_in_month(localtz, day):
     end_of_month = get_end_of_month(localtz, day)
-    print(end_of_month)
     return end_of_month - timedelta(days=(end_of_month.weekday() + 1))
 
 
