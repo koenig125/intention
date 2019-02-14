@@ -43,32 +43,31 @@
 								<div class="content span-7">
 									<h2 class="major">{{ message }}</h2>
 									<form method="POST"> {% csrf_token %}
-										<p>I want to
-                                            {{ form.name }}
-                                            {{ form.frequency }} times a
-                                            {{ form.period }} for
-                                            {{ form.duration }} {{ form.timeunit }}
-                                            each time. This is a {{ form.priority }} priority.
-                                            My email is {{ form.user_email }}.
+										<p>
+                                            What do you want to accomplish? {{ form.name }}
+                                            Over what time period do you want to accomplish it? {{ form.period }}
+                                            How often do you want to do it during each time period? {{ form.frequency }}
+                                            How long do you want to devote during each session? {{form.duration}} {{ form.timeunit }}
+                                            What is your email? {{ form.user_email }}
                                         </p>
 										<button type='submit'>Schedule!</button>
 									</form>
 								</div>
 								<div class="image filtered tinted" data-position="top left">
-									<img src="images/pic02.jpg" alt="" />
+									<img src="{% static "stars.jpg" %}" alt="" style="width:1200px;height:810px;" />
 								</div>
 							</section>
 
-						<!-- Panel -->
-							<section class="panel color1" id="calendar">
-								<div class="intro joined">
-									<h2 class="major">Your Schedule.</h2>
-									<p>Here is the schedule that we generated for you! This makes sure that you are able to complete all your high-priority tasks with ease. </p>
-								</div>
-								<div class="inner">
-									<iframe src="https://calendar.google.com/calendar/embed?title=Your%20Week&amp;showPrint=0&amp;showTz=0&amp;mode=WEEK&amp;height=800&amp;wkst=1&amp;bgcolor=%23ffffff&amp;src=abbyscheduler%40gmail.com&amp;color=%231B887A&amp;ctz=America%2FLos_Angeles" style="border-width:0" width="400" height="400" frameborder="0" scrolling="no"></iframe>
-								</div>
-							</section>
+{#						<!-- Panel -->#}
+{#							<section class="panel color1" id="calendar">#}
+{#								<div class="intro joined">#}
+{#									<h2 class="major">Your Schedule.</h2>#}
+{#									<p>Here is the schedule that we generated for you! This makes sure that you are able to complete all your high-priority tasks with ease. </p>#}
+{#								</div>#}
+{#								<div class="inner">#}
+{#									<iframe src="https://calendar.google.com/calendar/embed?title=Your%20Week&amp;showPrint=0&amp;showTz=0&amp;mode=WEEK&amp;height=800&amp;wkst=1&amp;bgcolor=%23ffffff&amp;src=abbyscheduler%40gmail.com&amp;color=%231B887A&amp;ctz=America%2FLos_Angeles" style="border-width:0" width="400" height="400" frameborder="0" scrolling="no"></iframe>#}
+{#								</div>#}
+{#							</section>#}
 				
 						<!-- Panel (Spotlight) -->
 							<!-- <section class="panel spotlight large left">

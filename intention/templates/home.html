@@ -7,13 +7,12 @@
         <h1>Intention App</h1>
         <p>{{ message }}</p>
         <form action="" method="POST"> {% csrf_token %}
-                <p>I want to 
-                    {{ form.name }}
-                    {{ form.frequency }} times a
-                    {{ form.period }} for
-                    {{ form.duration }} {{ form.timeunit }}
-                    each time. This is a {{ form.priority }} priority.
-                    My email is {{ form.user_email }}.
+                <p>
+                    What do you want to accomplish? {{ form.name }}
+                    Over what time period do you want to accomplish it? {{ form.period }}
+                    How often do you want to do it during each time period? {{ form.frequency }}
+                    How long do you want to devote during each session? {{form.duration}} {{ form.timeunit }}
+                    What is your email? {{ form.user_email }}
                 </p>
                 <button type='submit'>Schedule!</button>
             </form>
