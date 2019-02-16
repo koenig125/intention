@@ -44,7 +44,7 @@ def get_credentials():
 
 
 def schedule_events_for_multiple_periods(form_data, service):
-    name, frequency, period, duration, timeunit = unpack_form(form_data)
+    name, frequency, period, duration, timeunit, timerange = unpack_form(form_data)
     localtz = get_local_timezone(service)
     period_start_time = get_next_day_start(datetime.now(localtz))
     period_end_time = get_period_end_time(period, period_start_time)
@@ -65,7 +65,7 @@ def schedule_events_for_multiple_periods(form_data, service):
 
 def schedule_events_for_single_period(service, form_data, localtz, period_start_time,
                                       period_end_time, event_start_time_max):
-    name, frequency, period, duration, timeunit = unpack_form(form_data)
+    name, frequency, period, duration, timeunit, timerange = unpack_form(form_data)
     busy_times = get_busy_times(service, period_start_time, period_end_time)
     event_start_time = period_start_time
     event_index = 0
@@ -248,4 +248,5 @@ def unpack_form(form_data):
     period = form_data['period']
     duration = int(form_data['duration'])
     timeunit = form_data['timeunit']
-    return name, frequency, period, duration, timeunit
+    timerange = form_data['timerange']
+    return name, frequency, period, duration, timeunit, timerange
