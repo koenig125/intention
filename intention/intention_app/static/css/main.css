@@ -672,7 +672,7 @@ input, select, textarea {
 		background-size: 1.25rem;
 		background-repeat: no-repeat;
 		background-position: calc(100% - 1rem) center;
-		height: 2.5rem;
+		/* height: 2.5rem; */
 		padding-right: 2.5rem;
 		text-overflow: ellipsis;
 	}
@@ -694,7 +694,7 @@ input, select, textarea {
 	input[type="password"],
 	input[type="email"],
 	select {
-		height: 2.5rem;
+		/* height: 2.5rem; */
 	}
 
 	textarea {
