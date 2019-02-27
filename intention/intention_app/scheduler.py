@@ -1,10 +1,10 @@
 from __future__ import print_function
 from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 from pytz import timezone
 from calendar import monthrange
+from schedule_utils import *
 
 # Authentication information
 CREDENTIALS_FILE = 'credentials.json'
@@ -40,14 +40,6 @@ def make_schedule(form_data):
     if not events: return False
     add_events_to_calendar(service, events)
     return True
-
-
-def get_credentials():
-    flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_FILE, SCOPES)
-    creds = flow.run_local_server()
-    service = build(API_SERVICE_NAME, API_VERSION, credentials=creds)
-    return service
-
 
 def schedule_events_for_multiple_periods(form_data, service):
     name, frequency, period, duration, timeunit, timerange = unpack_form(form_data)
@@ -196,12 +188,6 @@ def create_event(name, start_time, end_time):
 def add_events_to_calendar(service, events):
     for event in events:
         service.events().insert(calendarId='primary', body=event).execute()
-
-
-def get_local_timezone(service):
-    calendar = service.calendars().get(calendarId='primary').execute()
-    timezone_name = calendar['timeZone']
-    return timezone(timezone_name)
 
 
 def increment_time(day, timeunit, duration):
