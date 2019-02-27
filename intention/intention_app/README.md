@@ -22,3 +22,5 @@ Outside of the scheduling module, the application also communicates with Google 
 The components of the application described above come together as represented in the architecture diagram below:
 
 <img src="https://github.com/StanfordCS194/Team-5/blob/master/team-photos/architecture-diagram.jpg" width="800">
+
+We have sketched out the front end flow and design on figma. You can check out our prototype here: https://www.figma.com/file/d5jsjBeO4UWY6lmy3op35G2S/CozyCo?node-id=0%3A1
