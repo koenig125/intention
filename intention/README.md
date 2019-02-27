@@ -37,3 +37,8 @@ Any application that calls Google APIs needs to set up a Google project appropri
 ### Run Application Locally
 1. In the "CozyCo/intention" directory, run manage.py runserver 8000.
 2. Navigate to http://127.0.0.1:8000/ in your browser to access the application.
+
+
+## Application Architecture
+
+<img src="https://github.com/StanfordCS194/Team-5/blob/master/team-photos/simple-site-flow.jpg" width="800">
