@@ -70,51 +70,11 @@
 
 				<!-- Schedule -->
 					<section id="one" class="wrapper fullscreen style3 fade-up">
+							<h2>make an intentional goal.</h2>
 						<section>
-								<div class="inner">
-										<h2>make an intentional goal.</h2>
-								</div>
-								<form method="POST"> {% csrf_token %}
-										<form method="post" novalidate>
-												{% csrf_token %}
-											  
-												{{ form.non_field_errors }}
-											  
-												{{ form.source.errors }}
-												{{ form.source }}
-											  
-												<table border="1">
-											  
-													<tr>
-													  <th>{{ form.name.label_tag }}</th>
-													  <td>
-														{{ form.name.errors }}
-														{{ form.name }}
-													  </td>
-													</tr>
-											  
-													<tr>
-													  <th>{{ form.duration.label_tag }}</th>
-													  <td>
-														{{ form.duration.errors }}
-														{{ form.duration }}
-													  </td>
-													</tr>
-											  
-													<tr>
-													  <th>{{ form.email.label_tag }}</th>
-													  <td>
-														{{ form.email.errors }}
-														{{ form.email }}
-														<br />
-														{{ form.email.help_text }}
-													  </td>
-													</tr>
-											  
-												</table>
-											  
-												<button type="submit">Submit</button>
-											  </form>
+								{% load crispy_forms_tags %}
+								{% crispy form %}
+								<button type='submit'>Schedule!</button>
 						</section>	 
 					</section> 
 

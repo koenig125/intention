@@ -1,6 +1,6 @@
 from django.db import models
 
-PERIOD_CHOICES = (('DAY', 'daily'), ('WEEK', 'weekly'), ('MONTH', 'monthly'),)
+PERIOD_CHOICES = (('DAY', 'day'), ('WEEK', 'week'), ('MONTH', 'month'),)
 TIMEUNIT_CHOICES = (('HOURS', 'hours'), ('MINUTES', 'minutes'),)
 TIMERANGE_CHOICES = (('ANYTIME', 'anytime'), ('MORNING', 'morning'), ('AFTERNOON', 'afternoon'), ('EVENING', 'evening'))
 
