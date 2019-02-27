@@ -15,12 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from intention_app.views import homepage_view, schedule_view
+from intention_app.views import homepage_view, schedule_or_reschedule_view, calendar_view
 from django.conf.urls import url
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', homepage_view, name='homepage'),
-    path('schedule', schedule_view, name='schedule_view'),
-     url(r'', homepage_view, name="homepage"),
+    path('choose', schedule_or_reschedule_view, name='schedule_or_reschedule_view'),
+    path('calendar', calendar_view, name='calendar_view'),
+    url(r'', homepage_view, name="homepage"),
 ]
