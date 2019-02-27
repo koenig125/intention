@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from .forms import scheduleForm
 from .scheduler import make_schedule
+from .rescheduler import reschedule
 
 # Renders the Intention App homepage
 def homepage_view(request):

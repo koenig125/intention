@@ -6,7 +6,7 @@ from dateutil.parser import parse
 from pytz import timezone
 from calendar import monthrange
 
-from .scheduler import *
+from .schedule_utils import *
 
 # Authentication information
 CREDENTIALS_FILE = 'credentials.json'
