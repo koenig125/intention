@@ -40,12 +40,14 @@ def homepage_view(request):
         }
     return HttpResponse(template.render(context, request))
 
+# A view that will allow people to choose if they want to schedule or reschedule a goal.
+def schedule_or_reschedule_view(request):
+    template = loader.get_template('schedule_or_reschedule.html')
+    context = {'form': (scheduleForm())}
+    return render(request, 'schedule_or_reschedule.html', context=context)
+
 # A view that will allow people to view their updated calendar schedule.
-def schedule_view(request):
-    print(request.session.get('user_email'))
-    template = loader.get_template('schedule.html')
-    context = {
-        'message': 'Here is your new calendar!',
-        'user_email': request.session.get('user_email')
-    }
-    return HttpResponse(template.render(context, request))
+def calendar_view(request):
+    template = loader.get_template('calendar.html')
+    context = {}
+    return render(request, 'calendar.html', context=context)

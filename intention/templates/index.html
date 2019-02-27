@@ -41,85 +41,42 @@
 							</div>
 	
 							<p>let's live today with <b>intention</b>.</p>
-								<a href="#one" class="button scrolly">log in with Google</a>
+								<a href="{% url 'schedule_or_reschedule_view' %}" class="button scrolly">log in with Google</a>
 						</div>
 					</section>
 
 				<!-- Redschedule or Schedule -->
-				<section id="two" class="wrapper fullscreen style2 fade-up">
+				<!-- <section id="two" class="wrapper fullscreen style2 fade-up">
 					<div class="inner">
 						<h2>Choose an Option</h2>
 						<p>Phasellus convallis elit id ullamcorper pulvinar. Duis aliquam turpis mauris, eu ultricies erat malesuada quis. Aliquam dapibus, lacus eget hendrerit bibendum, urna est aliquam sem, sit amet imperdiet est velit quis lorem.</p>
 						<div class="features">
-							<section>
-								<!-- <span class="icon major fa-redo"></span> -->
-								<div class="icon major fa-clock-o"></div>
-								<!-- <h3>schedule goal</h3> -->
-								<a href="#three" class="button scrolly">schedule goal</a>
+							<section> -->
+								<!-- <div class="icon major fa-clock-o"></div>
+								<a href="#three" class="button scrolly">schedule goal</a> -->
 								<!-- <p>Phasellus convallis elit id ullam corper amet et pulvinar. Duis aliquam turpis mauris, sed ultricies erat dapibus.</p> -->
-							</section>
-							<section>
-								<span class="icon major fa-redo"></span>
-								<!-- <h3>reschedule tasks</h3> -->
-								<a href="#four" class="button scrolly">reschedule tasks</a>
+							<!-- </section>
+							<section> -->
+								<!-- <span class="icon major fa-redo"></span>
+								<a href="#four" class="button scrolly">reschedule tasks</a> -->
 								<!-- <p>Phasellus convallis elit id ullam corper amet et pulvinar. Duis aliquam turpis mauris, sed ultricies erat dapibus.</p> -->
-							</section>
+							<!-- </section>
 						</div>
 					</div>
-				</section>
+				</section> -->
 
 				<!-- Schedule -->
-					<section id="one" class="wrapper fullscreen style3 fade-up">
-						<section>
-								<div class="inner">
-										<h2>make an intentional goal.</h2>
-								</div>
-								<form method="POST"> {% csrf_token %}
-										<form method="post" novalidate>
-												{% csrf_token %}
-											  
-												{{ form.non_field_errors }}
-											  
-												{{ form.source.errors }}
-												{{ form.source }}
-											  
-												<table border="1">
-											  
-													<tr>
-													  <th>{{ form.name.label_tag }}</th>
-													  <td>
-														{{ form.name.errors }}
-														{{ form.name }}
-													  </td>
-													</tr>
-											  
-													<tr>
-													  <th>{{ form.duration.label_tag }}</th>
-													  <td>
-														{{ form.duration.errors }}
-														{{ form.duration }}
-													  </td>
-													</tr>
-											  
-													<tr>
-													  <th>{{ form.email.label_tag }}</th>
-													  <td>
-														{{ form.email.errors }}
-														{{ form.email }}
-														<br />
-														{{ form.email.help_text }}
-													  </td>
-													</tr>
-											  
-												</table>
-											  
-												<button type="submit">Submit</button>
-											  </form>
-						</section>	 
-					</section> 
+					<!-- <section id="one" class="wrapper fullscreen style3 fade-up"><br><br><br>
+							<h2 class="formtitle">make an <strong>intentional</strong> goal.</h2>
+						<div class="formstyle">
+								{% load crispy_forms_tags %}
+								{% crispy form %}
+								<button id="form_button" type='submit'>schedule</button>
+						</div>	 
+					</section>  -->
 
 				<!-- Calendar Page -->
-				<section id="calendar" class="wrapper style1 fullscreen fade-up">
+				<!-- <section id="calendar" class="wrapper style1 fullscreen fade-up">
 					<h1>Your Schedule</h1>
 					<!-- <a href="{% url 'homepage' %}" class="button displayed">Add Another Goal</a> -->
 					<!-- <section> -->
@@ -131,7 +88,7 @@
 					<div class="responsive">
 						<iframe src="https://calendar.google.com/calendar/embed?title=Your%20Week&amp;showPrint=0&amp;showTz=0&amp;mode=WEEK&amp;height=800&amp;wkst=1&amp;bgcolor=%23ffffff&amp;src={{user_email}}&amp;color=%231B887A&amp;ctz=America%2FLos_Angeles" style="border-width:0" width="800" height="400" frameborder="0" scrolling="no"></iframe>
 					</div>
-				</section>
+				</section> -->
 
 
 
