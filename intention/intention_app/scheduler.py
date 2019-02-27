@@ -7,40 +7,13 @@ from pytz import timezone
 from calendar import monthrange
 from .schedule_utils import *
 
-# Authentication information
-CREDENTIALS_FILE = 'credentials.json'
-SCOPES = ['https://www.googleapis.com/auth/calendar']
-API_SERVICE_NAME = 'calendar'
-API_VERSION = 'v3'
-
-# Basic time constants
-HOURS_IN_DAY = 24
-DAYS_IN_WEEK = 7
-
-# Arbitrary limit on the number of months scheduled when period is months.
-MONTHS_TO_SCHEDULE = 3
-
-# Bounding hours between which events can be scheduled each day
-DAY_START_TIME = 8
-DAY_END_TIME = 1
-
-# Periods, timeunits, & timeranges
-DAY, WEEK, MONTH = "DAY", "WEEK", "MONTH"
-HOURS, MINUTES = "HOURS", "MINUTES"
-MORNING, AFTERNOON, EVENING = "MORNING", "AFTERNOON", "EVENING"
-
-# Timerange hours
-MORNING_HOURS = {'start': DAY_START_TIME, 'end': 12}
-AFTERNOON_HOURS = {'start': 12, 'end': 18}
-EVENING_HOURS = {'start': 18, 'end': DAY_END_TIME}
-
-
 def make_schedule(form_data):
     service = get_credentials()
     events = schedule_events_for_multiple_periods(form_data, service)
     if not events: return False
     add_events_to_calendar(service, events)
     return True
+
 
 def schedule_events_for_multiple_periods(form_data, service):
     name, frequency, period, duration, timeunit, timerange = unpack_form(form_data)

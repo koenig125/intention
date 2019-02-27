@@ -8,14 +8,9 @@ from calendar import monthrange
 
 from .schedule_utils import *
 
-# Authentication information
-CREDENTIALS_FILE = 'credentials.json'
-SCOPES = ['https://www.googleapis.com/auth/calendar']
-API_SERVICE_NAME = 'calendar'
-API_VERSION = 'v3'
-
 def reschedule(form_data):
     service = get_credentials()
+    # TODO: implement this
     return True
 
 
