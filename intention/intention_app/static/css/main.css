@@ -32,6 +32,10 @@ article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
 	display: block;}
 
+div.formstyle {
+  margin-top: 120px;
+}
+
 body {
 	line-height: 1;
 }
@@ -233,7 +237,10 @@ input, select, textarea {
 			}
 
 	h2 {
-		font-size: 1.75em;
+		font-size: 2.75em;
+	}
+	h2.formtitle {
+		color: white;
 	}
 
 	h3 {
@@ -252,6 +259,9 @@ input, select, textarea {
 		font-size: 0.6em;
 	}
 
+	#form_button{
+		margin-top: 100px;
+	}
 	@media screen and (max-width: 736px) {
 
 		h1 {
@@ -2320,11 +2330,17 @@ input, select, textarea {
 	label {
 		color: #ffffff;
 		font-weight: bold;
-		line-height: 1.5;
-		margin: 0 0 0.7em 0;
+		line-height: 2.2;
 		display: block;
-		/* margin-left: 0.5px; */
 		font-size: 3.1em;
+	}
+	label.form_label{
+		margin-left: 25px;
+		padding-left: 3px;
+	}
+	label.form_punctuation{
+		margin-left: 10px;
+		padding-left: 3px;
 	}
 
 	input[type="text"],

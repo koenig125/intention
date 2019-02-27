@@ -20,16 +20,21 @@ class scheduleForm(forms.ModelForm):
 
         self.helper.layout = Layout(
         Div(
-            HTML("<label> I want to</label>"),
-            Div('name', css_class="col-sm-2"),
-            HTML("<label> for </label> "),
+            HTML("<label> I want to </label>"),
+            Div('name', css_class="col-xs-6"),
+            HTML("<label class=\"form_label\"> for </label> "),
             Div('duration', css_class="col-sm-2"),
             Div('timeunit', css_class="col-sm-2"),
-            HTML("<label> a </label>"),
+            HTML("<label class=\"form_label\"> a </label>"),
             Div('period', css_class="col-sm-2"),
-            HTML("<label> I would like to do this (in the) </label>"),
+            HTML("<label class=\"form_punctuation\">.</label>"),
+            css_class='row',
+        ),
+
+         Div(
+            HTML("<label> I prefer to do this in the  </label>"),
             Div('timerange', css_class="col-sm-2"),
-            HTML("<br>"),
+            HTML("<label class=\"form_punctuation\">.</label>"),
             css_class='row',
         )
     )
