@@ -1,10 +1,12 @@
+"""A module that intelligently schedules new events.
+
+Scheduler.py retrieves a user's Google Calendar via the Google
+Oauth process and uses this calendar to determine when to schedule
+new events on behalf of the user. The only function exported by
+this module is make_schedule - all other functions are private.
+"""
+
 from __future__ import print_function
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from datetime import datetime, timedelta
-from dateutil.parser import parse
-from pytz import timezone
-from calendar import monthrange
 from .schedule_utils import *
 
 def make_schedule(form_data):
@@ -16,6 +18,18 @@ def make_schedule(form_data):
 
 
 def schedule_events_for_multiple_periods(form_data, service):
+    """Coordinates event scheduling over multiple periods of time.
+
+    This function coordinates scheduling efforts over multiple periods, a period
+    being one of a day, week, or month. If period is day, schedules events daily
+    until the end of the week. If week, schedules events weekly until the 2nd to
+    last week of the current month. If month, schedules events monthly for the
+    current month and 2 months further.
+
+    :param form_data: Data from user detailing when and what to schedule.
+    :param service: Object through which Google API calls are made.
+    :return: List of events in json format to add to user calendar.
+    """
     name, frequency, period, duration, timeunit, timerange = unpack_form(form_data)
     localtz = get_local_timezone(service)
     period_start_time = get_first_available_time(datetime.now(localtz), timerange)
@@ -38,6 +52,21 @@ def schedule_events_for_multiple_periods(form_data, service):
 
 def schedule_events_for_single_period(service, form_data, localtz, period_start_time,
                                       period_end_time, event_start_time_max):
+    """Coordinates event scheduling over single period of time.
+
+    This function schedules a set number of events in a single period of time,
+    a period being one of a day, week, or month. THe number of events is set
+    by the frequency parameter provided by the user in the form_data object.
+
+    :param service: Object through which Google API calls are made.
+    :param form_data: Data from user detailing when and what to schedule.
+    :param localtz: Object representing the local timezone of the user.
+    :param period_start_time: Start time of period to be scheduled.
+    :param period_end_time: End time of period to be scheduled.
+    :param event_start_time_max: Last possible start time an event could be
+    scheduled in the period between period_start_time and period_end_time.
+    :return: List of events in json format to add to user calendar.
+    """
     name, frequency, period, duration, timeunit, timerange = unpack_form(form_data)
     range_start, range_end = get_desired_time_range(period_start_time, timerange)
     busy_times = get_busy_times(service, period_start_time, period_end_time)
@@ -58,6 +87,21 @@ def schedule_events_for_single_period(service, form_data, localtz, period_start_
 
 def find_time_for_single_event(busy_times, localtz, duration, timeunit, range_start,
                                range_end, event_start, max_start_time, event_index):
+    """Searches a user's calendar for free time to create new event.
+
+    :param busy_times: List of chunks of times on user's calendar that have existing events.
+    :param localtz: Object representing the local timezone of the user.
+    :param duration: Length of the event as specified by user.
+    :param timeunit: Hours or minutes unit, specified by user.
+    :param range_start: Start time in day in which events can be scheduled.
+    :param range_end: End time in day in which events can be scheduled.
+    :param event_start: Proposed start time of event.
+    :param max_start_time: Last possible start time an event could be
+    scheduled in the period between period_start_time and period_end_time.
+    :param event_index: Index to track location in busy_times listing.
+    :return: Flag for whether or not time was found, along with the start
+    and end time of the new event to be added to the user calendar if so.
+    """
     busy_start, busy_end = get_busy_time_range(busy_times, event_index, localtz)
     event_end = increment_time(event_start, timeunit, duration)
     while (event_index < len(busy_times) and event_start <= max_start_time and
