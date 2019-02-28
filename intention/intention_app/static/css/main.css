@@ -59,6 +59,14 @@ form {
 	width: 70%;	
 }
 
+.inline {
+	display: inline-block;
+}
+
+.tasks {
+	background-color: #E09C19;
+}
+
 table {
 	border-collapse: collapse;
 	border-spacing: 0;
@@ -3290,6 +3298,22 @@ input, select, textarea {
 		}
 
 		.wrapper.fullscreen {
+			display: -moz-flex;
+			display: -webkit-flex;
+			display: -ms-flex;
+			display: flex;
+			-moz-flex-direction: column;
+			-webkit-flex-direction: column;
+			-ms-flex-direction: column;
+			flex-direction: column;
+			-moz-justify-content: center;
+			-webkit-justify-content: center;
+			-ms-justify-content: center;
+			justify-content: center;
+			min-height: 100vh;
+		}
+
+		.wrapper-reschedule.fullscreen-reschedule {
 			display: -moz-flex;
 			display: -webkit-flex;
 			display: -ms-flex;
