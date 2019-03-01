@@ -29,29 +29,32 @@
     </section>
 
     <!-- Schedule -->
-        <section id="schedule_goal" class="wrapper fullscreen style3 fade-up"><br><br><br>
-                <h2 class="formtitle">make an <strong>intentional</strong> goal.</h2>
+        <section id="schedule_goal" class="wrapper fullscreen style3 fade-up">
+                <!-- <h2 class="formtitle">make an <strong>intentional</strong> goal.</h2> -->
             <div class="formstyle">
-                    {% load crispy_forms_tags %}
-                    {% crispy form %}
-                    <a href="{% url 'calendar_view'%}" class="button scrolly">schedule</a>
+                    <h2 class="form_title">make an <strong>intentional</strong> goal.</h2>
+                    <form method="POST"> {% csrf_token %}
+                      {% load crispy_forms_tags %}
+                      {% crispy form %}
+                    <br>
+                    <br>
+                    <button class="form_button" type='submit'>schedule</button>
+                </form>
             </div>	 
         </section> 
 
     <!-- Reschedule -->
     <section id="reschedule" class="wrapper fullscreen style2 fade-up">
-        <h2>select tasks to reschedule.</h2>
-        <!-- <section> -->
-        <div class="inline">
-            <div class="tasks">Today's Tasks</div>
-            <div class="tasks">Today's Tasks #2</div>
+        <br><br>
+        <h2>select tasks to reschedule</h2>
+        <div class="flex_container">
+            <div class="task_container">
+                HERE  
+            </div> 
+            <div class="button_container">
+                <a href="#schedule_goal" class="button reschedule">later today</a>
+                <a href="#four" class="button reschedule">later this week</a> 
+            </div> 
         </div>
-        <!-- </section> -->
-        <!-- <section> -->
-        <div class="inline">
-            <a href="#schedule_goal" class="button inline">later today</a>
-            <a href="#four" class="button inline">later this week</a>
-        </div>
-        <!-- </section> -->
 
     </section> 

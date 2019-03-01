@@ -5,12 +5,11 @@ from .forms import scheduleForm
 from .scheduler import make_schedule
 
 # Renders the Intention App homepage
-def homepage_view(request):
-    template = loader.get_template('index.html')
-    context = {}
+def schedule_or_reschedule_view(request):
+    template = loader.get_template('schedule_or_reschedule.html')
+    form = scheduleForm()
     if request.method == "POST":
         form = scheduleForm(request.POST)
-        print(form.errors)
         if form.is_valid():
             form_data = {}
             form_data['name'] = request.POST['name']
@@ -19,9 +18,7 @@ def homepage_view(request):
             form_data['duration'] = request.POST['duration']
             form_data['timeunit'] = request.POST['timeunit']
             form_data['timerange'] = request.POST['timerange']
-            form_data['user_email'] = request.POST['user_email']
             success = make_schedule(form_data)
-
             if not success: # Couldn't schedule user's request.
                 form = scheduleForm()
                 context = {
@@ -30,24 +27,23 @@ def homepage_view(request):
                 }
                 return HttpResponse(template.render(context, request))
             else:
-                request.session['user_email'] = request.POST['user_email']
-                return HttpResponseRedirect('schedule')
+                return HttpResponseRedirect('calendar')
     else:
-        form = scheduleForm()
-        context = {
-          'message': 'What do you want to accomplish?',
-          'form': form,
-        }
+       context = {
+         'form' :form,
+         'message': 'What do you want to accomplish?',
+      }
     return HttpResponse(template.render(context, request))
 
 # A view that will allow people to choose if they want to schedule or reschedule a goal.
-def schedule_or_reschedule_view(request):
-    template = loader.get_template('schedule_or_reschedule.html')
-    context = {'form': (scheduleForm())}
-    return render(request, 'schedule_or_reschedule.html', context=context)
+def homepage_view(request):
+    template = loader.get_template('index.html')
+    context = {}
+    return render(request, 'index.html', context=context)
 
 # A view that will allow people to view their updated calendar schedule.
 def calendar_view(request):
     template = loader.get_template('calendar.html')
     context = {}
     return render(request, 'calendar.html', context=context)
+    # A view that will allow people to view their updated calendar schedule.

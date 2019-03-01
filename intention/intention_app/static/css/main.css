@@ -36,6 +36,32 @@ div.formstyle {
   margin-top: 120px;
 }
 
+.flex_container{
+	display:flex;
+	height: 80%;
+	flex-direction: horizontal
+}
+
+.task_container{
+	display:flex;
+	flex-direction: column;
+	overflow: auto;
+	margin-left: 3%;
+	margin-bottom: 1%;
+	width: 30%;
+	line-height:700px;
+    height:700px;
+	background: #E09C19;
+	border-radius: 45px;
+	
+}
+.button_container{
+	display:flex;
+	flex-direction: column;
+	margin-right: 1%;
+	width: 70%;
+}
+
 body {
 	line-height: 1;
 }
@@ -56,15 +82,6 @@ blockquote, q {
 form {
 	display: block !important;
 	height: auto;
-	width: 70%;	
-}
-
-.inline {
-	display: inline-block;
-}
-
-.tasks {
-	background-color: #E09C19;
 }
 
 table {
@@ -160,7 +177,7 @@ input, select, textarea {
 
 		}
 
-		@media screen and (max-width: 1280px) {
+		@media screen and (max-width: 1600px) {
 
 			body, input, select, textarea {
 				font-size: 12pt;
@@ -367,11 +384,11 @@ input, select, textarea {
 
 	.row {
 		display: flex;
-		flex-wrap: wrap;
+		flex-wrap: nowrap;
 		box-sizing: border-box;
 		align-items: stretch;
 	}
-
+	
 		.row > * {
 			box-sizing: border-box;
 		}
@@ -557,7 +574,7 @@ input, select, textarea {
 
 		.row {
 			margin-top: 0;
-			margin-left: -1.5em;
+			width: 2000px;
 		}
 
 			.row > * {
@@ -606,11 +623,11 @@ input, select, textarea {
 					padding-top: 3em;
 				}
 
-		@media screen and (max-width: 1680px) {
+		@media screen and (max-width: 2000px) {
 
 			.row {
 				display: flex;
-				flex-wrap: wrap;
+				flex-wrap: nowrap;
 				box-sizing: border-box;
 				align-items: stretch;
 			}
@@ -851,11 +868,11 @@ input, select, textarea {
 
 		}
 
-		@media screen and (max-width: 1280px) {
+		@media screen and (max-width: 2000px) {
 
 			.row {
 				display: flex;
-				flex-wrap: wrap;
+				flex-wrap: nowrap;
 				box-sizing: border-box;
 				align-items: stretch;
 			}
@@ -1096,11 +1113,11 @@ input, select, textarea {
 
 		}
 
-		@media screen and (max-width: 980px) {
+		@media screen and (max-width: 2000px) {
 
 			.row {
 				display: flex;
-				flex-wrap: wrap;
+				flex-wrap: nowrap;
 				box-sizing: border-box;
 				align-items: stretch;
 			}
@@ -1341,7 +1358,7 @@ input, select, textarea {
 
 		}
 
-		@media screen and (max-width: 736px) {
+		@media screen and (max-width: 1500px) {
 
 			.row {
 				display: flex;
@@ -1590,7 +1607,7 @@ input, select, textarea {
 
 			.row {
 				display: flex;
-				flex-wrap: wrap;
+				flex-wrap: nowrap;
 				box-sizing: border-box;
 				align-items: stretch;
 			}
@@ -1892,7 +1909,13 @@ input, select, textarea {
 		white-space: nowrap;
 		width: 20em;
 	}
-
+	.button.reschedule{
+		margin-top: 10%;
+		margin-bottom: 10%;
+	}
+	.form_button{
+		position: center;
+	}
 		input[type="submit"]:after,
 		input[type="reset"]:after,
 		input[type="button"]:after,
@@ -2267,6 +2290,10 @@ input, select, textarea {
 		margin: 0 0 2em 0;
 	}
 
+		.form_title {
+			padding-bottom: 4%;
+			color: white;
+		}
 		form > :last-child {
 			margin-bottom: 0;
 		}
@@ -2279,7 +2306,7 @@ input, select, textarea {
 			-moz-flex-wrap: wrap;
 			-webkit-flex-wrap: wrap;
 			-ms-flex-wrap: wrap;
-			flex-wrap: wrap;
+			flex-wrap: nowrap;
 			width: calc(100% + 3em);
 			margin: -1.5em 0 2em -1.5em;
 		}
@@ -2296,7 +2323,7 @@ input, select, textarea {
 				padding: 1.5em 0 0 1.5em;
 				width: calc(100% - 1.5em);
 			}
-
+				
 				form > .fields > .field.half {
 					width: calc(50% - 0.75em);
 				}
@@ -2343,12 +2370,12 @@ input, select, textarea {
 		font-size: 3.1em;
 	}
 	label.form_label{
-		margin-left: 25px;
+		margin-left: 20px;
 		padding-left: 3px;
 	}
 	label.form_punctuation{
 		margin-left: 10px;
-		padding-left: 3px;
+		padding-left:3px;
 	}
 
 	input[type="text"],
@@ -3298,22 +3325,6 @@ input, select, textarea {
 		}
 
 		.wrapper.fullscreen {
-			display: -moz-flex;
-			display: -webkit-flex;
-			display: -ms-flex;
-			display: flex;
-			-moz-flex-direction: column;
-			-webkit-flex-direction: column;
-			-ms-flex-direction: column;
-			flex-direction: column;
-			-moz-justify-content: center;
-			-webkit-justify-content: center;
-			-ms-justify-content: center;
-			justify-content: center;
-			min-height: 100vh;
-		}
-
-		.wrapper-reschedule.fullscreen-reschedule {
 			display: -moz-flex;
 			display: -webkit-flex;
 			display: -ms-flex;

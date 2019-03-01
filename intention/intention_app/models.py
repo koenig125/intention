@@ -12,4 +12,4 @@ class Schedule(models.Model):
     duration = models.IntegerField(choices = [(x, x) for x in range(1, 61)], default = 1)
     timeunit = models.CharField(max_length=200, choices = TIMEUNIT_CHOICES, default="HOURS")
     timerange = models.CharField(max_length=200, choices = TIMERANGE_CHOICES, default="MORNING")
-    user_email = models.CharField(max_length=200, null=True)
+

@@ -4,7 +4,7 @@ from .models import Schedule
 from crispy_forms.helper import FormHelper
 from crispy_forms import layout, bootstrap
 from crispy_forms.bootstrap import InlineField, FormActions, StrictButton, Div
-from crispy_forms.layout import Layout, HTML, MultiField
+from crispy_forms.layout import Layout, HTML, Submit
 from crispy_forms import bootstrap, layout
 
 class scheduleForm(forms.ModelForm):
@@ -22,12 +22,13 @@ class scheduleForm(forms.ModelForm):
         Div(
             HTML("<label> I want to </label>"),
             Div('name', css_class="col-xs-6"),
-            HTML("<label class=\"form_label\"> for </label> "),
-            Div('duration', css_class="col-sm-2"),
-            Div('timeunit', css_class="col-sm-2"),
-            HTML("<label class=\"form_label\"> a </label>"),
+            Div('frequency', css_class="col-sm-2"),
+            HTML("<label class=\"form_label\"> times a </label>"),
             Div('period', css_class="col-sm-2"),
-            HTML("<label class=\"form_punctuation\">.</label>"),
+            HTML("<label class=\"form_punctuation\"> for </label>"),
+            Div('duration', css_class="col-xs-6"),
+            Div('timeunit', css_class="col-xs-6"),
+            HTML("<label class=\"form_label\">.</label>"),
             css_class='row',
         ),
 
@@ -39,10 +40,7 @@ class scheduleForm(forms.ModelForm):
         )
     )
 
-        
-    
-
     class Meta:
       model = Schedule
-      fields = ('name', 'frequency', 'period', 'duration', 'timeunit', 'timerange', 'user_email')
+      fields = ('name', 'frequency', 'period', 'duration', 'timeunit', 'timerange')
     
