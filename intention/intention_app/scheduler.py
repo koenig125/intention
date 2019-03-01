@@ -8,6 +8,7 @@ this module is make_schedule - all other functions are private.
 
 from __future__ import print_function
 from .schedule_utils import *
+from datetime import datetime
 
 def make_schedule(form_data):
     service = get_credentials()
@@ -36,7 +37,7 @@ def schedule_events_for_multiple_periods(form_data, service):
     period_end_time = get_period_end_time(period, timerange, datetime.now(localtz))
     if period_start_time > period_end_time: return None # Triggered when can't schedule event by end of current day/week
     event_start_time_max = decrement_time(period_end_time, timeunit, duration)
-    num_periods = get_number_periods(period, period_start_time)
+    num_periods = get_number_periods(period, period_start_time, localtz)
 
     events = []
     for i in range(num_periods):
@@ -44,8 +45,8 @@ def schedule_events_for_multiple_periods(form_data, service):
                                                                      period_end_time, event_start_time_max)
         if not events_for_single_period: return None
         else: events.extend(events_for_single_period)
-        period_start_time = get_next_period_start_time(period, timerange, period_start_time)
-        period_end_time = get_period_end_time(period, timerange, period_start_time)
+        period_start_time = get_next_period_start_time(period, timerange, period_start_time, localtz)
+        period_end_time = get_period_end_time(period, timerange, period_start_time, localtz)
         event_start_time_max = decrement_time(period_end_time, timeunit, duration)
     return events
 
@@ -79,7 +80,7 @@ def schedule_events_for_single_period(service, form_data, localtz, period_start_
                                                         range_end, event_start_time, event_start_time_max, event_index)
         if not success: return None
         events.append(create_event(name, start_time, end_time))
-        event_start_time = get_next_event_start_time(period, timerange, start_time, end_time)
+        event_start_time = get_next_event_start_time(period, timerange, start_time, end_time, localtz)
         if period != DAY: range_start, range_end = get_desired_time_range(event_start_time, timerange)
         event_index = update_event_index(busy_times, event_start_time, event_index)
     return events

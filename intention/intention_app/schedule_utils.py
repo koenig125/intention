@@ -1,7 +1,7 @@
 from __future__ import print_function
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
-from datetime import datetime, timedelta
+from datetime import timedelta
 from dateutil.parser import parse
 from pytz import timezone
 from calendar import monthrange
@@ -33,6 +33,9 @@ MORNING_HOURS = {'start': DAY_START_TIME, 'end': 12}
 AFTERNOON_HOURS = {'start': 12, 'end': 18}
 EVENING_HOURS = {'start': 18, 'end': DAY_END_TIME}
 
+# Timezones
+utc = timezone('UTC')
+
 def get_credentials():
     flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_FILE, SCOPES)
     creds = flow.run_local_server()
@@ -47,28 +50,28 @@ def get_first_available_time(now, timerange):
     else: return next_hour
 
 
-def get_number_periods(period, day):
+def get_number_periods(period, day, localtz):
     if period == DAY: return get_days_left_in_week(day)
-    elif period == WEEK: return get_weeks_left_in_month(day)
+    elif period == WEEK: return get_weeks_left_in_month(day, localtz)
     elif period == MONTH: return MONTHS_TO_SCHEDULE
 
 
-def get_next_period_start_time(period, timerange, period_start_time):
-    if period == DAY: return get_start_of_next_day(period_start_time, timerange)
-    elif period == WEEK: return get_start_of_next_week(period_start_time, timerange)
-    elif period == MONTH: return get_start_of_next_month(period_start_time, timerange)
+def get_next_period_start_time(period, timerange, period_start_time, localtz):
+    if period == DAY: return get_start_of_next_day(period_start_time, timerange, localtz)
+    elif period == WEEK: return get_start_of_next_week(period_start_time, timerange, localtz)
+    elif period == MONTH: return get_start_of_next_month(period_start_time, timerange, localtz)
 
 
-def get_period_end_time(period, timerange, period_start_time):
+def get_period_end_time(period, timerange, period_start_time, localtz):
     if period == DAY: return get_end_of_day(period_start_time, timerange)
-    elif period == WEEK: return get_end_of_week(period_start_time, timerange)
-    elif period == MONTH: return get_end_of_month(period_start_time, timerange)
+    elif period == WEEK: return get_end_of_week(period_start_time, timerange, localtz)
+    elif period == MONTH: return get_end_of_month(period_start_time, timerange, localtz)
 
 
-def get_next_event_start_time(period, timerange, start_time, time_last_event_was_scheduled):
+def get_next_event_start_time(period, timerange, start_time, time_last_event_was_scheduled, localtz):
     if period == DAY: return time_last_event_was_scheduled
-    elif period == WEEK: return get_start_of_next_day(start_time, timerange)
-    elif period == MONTH: return get_start_of_next_week(start_time, timerange)
+    elif period == WEEK: return get_start_of_next_day(start_time, timerange, localtz)
+    elif period == MONTH: return get_start_of_next_week(start_time, timerange, localtz)
 
 
 def update_event_index(busy_times, next_start_time, event_index):
@@ -142,29 +145,29 @@ def decrement_time(day, timeunit, duration):
     elif timeunit == MINUTES: return day - timedelta(minutes=duration)
 
 
-def get_next_day(day):
-    return day + timedelta(days=1)
+def get_next_day(day, localtz):
+    return (day.astimezone(utc) + timedelta(days=1)).astimezone(localtz)
 
 
-def get_next_week(day):
-    return day + timedelta(days=get_days_left_in_week(day))
+def get_next_week(day, localtz):
+    return (day.astimezone(utc) + timedelta(days=get_days_left_in_week(day))).astimezone(localtz)
 
 
-def get_next_month(day):
-    return day + timedelta(days=get_days_left_in_month(day))
+def get_next_month(day, localtz):
+    return (day.astimezone(utc) + timedelta(days=get_days_left_in_month(day))).astimezone(localtz)
 
 
 def get_end_of_day(day, timerange):
     return make_end_time(day, timerange)
 
 
-def get_end_of_week(day, timerange):
-    last_day_of_week = get_next_week(day) - timedelta(days=1)
+def get_end_of_week(day, timerange, localtz):
+    last_day_of_week = get_next_week(day, localtz) - timedelta(days=1)
     return make_end_time(last_day_of_week, timerange)
 
 
-def get_end_of_month(day, timerange):
-    last_day_of_month = get_next_month(day) - timedelta(days=1)
+def get_end_of_month(day, timerange, localtz):
+    last_day_of_month = get_next_month(day, localtz) - timedelta(days=1)
     return make_end_time(last_day_of_month, timerange)
 
 
@@ -172,17 +175,17 @@ def get_start_of_day(day, timerange):
     return make_start_time(day, timerange)
 
 
-def get_start_of_next_day(day, timerange):
+def get_start_of_next_day(day, timerange, localtz):
     if day.hour < DAY_START_TIME: return make_start_time(day, timerange)
-    else: return make_start_time(get_next_day(day), timerange)
+    else: return make_start_time(get_next_day(day, localtz), timerange)
 
 
-def get_start_of_next_week(day, timerange):
-    return make_start_time(get_next_week(day), timerange)
+def get_start_of_next_week(day, timerange, localtz):
+    return make_start_time(get_next_week(day, localtz), timerange)
 
 
-def get_start_of_next_month(day, timerange):
-    return make_start_time(get_next_month(day), timerange)
+def get_start_of_next_month(day, timerange, localtz):
+    return make_start_time(get_next_month(day, localtz), timerange)
 
 
 def get_days_left_in_week(day):
@@ -197,14 +200,14 @@ def get_days_left_in_month(day):
     return days_in_month - day.day + 1
 
 
-def get_weeks_left_in_month(day):
-    last_sunday = get_last_sunday_in_month(day)
+def get_weeks_left_in_month(day, localtz):
+    last_sunday = get_last_sunday_in_month(day, localtz)
     if day.day >= last_sunday.day: return 0
     return ((last_sunday.day - day.day - 1) // DAYS_IN_WEEK) + 1
 
 
-def get_last_sunday_in_month(day):
-    end_of_month = get_next_month(day)
+def get_last_sunday_in_month(day, localtz):
+    end_of_month = get_next_month(day, localtz)
     return end_of_month - timedelta(days=(end_of_month.weekday() + 1))
 
 
@@ -226,10 +229,6 @@ def make_end_time(day, timerange):
     if end_time == DAY_END_TIME and DAY_END_TIME < DAY_START_TIME:
         day_end += timedelta(hours=HOURS_IN_DAY)
     return day_end
-
-
-def make_midnight(day):
-    return day.replace(hour=0, minute=0, second=0, microsecond=0)
 
 
 def make_next_hour(day):
