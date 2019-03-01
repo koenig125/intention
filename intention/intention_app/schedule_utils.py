@@ -290,15 +290,14 @@ def make_minute_map(period, minutes_in_period):
 
 def minutes_between(start_time, end_time, localtz):
     minutes = int((end_time - start_time).total_seconds()) // 60
-    st_loc = localtz.localize(start_time.replace(tzinfo=None))
-    et_loc = localtz.localize(end_time.replace(tzinfo=None))
-    if not isdst(st_loc) and isdst(et_loc): return minutes + 60
-    elif isdst(st_loc) and not isdst(et_loc): return minutes - 60
+    if not isdst(start_time, localtz) and isdst(end_time, localtz): return minutes + 60
+    elif isdst(start_time, localtz) and not isdst(end_time, localtz): return minutes - 60
     else: return minutes
 
 
-def isdst(dt):
-    return bool(dt.dst())
+def isdst(dt, localtz):
+    dt_loc = localtz.localize(dt.replace(tzinfo=None))
+    return bool(dt_loc.dst())
 
 
 def consolidate(busy_times, localtz, period_start_time, minute_map, minutes_in_period):
@@ -349,13 +348,16 @@ def copy_events_for_each_period(events, period, period_start_time, name, localtz
         busy_start = parse(event['start']['dateTime'])
         busy_end = parse(event['end']['dateTime'])
         for i in range(1, num_periods):
-            if period == "DAY":
-                new_start = busy_start + timedelta(days=i)
-                new_end = busy_end + timedelta(days=i)
-                all_events.append(create_event(name, new_start, new_end))
-            if period == "WEEK":
-                new_start = busy_start + timedelta(weeks=i)
-                new_end = busy_end + timedelta(weeks=i)
-                all_events.append(create_event(name, new_start, new_end))
-            if period == "MONTH": pass # TODO: Decide on strategy for month.
+            delta = get_period_timedelta(period, i)
+            new_start = busy_start + delta
+            new_end = busy_end + delta
+            if isdst(new_start, localtz):
+                new_start -= timedelta(hours=1)
+                new_end -= timedelta(hours=1)
+            all_events.append(create_event(name, new_start, new_end))
     return all_events
+
+def get_period_timedelta(period, num_periods):
+    if period == "DAY": return timedelta(days=num_periods)
+    if period == "WEEK": return timedelta(weeks=num_periods)
+    if period == "MONTH": return None  # TODO: Decide on strategy for month.
