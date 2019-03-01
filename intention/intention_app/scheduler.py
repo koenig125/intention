@@ -12,45 +12,19 @@ from datetime import datetime
 
 
 def make_schedule(form_data):
+    """Public function that adds events to maintain habits to user calendars.
+
+    This is the only public function in the module - meaning any request to
+    schedule should go through make_schedule.
+
+    :param form_data: Data from user detailing when and what to schedule.
+    :return: Flag indicating whether or not scheduling was successful.
+    """
     service = get_credentials()
-    events = schedule_events(form_data, service)
+    events = schedule_events_for_multiple_periods(form_data, service)
     if not events: return False
     add_events_to_calendar(service, events)
     return True
-
-
-def schedule_events(form_data, service):
-    events = schedule_events_using_consolidated_periods(form_data, service)
-    if not events: events = schedule_events_for_multiple_periods(form_data, service)
-    return events
-
-
-def schedule_events_using_consolidated_periods(form_data, service):
-    """Coordinates event scheduling over multiple consolidated time periods.
-
-    This function consolidates a user's schedule for multiple periods
-    into a single period so that times that are free in every period
-    can be easily identified. This provides consistency in scheduling.
-
-    :param form_data: Data from user detailing when and what to schedule.
-    :param service: Object through which Google API calls are made.
-    :return: List of events in json format to add to user calendar.
-    """
-    name, frequency, period, duration, timeunit, timerange = unpack_form(form_data)
-    localtz = get_local_timezone(service)
-    period_start_time = make_start_time(get_next_week(datetime.now(localtz), localtz), timerange)
-    period_end_time = get_period_end_time(period, timerange, period_start_time, localtz)
-    if period_start_time > period_end_time: return None
-    multi_period_end_time = get_multi_period_end_time(period, timerange, period_start_time, localtz)
-    event_start_time = period_start_time
-    event_start_time_max = decrement_time(period_end_time, timeunit, duration)
-    range_start, range_end = get_desired_time_range(period_start_time, timerange)
-    busy_times = get_busy_times(service, period_start_time, multi_period_end_time)
-    consolidated = consolidate_busy_times(period, period_start_time, period_end_time, localtz, busy_times)
-    events = schedule_events_for_single_period(form_data, event_start_time, event_start_time_max,
-                                               consolidated, range_start, range_end, localtz)
-    if not events: return None
-    return copy_events_for_each_period(events, period, period_start_time, name, localtz)
 
 
 def schedule_events_for_multiple_periods(form_data, service):
@@ -63,7 +37,7 @@ def schedule_events_for_multiple_periods(form_data, service):
 
     :param form_data: Data from user detailing when and what to schedule.
     :param service: Object through which Google API calls are made.
-    :return: List of all events to add to user calendar, in json format.
+    :return: List of events to add to user calendar, in json format.
     """
     name, frequency, period, duration, timeunit, timerange = unpack_form(form_data)
     localtz = get_local_timezone(service)
@@ -74,8 +48,13 @@ def schedule_events_for_multiple_periods(form_data, service):
     if period_start_time > period_end_time: return None # Triggered when can't schedule event by end of current day/week
     event_start_time = period_start_time
     event_start_time_max = decrement_time(period_end_time, timeunit, duration)
-    busy_times = get_busy_times(service, period_start_time, period_end_time)
     range_start, range_end = get_desired_time_range(period_start_time, timerange)
+
+    consolidated_events = schedule_events_using_consolidated_periods(form_data, service, localtz, period_start_time,
+                                                                     period_end_time, event_start_time,
+                                                                     event_start_time_max, range_start, range_end)
+    if consolidated_events: return consolidated_events
+    busy_times = get_busy_times(service, period_start_time, period_end_time)
     num_periods = get_number_periods(period, period_start_time, localtz)
 
     events = []
@@ -91,6 +70,36 @@ def schedule_events_for_multiple_periods(form_data, service):
         busy_times = get_busy_times(service, period_start_time, period_end_time)
         range_start, range_end = get_desired_time_range(period_start_time, timerange)
     return events
+
+
+def schedule_events_using_consolidated_periods(form_data, service, localtz, period_start_time, period_end_time,
+                                               event_start_time, event_start_time_max, range_start, range_end):
+    """Coordinates event scheduling over multiple consolidated time periods.
+
+    This function consolidates a user's schedule for multiple periods
+    into a single period so that times that are free across all periods
+    can be easily identified in order to provide consistency in scheduling.
+
+    :param form_data: Data from user detailing when and what to schedule.
+    :param service: Object through which Google API calls are made.
+    :param localtz: Object representing the local timezone of the user.
+    :param period_start_time: Start time of first period to be scheduled.
+    :param period_end_time: End time of first period to be scheduled.
+    :param event_start_time: Start time of new event to be scheduled.
+    :param event_start_time_max: Last possible start time an event could be
+    scheduled in the period between period_start_time and period_end_time.
+    :param range_start: Start time in day in which events can be scheduled.
+    :param range_end: End time in day in which events can be scheduled.
+    :return: List of events to add to user calendar, in json format.
+    """
+    name, frequency, period, duration, timeunit, timerange = unpack_form(form_data)
+    multi_period_end_time = get_multi_period_end_time(period, timerange, period_start_time, localtz)
+    busy_times = get_busy_times(service, period_start_time, multi_period_end_time)
+    consolidated = consolidate_busy_times(period, period_start_time, period_end_time, localtz, busy_times)
+    events = schedule_events_for_single_period(form_data, event_start_time, event_start_time_max,
+                                               consolidated, range_start, range_end, localtz)
+    if not events: return None
+    return copy_events_for_each_period(events, period, period_start_time, name, localtz)
 
 
 def schedule_events_for_single_period(form_data, event_start_time, event_start_time_max, busy_times, range_start,
