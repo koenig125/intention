@@ -41,6 +41,19 @@ def make_schedule(form_data):
     add_events_to_calendar(service, events)
     return True
 
+def get_tasks():
+    service = get_credentials()
+    page_token = None
+    while True:
+        events = service.events().list(calendarId='primary', pageToken=page_token).execute()
+        tasks = []
+        for event in events['items']:
+            tasks.append(event.summary)
+            print(event['summary'])
+        page_token = events.get('nextPageToken')
+        if not page_token:
+            break
+
 
 def get_credentials():
     flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_FILE, SCOPES)

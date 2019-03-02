@@ -2,13 +2,13 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from .forms import scheduleForm
-from .scheduler import make_schedule
+from .scheduler import make_schedule, get_tasks
 
 # Renders the Intention App homepage
-def schedule_or_reschedule_view(request):
-    template = loader.get_template('schedule_or_reschedule.html')
+def schedule_view(request):
+    template = loader.get_template('schedule.html')
     form = scheduleForm()
-    if request.method == "POST":
+    if request.method == "POST": # trying to submit form
         form = scheduleForm(request.POST)
         if form.is_valid():
             form_data = {}
@@ -35,6 +35,18 @@ def schedule_or_reschedule_view(request):
       }
     return HttpResponse(template.render(context, request))
 
+def reschedule_view(request):
+    template = loader.get_template('reschedule.html')
+    print("in reschedule view")
+    print(request)
+    if request.method == "GET": #trying to choose tasks to reschedule
+        print("in get")
+        tasks = ["brush teeth", "call mom", "play piano", "laundry", "get boba"]#get_tasks()
+        context = {
+         'tasks' : tasks,
+        }
+    return HttpResponse(template.render(context, request))
+
 # A view that will allow people to choose if they want to schedule or reschedule a goal.
 def homepage_view(request):
     template = loader.get_template('index.html')
@@ -47,3 +59,4 @@ def calendar_view(request):
     context = {}
     return render(request, 'calendar.html', context=context)
     # A view that will allow people to view their updated calendar schedule.
+
