@@ -54,6 +54,7 @@ def schedule_events_for_multiple_periods(form_data, service):
                                                                      period_end_time, event_start_time,
                                                                      event_start_time_max, range_start, range_end)
     if consolidated_events: return consolidated_events
+    else: return None
     busy_times = get_busy_times(service, period_start_time, period_end_time)
     num_periods = get_number_periods(period, period_start_time, localtz)
 
@@ -99,7 +100,8 @@ def schedule_events_using_consolidated_periods(form_data, service, localtz, peri
     events = schedule_events_for_single_period(form_data, event_start_time, event_start_time_max,
                                                consolidated, range_start, range_end, localtz)
     if not events: return None
-    return copy_events_for_each_period(events, period, period_start_time, name, localtz)
+    # return copy_events_for_each_period(events, period, period_start_time, name, localtz)
+    return events
 
 
 def schedule_events_for_single_period(form_data, event_start_time, event_start_time_max, busy_times, range_start,

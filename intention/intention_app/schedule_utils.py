@@ -58,12 +58,6 @@ def get_number_periods(period, day, localtz):
     elif period == MONTH: return MONTHS_TO_SCHEDULE
 
 
-def get_multi_period_end_time(period, timerange, day, localtz):
-    if period == DAY: return get_end_of_week(day, timerange, localtz)
-    elif period == WEEK: return get_end_of_month(day, timerange, localtz)
-    elif period == MONTH: return get_end_of_quarter(day, timerange, localtz)
-
-
 def get_next_period_start_time(period, timerange, period_start_time, localtz):
     if period == DAY: return get_start_of_next_day(period_start_time, timerange, localtz)
     elif period == WEEK: return get_start_of_next_week(period_start_time, timerange, localtz)
@@ -184,11 +178,6 @@ def get_end_of_month(day, timerange, localtz):
     return make_end_time(last_day_of_month, timerange)
 
 
-def get_end_of_quarter(day, timerange, localtz):
-    last_day_of_quarter = get_next_quarter(day, localtz) - timedelta(days=1)
-    return make_end_time(last_day_of_quarter, timerange)
-
-
 def get_next_day(day, localtz):
     return (day.astimezone(utc) + timedelta(days=1)).astimezone(localtz)
 
@@ -201,10 +190,6 @@ def get_next_month(day, localtz):
     return (day.astimezone(utc) + timedelta(days=get_days_left_in_month(day))).astimezone(localtz)
 
 
-def get_next_quarter(day, localtz):
-    return (day.astimezone(utc) + timedelta(days=get_days_left_in_quarter(day))).astimezone(localtz)
-
-
 def get_days_left_in_week(day):
     # Includes the inputted day
     day_index = (day.weekday() + 1) % DAYS_IN_WEEK
@@ -215,13 +200,6 @@ def get_days_left_in_month(day):
     # Includes the inputted day
     days_in_month = monthrange(day.year, day.month)[1]
     return days_in_month - day.day + 1
-
-
-def get_days_left_in_quarter(day):
-    days_left = get_days_left_in_month(day)
-    days_left += monthrange(day.year, day.month + 1)[1]
-    days_left += monthrange(day.year, day.month + 2)[1]
-    return days_left
 
 
 def get_weeks_left_in_month(day, localtz):
@@ -269,35 +247,112 @@ def unpack_form(form_data):
     return name, frequency, period, duration, timeunit, timerange
 
 
+def get_multi_period_end_time(period, timerange, day, localtz):
+    if period == DAY: return get_end_of_week(day, timerange, localtz)
+    elif period == WEEK: return get_end_of_month(day, timerange, localtz)
+    elif period == MONTH: return get_end_of_quarter(day, timerange, localtz)
+
+
+def get_end_of_quarter(day, timerange, localtz):
+    last_day_of_quarter = get_next_quarter(day, localtz) - timedelta(days=1)
+    return make_end_time(last_day_of_quarter, timerange)
+
+
+def get_next_quarter(day, localtz):
+    return (day.astimezone(utc) + timedelta(days=get_days_left_in_quarter(day))).astimezone(localtz)
+
+
+def get_days_left_in_quarter(day):
+    days_left = get_days_left_in_month(day)
+    days_left += monthrange(day.year, day.month + 1)[1]
+    days_left += monthrange(day.year, day.month + 2)[1]
+    return days_left
+
+
 def consolidate_busy_times(period, period_start_time, period_end_time, localtz, busy_times):
     minutes_in_period = get_minutes_in_period(period)
     minute_map = make_minute_map(period, minutes_in_period)
-    minute_map_filled = consolidate(busy_times, localtz, period_start_time, minute_map, minutes_in_period)
-    return convert_map_to_times(period_start_time, period_end_time, minute_map_filled)
+    if period != "MONTH": minute_map_filled = consolidate(busy_times, localtz, period_start_time, minute_map, minutes_in_period)
+    else: minute_map_filled = month_consolidate(busy_times, localtz, period_start_time, minute_map)
+    return convert_map_to_times(period_start_time, period_end_time, minute_map_filled, localtz)
+
+
+def month_consolidate(busy_times, localtz, period_start_time, minute_map):
+    first_seven_days_week_nums = get_first_seven_days_week_nums(period_start_time)
+    for i in range(len(busy_times)):
+        busy_start, busy_end = get_busy_time_range(busy_times, i, localtz)
+
+        day_index = get_day_index(busy_start)
+        busy_week_num = get_week_number_for_day(busy_start)
+        if busy_start.day > 28 or busy_week_num < first_seven_days_week_nums[day_index]: continue
+        divisor = get_month_divisor(busy_start, period_start_time, busy_week_num, first_seven_days_week_nums, localtz)
+        if not divisor: continue
+
+        start_minute = int(minutes_between(period_start_time, busy_start, localtz) % divisor)
+        end_minute = int(minutes_between(period_start_time, busy_end, localtz) % divisor)
+        minute_map[int(start_minute):int(end_minute)] = False
+    return minute_map
+
+
+def minutes_between_month(start_time, end_time, localtz):
+    return int((end_time - start_time).total_seconds()) // 60
+
+
+def get_first_seven_days_week_nums(period_start_time):
+    first_seven_days_week_nums = [0] * DAYS_IN_WEEK
+    for i in range(DAYS_IN_WEEK):
+        day = period_start_time + timedelta(days=i)
+        first_seven_days_week_nums[get_day_index(day)] = get_week_number_for_day(day)
+    return first_seven_days_week_nums
+
+
+def get_week_number_for_day(day):
+    return (day.day - 1) // DAYS_IN_WEEK
+
+
+def get_day_index(day):
+    return (day.weekday() + 1) % DAYS_IN_WEEK
+
+
+def get_month_divisor(busy_start, period_start_time, busy_week_num, first_seven_days_week_nums, localtz):
+    if busy_start.month == period_start_time.month: return float('inf')
+    minutes_to_original_day = get_minutes_back_to_original_day(busy_start, period_start_time, localtz)
+    minutes_to_subtract = get_week_number_difference_minutes(busy_week_num, first_seven_days_week_nums, busy_start)
+    total_minutes = minutes_to_original_day - minutes_to_subtract
+    if (busy_start - timedelta(minutes=total_minutes)) < period_start_time: return None
+    return total_minutes
+
+
+def get_minutes_back_to_original_day(busy_start, period_start_time, localtz):
+    index_diff = busy_start.weekday() - period_start_time.weekday()
+    days_to_original = index_diff if index_diff >= 0 else DAYS_IN_WEEK + index_diff
+    original_day = period_start_time + timedelta(days=days_to_original)
+    day_difference = (busy_start.date() - original_day.date()).days
+    minutes = day_difference * HOURS_IN_DAY * MINUTES_IN_HOUR
+
+    # if not isdst(original_day, localtz) and isdst(busy_start, localtz): return minutes - 60
+    # elif isdst(original_day, localtz) and not isdst(busy_start, localtz): return minutes + 60
+    # else: return minutes
+    return minutes
+
+
+def get_week_number_difference_minutes(busy_week_num, first_seven_days_week_nums, busy_start):
+    day_index = get_day_index(busy_start)
+    first_seven_day_week_num = first_seven_days_week_nums[day_index]
+    week_number_diff = busy_week_num - first_seven_day_week_num
+    return week_number_diff * DAYS_IN_WEEK * HOURS_IN_DAY * MINUTES_IN_HOUR
 
 
 def get_minutes_in_period(period):
     if period == DAY: return MINUTES_IN_HOUR * HOURS_IN_DAY
     elif period == WEEK: return MINUTES_IN_HOUR * HOURS_IN_DAY * DAYS_IN_WEEK
-    elif period == MONTH: return None # TODO: Decide on strategy for month.
+    elif period == MONTH: return MINUTES_IN_HOUR * HOURS_IN_DAY * DAYS_IN_WEEK * 4
 
 
 def make_minute_map(period, minutes_in_period):
     if period == DAY: return np.ones(minutes_in_period, dtype=bool)
     elif period == WEEK: return np.ones(minutes_in_period, dtype=bool)
-    elif period == MONTH: return None # TODO: Decide on strategy for month.
-
-
-def minutes_between(start_time, end_time, localtz):
-    minutes = int((end_time - start_time).total_seconds()) // 60
-    if not isdst(start_time, localtz) and isdst(end_time, localtz): return minutes + 60
-    elif isdst(start_time, localtz) and not isdst(end_time, localtz): return minutes - 60
-    else: return minutes
-
-
-def isdst(dt, localtz):
-    dt_loc = localtz.localize(dt.replace(tzinfo=None))
-    return bool(dt_loc.dst())
+    elif period == MONTH: return np.ones(minutes_in_period, dtype=bool)
 
 
 def consolidate(busy_times, localtz, period_start_time, minute_map, minutes_in_period):
@@ -313,7 +368,7 @@ def consolidate(busy_times, localtz, period_start_time, minute_map, minutes_in_p
     return minute_map
 
 
-def convert_map_to_times(period_start_time, period_end_time, minute_map_filled):
+def convert_map_to_times(period_start_time, period_end_time, minute_map_filled, localtz):
     busy_minutes = np.where(minute_map_filled == False)[0]
     busy_start = busy_minutes[0]
     busy_end = busy_minutes[0]
@@ -321,17 +376,35 @@ def convert_map_to_times(period_start_time, period_end_time, minute_map_filled):
     for i in range(1, len(busy_minutes)):
         if busy_minutes[i] - busy_minutes[i-1] != 1:
             busy_end = busy_minutes[i-1] + 1
-            busy_times.append(create_busy_chunk(busy_start, busy_end, period_start_time, period_end_time))
+            busy_times.append(create_busy_chunk(busy_start, busy_end, period_start_time, period_end_time, localtz))
             busy_start = busy_minutes[i]
     if busy_end != busy_minutes[-1] + 1:
         busy_end = busy_minutes[-1] + 1
-        busy_times.append(create_busy_chunk(busy_start, busy_end, period_start_time, period_end_time))
+        busy_times.append(create_busy_chunk(busy_start, busy_end, period_start_time, period_end_time, localtz))
     return busy_times
 
 
-def create_busy_chunk(busy_start, busy_end, period_start_time, period_end_time):
+def minutes_between(start_time, end_time, localtz):
+    minutes = int((end_time - start_time).total_seconds()) // 60
+    if not isdst(start_time, localtz) and isdst(end_time, localtz): return minutes + 60
+    elif isdst(start_time, localtz) and not isdst(end_time, localtz): return minutes - 60
+    else: return minutes
+
+
+def isdst(dt, localtz):
+    dt_loc = localtz.localize(dt.replace(tzinfo=None))
+    return bool(dt_loc.dst())
+
+
+def create_busy_chunk(busy_start, busy_end, period_start_time, period_end_time, localtz):
     start_time = period_start_time + timedelta(minutes=int(busy_start))
     end_time = period_start_time + timedelta(minutes=int(busy_end))
+    if not isdst(period_start_time, localtz) and isdst(start_time, localtz):
+        start_time -= timedelta(hours=1)
+        end_time -= timedelta(hours=1)
+    if isdst(period_start_time, localtz) and not isdst(start_time, localtz):
+        start_time += timedelta(hours=1)
+        end_time += timedelta(hours=1)
     if start_time < period_start_time and end_time > period_end_time:
         start_time -= timedelta(days=1)
         end_time -= timedelta(days=1)
@@ -356,6 +429,7 @@ def copy_events_for_each_period(events, period, period_start_time, name, localtz
                 new_end -= timedelta(hours=1)
             all_events.append(create_event(name, new_start, new_end))
     return all_events
+
 
 def get_period_timedelta(period, num_periods):
     if period == "DAY": return timedelta(days=num_periods)
