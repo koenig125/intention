@@ -1,10 +1,10 @@
-"""Module to interface with Google calendar API.
+"""Mdule to interface with Google calendar API.
 
 Handles all requests and responses with Google Cal API.
 
 Exported Functions
 ------------------
-get_creds()
+get_service()
 get_localtz(service, cid='primary')
 get_busy_times(service, timeMin, timeMax, cid='primary')
 create_event(name, start, end)

@@ -3,8 +3,8 @@
 import numpy as np
 from datetime import timedelta
 from dateutil.parser import parse
-from intention_app.scheduling.utils.datetime_utils import DAY, WEEK, MONTH
-from intention_app.scheduling.utils.scheduling_utils import get_number_periods, get_busy_time_range
+from intention_app.scheduling.utils.datetime_utils import DAY, WEEK, MONTH, parse_datetime
+from intention_app.scheduling.utils.scheduling_utils import get_number_periods
 from intention_app.scheduling.utils.googleapi_utils import create_event
 
 MINUTES_IN_HOUR = 60
@@ -23,22 +23,19 @@ def consolidate_busy_times(period, period_start_time, period_end_time, localtz, 
 def month_consolidate(busy_times, localtz, period_start_time, minute_map):
     first_seven_days_week_nums = get_first_seven_days_week_nums(period_start_time)
     for i in range(len(busy_times)):
-        busy_start, busy_end = get_busy_time_range(busy_times, i, localtz)
+        busy_start = parse_datetime(busy_times[i]['start']).astimezone(localtz)
+        busy_end = parse_datetime(busy_times[i]['end']).astimezone(localtz)
 
         day_index = get_day_index(busy_start)
         busy_week_num = get_week_number_for_day(busy_start)
         if busy_start.day > 28 or busy_week_num < first_seven_days_week_nums[day_index]: continue
-        divisor = get_month_divisor(busy_start, period_start_time, busy_week_num, first_seven_days_week_nums, localtz)
+        divisor = get_month_divisor(busy_start, period_start_time, busy_week_num, first_seven_days_week_nums)
         if not divisor: continue
 
         start_minute = int(minutes_between(period_start_time, busy_start, localtz) % divisor)
         end_minute = int(minutes_between(period_start_time, busy_end, localtz) % divisor)
         minute_map[int(start_minute):int(end_minute)] = False
     return minute_map
-
-
-def minutes_between_month(start_time, end_time, localtz):
-    return int((end_time - start_time).total_seconds()) // 60
 
 
 def get_first_seven_days_week_nums(period_start_time):
@@ -57,16 +54,16 @@ def get_day_index(day):
     return (day.weekday() + 1) % DAYS_IN_WEEK
 
 
-def get_month_divisor(busy_start, period_start_time, busy_week_num, first_seven_days_week_nums, localtz):
+def get_month_divisor(busy_start, period_start_time, busy_week_num, first_seven_days_week_nums):
     if busy_start.month == period_start_time.month: return float('inf')
-    minutes_to_original_day = get_minutes_back_to_original_day(busy_start, period_start_time, localtz)
+    minutes_to_original_day = get_minutes_back_to_original_day(busy_start, period_start_time)
     minutes_to_subtract = get_week_number_difference_minutes(busy_week_num, first_seven_days_week_nums, busy_start)
     total_minutes = minutes_to_original_day - minutes_to_subtract
     if (busy_start - timedelta(minutes=total_minutes)) < period_start_time: return None
     return total_minutes
 
 
-def get_minutes_back_to_original_day(busy_start, period_start_time, localtz):
+def get_minutes_back_to_original_day(busy_start, period_start_time):
     index_diff = busy_start.weekday() - period_start_time.weekday()
     days_to_original = index_diff if index_diff >= 0 else DAYS_IN_WEEK + index_diff
     original_day = period_start_time + timedelta(days=days_to_original)
@@ -96,7 +93,8 @@ def make_minute_map(period, minutes_in_period):
 
 def consolidate(busy_times, localtz, period_start_time, minute_map, minutes_in_period):
     for i in range(len(busy_times)):
-        busy_start, busy_end = get_busy_time_range(busy_times, i, localtz)
+        busy_start = parse_datetime(busy_times[i]['start']).astimezone(localtz)
+        busy_end = parse_datetime(busy_times[i]['end']).astimezone(localtz)
         start_minute = minutes_between(period_start_time, busy_start, localtz) % minutes_in_period
         end_minute = minutes_between(period_start_time, busy_end, localtz) % minutes_in_period
         if end_minute < start_minute:
@@ -154,7 +152,7 @@ def create_busy_chunk(busy_start, busy_end, period_start_time, period_end_time, 
 
 
 def copy_events_for_each_period(events, period, period_start_time, name, localtz):
-    num_periods = get_number_periods(period, period_start_time, localtz)
+    num_periods = get_number_periods(period_start_time, period, localtz)
     all_events = events.copy()
     for event in events:
         busy_start = parse(event['start']['dateTime'])

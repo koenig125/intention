@@ -1,6 +1,6 @@
 """Module to manipulate datetime objects.
 
-Manipulate datetime objects over days, weeks, and months.
+Manipulates datetime objects over days, weeks, and months.
 
 Exported Functions
 ------------------
@@ -23,26 +23,22 @@ get_days_left_in_week(day)
 get_days_left_in_month(day)
 get_days_left_in_quarter(day)
 get_weeks_left_in_month(day, localtz)
+get_day_start_end_times(day, timerange)
 increment_time(day, timeunit, duration)
 decrement_time(day, timeunit, duration)
+parse_datetime(dt)
 """
 
-from __future__ import print_function
 from datetime import timedelta
 from pytz import timezone
 from calendar import monthrange
+from dateutil.parser import parse
 
-# Basic time constants
-MINUTES_IN_HOUR = 60
-HOURS_IN_DAY = 24
-DAYS_IN_WEEK = 7
+# Basic time rates
+MINUTES_IN_HOUR, HOURS_IN_DAY, DAYS_IN_WEEK = 60, 24, 7
 
-# Bounding hours for event scheduling.
-DAY_START_HOUR = 8
-DAY_END_HOUR = 1
-
-# Length scheduled when period=months.
-MONTHS_TO_SCHEDULE = 3
+# Day bounding hours
+DAY_START_HOUR, DAY_END_HOUR = 8, 1
 
 # Time zones
 utc = timezone('UTC')
@@ -57,15 +53,14 @@ DAY, WEEK, MONTH = "DAY", "WEEK", "MONTH"
 MORNING, AFTERNOON, EVENING = "MORNING", "AFTERNOON", "EVENING"
 
 # Timerange hours
-AFTERNOON_START = 12
-EVENING_START = 18
+AFTERNOON_START, EVENING_START = 12, 18 # Military time.
 MORNING_HOURS = {'start': DAY_START_HOUR, 'end': AFTERNOON_START}
 AFTERNOON_HOURS = {'start': AFTERNOON_START, 'end': EVENING_START}
 EVENING_HOURS = {'start': EVENING_START, 'end': DAY_END_HOUR}
 
 
 def make_start_hour(day, timerange):
-    """Sets day to start hour based on timerange."""
+    """Returns day set to start hour based on timerange."""
     start_hour = DAY_START_HOUR
     if timerange == MORNING: start_hour = MORNING_HOURS['start']
     elif timerange == AFTERNOON: start_hour = AFTERNOON_HOURS['start']
@@ -74,7 +69,7 @@ def make_start_hour(day, timerange):
 
 
 def make_end_hour(day, timerange):
-    """Sets day to end hour based on timerange."""
+    """Returns day set to end hour based on timerange."""
     end_hour = DAY_END_HOUR
     if timerange == MORNING: end_hour = MORNING_HOURS['end']
     elif timerange == AFTERNOON: end_hour = AFTERNOON_HOURS['end']
@@ -85,7 +80,7 @@ def make_end_hour(day, timerange):
 
 
 def make_next_hour(day):
-    """Sets day to hour proceeding the current hour."""
+    """Returns day set to hour proceeding the current hour."""
     return day.replace(hour=day.hour, minute=0, second=0, microsecond=0) + timedelta(hours=1)
 
 
@@ -196,6 +191,11 @@ def get_days_in_month(year, month):
     return monthrange(year, month)[1]
 
 
+def get_day_start_end_times(day, timerange):
+    """Returns start and end times of day provided based on timerange."""
+    return get_start_of_day(day, timerange), get_end_of_day(day, timerange)
+
+
 def increment_time(day, timeunit, duration):
     """Increments day by duration of unit timeunit."""
     if timeunit == HOURS: return day + timedelta(hours=duration)
@@ -206,3 +206,8 @@ def decrement_time(day, timeunit, duration):
     """Decrements day by duration of unit timeunit."""
     if timeunit == HOURS: return day - timedelta(hours=duration)
     elif timeunit == MINUTES: return day - timedelta(minutes=duration)
+
+
+def parse_datetime(dt):
+    """Parses datetime string into datetime object."""
+    return parse(dt)
