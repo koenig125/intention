@@ -7,8 +7,11 @@ this module is make_schedule - all other functions are private.
 """
 
 from __future__ import print_function
-from .schedule_utils import *
 from datetime import datetime
+
+from intention_app.scheduling.utils.consistency_utils import consolidate_busy_times
+from intention_app.scheduling.utils.googleapi_utils import *
+from intention_app.scheduling.utils.scheduling_utils import *
 
 
 def make_schedule(form_data):
@@ -20,7 +23,7 @@ def make_schedule(form_data):
     :param form_data: Data from user detailing when and what to schedule.
     :return: Flag indicating whether or not scheduling was successful.
     """
-    service = get_credentials()
+    service = get_service()
     events = schedule_events_for_multiple_periods(form_data, service)
     if not events: return False
     add_events_to_calendar(service, events)
@@ -40,8 +43,8 @@ def schedule_events_for_multiple_periods(form_data, service):
     :return: List of events to add to user calendar, in json format.
     """
     name, frequency, period, duration, timeunit, timerange = unpack_form(form_data)
-    localtz = get_local_timezone(service)
-    period_start_time = make_start_time(get_next_week(datetime.now(localtz), localtz), timerange)
+    localtz = get_localtz(service)
+    period_start_time = make_start_hour(get_next_week(datetime.now(localtz), localtz), timerange)
     period_end_time = get_period_end_time(period, timerange, period_start_time, localtz)
     # period_start_time = get_first_available_time(datetime.now(localtz), timerange)
     # period_end_time = get_period_end_time(period, timerange, datetime.now(localtz), localtz)
@@ -54,7 +57,6 @@ def schedule_events_for_multiple_periods(form_data, service):
                                                                      period_end_time, event_start_time,
                                                                      event_start_time_max, range_start, range_end)
     if consolidated_events: return consolidated_events
-    else: return None
     busy_times = get_busy_times(service, period_start_time, period_end_time)
     num_periods = get_number_periods(period, period_start_time, localtz)
 
