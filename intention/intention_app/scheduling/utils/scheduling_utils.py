@@ -9,13 +9,15 @@ Exported Functions
 unpack_form(form_data)
 get_start_time(curr_time, timerange)
 get_number_periods(day, period, localtz)
+get_timedelta_to_future_period(day, period, num_periods_in_future, localtz)
 get_start_of_next_period(curr_period_start_time, period, timerange, localtz)
 get_start_of_next_event(curr_event_start_time, last_scheduled_event_end_time, period, timerange, localtz)
 get_end_of_multi_period(day, period, timerange, localtz)
 get_end_of_period(period_start_time, period, timerange, localtz)
 is_conflicting(range_start, range_end, event_start, event_end)
 in_timerange(range_start, range_end, event_start, event_end)
-update_index(busy_index, busy_times, event_start_time)
+update_index(index, events, threshold_time)
+get_range_start_end(timerange, localtz)
 """
 
 from intention_app.scheduling.utils.datetime_utils import *
@@ -49,6 +51,13 @@ def get_number_periods(day, period, localtz):
     if period == DAY: return get_days_left_in_week(day)
     elif period == WEEK: return get_weeks_left_in_month(day, localtz)
     elif period == MONTH: return NUMBER_MONTHS_TO_SCHEDULE
+
+
+def get_timedelta_to_future_period(day, period, num_periods, localtz):
+    """Returns timedelta to increment day num_periods into the future."""
+    if period == DAY: return timedelta(days=num_periods)
+    elif period == WEEK: return timedelta(weeks=num_periods)
+    elif period == MONTH: return get_month_timedelta(day, num_periods, localtz)
 
 
 def get_start_of_next_period(curr_period_start_time, period, timerange, localtz):
@@ -98,3 +107,10 @@ def update_index(index, events, threshold_time):
            parse_datetime(events[index]['end']) <= threshold_time):
         index += 1
     return index
+
+
+def get_range_start_end(timerange, localtz):
+    """Returns start and end datetime objects of the timerange provided."""
+    range_start = parse_datetime(timerange['start']).astimezone(localtz)
+    range_end = parse_datetime(timerange['end']).astimezone(localtz)
+    return range_start, range_end

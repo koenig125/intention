@@ -1,4 +1,4 @@
-"""Mdule to interface with Google calendar API.
+"""Module to interface with Google calendar API.
 
 Handles all requests and responses with Google Cal API.
 
@@ -6,7 +6,7 @@ Exported Functions
 ------------------
 get_service()
 get_localtz(service, cid='primary')
-get_busy_times(service, timeMin, timeMax, cid='primary')
+get_busy_ranges(service, timeMin, timeMax, cid='primary')
 create_event(name, start, end)
 add_events_to_calendar(service, events, cid='primary')
 """
@@ -15,7 +15,6 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from pytz import timezone
 
-# Authentication information
 CREDENTIALS_FILE = 'credentials.json'
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 API_SERVICE_NAME = 'calendar'
@@ -37,15 +36,15 @@ def get_localtz(service, cid='primary'):
     return timezone(timezone_name)
 
 
-def get_busy_times(service, timeMin, timeMax, cid='primary'):
+def get_busy_ranges(service, timeMin, timeMax, cid='primary'):
     """Gets free/busy information for user calendar."""
     params = {
         'timeMin': timeMin.isoformat(),
         'timeMax': timeMax.isoformat(),
         'items': [{'id': cid}],
     }
-    busy_times = service.freebusy().query(body=params).execute()
-    return busy_times['calendars']['primary']['busy']
+    busy_ranges = service.freebusy().query(body=params).execute()
+    return busy_ranges['calendars'][cid]['busy']
 
 
 def create_event(name, start, end):
