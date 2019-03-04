@@ -111,7 +111,7 @@ input, select, textarea {
 	}
 
 	html {
-		box-sizing: border-box;
+		/* box-sizing: border-box; */
 	}
 
 	*, *:before, *:after {
@@ -1883,6 +1883,7 @@ input, select, textarea {
 		white-space: nowrap;
 		width: 20em;
 	}
+	
 	.button.reschedule{
 		margin-top: 10%;
 		margin-bottom: 10%;

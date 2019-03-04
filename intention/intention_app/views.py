@@ -27,6 +27,7 @@ def schedule_view(request):
                 }
                 return HttpResponse(template.render(context, request))
             else:
+                print("loading calendar after form submit")
                 return HttpResponseRedirect('calendar')
     else:
        context = {
@@ -49,14 +50,18 @@ def reschedule_view(request):
 
 # A view that will allow people to choose if they want to schedule or reschedule a goal.
 def homepage_view(request):
-    template = loader.get_template('index.html')
+    # template = loader.get_template('index.html')
     context = {}
     return render(request, 'index.html', context=context)
 
 # A view that will allow people to view their updated calendar schedule.
 def calendar_view(request):
-    template = loader.get_template('calendar.html')
+    # template = loader.get_template('calendar.html')
     context = {}
     return render(request, 'calendar.html', context=context)
-    # A view that will allow people to view their updated calendar schedule.
-
+    
+# A view following log-in/authentication that will allow user to choose from available scheduling options
+def scheduling_options_view(request):
+    # template = loader.get_template('scheduling_options.html')
+    context = {}
+    return render(request, 'scheduling_options.html', context=context)
