@@ -22,6 +22,7 @@ MINUTES_IN_WEEK = MINUTES_IN_DAY * DAYS_IN_WEEK
 
 
 def consolidate_multiple_periods(busy_ranges, first_period_start, first_period_end, period, localtz):
+    """Returns list of busy time ranges consolidated across mutliple periods."""
     minutes_in_period = _get_minutes_in_period(period)
     minute_array = _make_minute_array(period, minutes_in_period)
     if period == MONTH: _consolidate_months(busy_ranges, first_period_start, minute_array, localtz)
@@ -30,22 +31,25 @@ def consolidate_multiple_periods(busy_ranges, first_period_start, first_period_e
 
 
 def _get_minutes_in_period(period):
+    """Returns number of minutes in full period based on period provided."""
     if period == DAY: return MINUTES_IN_HOUR * HOURS_IN_DAY
     elif period == WEEK: return MINUTES_IN_HOUR * HOURS_IN_DAY * DAYS_IN_WEEK
     elif period == MONTH: return MINUTES_IN_HOUR * HOURS_IN_DAY * DAYS_IN_MONTH_ARRAY
 
 
 def _make_minute_array(period, minutes_in_period):
+    """Returns array of True values of size minutes_in_period."""
     if period == DAY: return np.ones(minutes_in_period, dtype=bool)
     elif period == WEEK: return np.ones(minutes_in_period, dtype=bool)
     elif period == MONTH: return np.ones(minutes_in_period, dtype=bool)
 
 
 def _consolidate_days_or_weeks(busy_ranges, first_period_start, minutes_in_period, minute_array, localtz):
+    """Populates minute array for days or weeks with values set to False for busy ranges."""
     for busy_range in busy_ranges:
         busy_start, busy_end = get_range_start_end(busy_range, localtz)
-        start_minute = _get_minutes_between(first_period_start, busy_start, localtz) % minutes_in_period
-        end_minute = _get_minutes_between(first_period_start, busy_end, localtz) % minutes_in_period
+        start_minute = int(_get_minutes_between(first_period_start, busy_start, localtz) % minutes_in_period)
+        end_minute = int(_get_minutes_between(first_period_start, busy_end, localtz) % minutes_in_period)
         minute_array[start_minute:end_minute] = False
         if end_minute < start_minute:
             minute_array[start_minute:] = False
@@ -53,6 +57,7 @@ def _consolidate_days_or_weeks(busy_ranges, first_period_start, minutes_in_perio
 
 
 def _consolidate_months(busy_ranges, first_period_start, minute_array, localtz):
+    """Populates minute array for months with values set to False for busy ranges."""
     first_seven_days_week_nums = _get_first_seven_days_week_nums(first_period_start)
     for busy_range in busy_ranges:
         busy_start, busy_end = get_range_start_end(busy_range, localtz)
@@ -68,8 +73,9 @@ def _consolidate_months(busy_ranges, first_period_start, minute_array, localtz):
 
 
 def _convert_array_to_timeranges(minute_array_filled, first_period_start, first_period_end, localtz):
+    """Returns list of busy time ranges corresponding to minute indices with values set to False."""
     busy_ranges = []
-    busy_minutes = np.where(minute_array_filled == False)[0]
+    busy_minutes = [int(x) for x in np.where(minute_array_filled == False)[0]]
     start_minute, end_minute = busy_minutes[0], busy_minutes[0]
     for i in range(1, len(busy_minutes)):
         if busy_minutes[i] - busy_minutes[i-1] != 1:
@@ -83,6 +89,7 @@ def _convert_array_to_timeranges(minute_array_filled, first_period_start, first_
 
 
 def _create_range(start_minute, end_minute, first_period_start, first_period_end, localtz):
+    """Returns busy time ranges incremented from the provided period start time."""
     busy_start = add_timedelta(timedelta(minutes=start_minute), first_period_start, localtz)
     busy_end = add_timedelta(timedelta(minutes=end_minute), first_period_start, localtz)
     if busy_start < first_period_start and busy_end > first_period_end:
@@ -95,6 +102,7 @@ def _create_range(start_minute, end_minute, first_period_start, first_period_end
 
 
 def _get_minutes_between(start_time, end_time, localtz):
+    """Returns number of minutes between the provided start and end times."""
     minutes = (end_time - start_time).total_seconds() // SECONDS_IN_MINUTE
     if not is_dst(start_time, localtz) and is_dst(end_time, localtz): return minutes + MINUTES_IN_HOUR
     elif is_dst(start_time, localtz) and not is_dst(end_time, localtz): return minutes - MINUTES_IN_HOUR
@@ -102,6 +110,7 @@ def _get_minutes_between(start_time, end_time, localtz):
 
 
 def _get_first_seven_days_week_nums(start_day):
+    """Returns list containing the day provided and 6 proceeding days with their week numbers."""
     week_nums = [(None, None)] * DAYS_IN_WEEK
     for i in range(DAYS_IN_WEEK):
         day = start_day + timedelta(days=i)
@@ -111,6 +120,11 @@ def _get_first_seven_days_week_nums(start_day):
 
 
 def _get_month_modulo(period_start_time, future_day, orig_day, future_day_week_num, orig_day_week_num):
+    """Returns the modulo needed to convert day in future month to corresponding day in current month.
+
+    For example, if future day is 3rd Monday of March and current month is January, will find minutes
+    needed to convert 3rd Monday of March to the 3rd Monday of January when used as modulus operator.
+    """
     if future_day.month == period_start_time.month: return float('inf')
     minutes_between_days = (future_day.date() - orig_day.date()).days * MINUTES_IN_DAY
     minutes_between_week_nums = (future_day_week_num - orig_day_week_num) * MINUTES_IN_WEEK
