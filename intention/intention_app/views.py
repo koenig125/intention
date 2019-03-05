@@ -1,12 +1,9 @@
 from django.http import HttpResponse, HttpResponseRedirect
-<<<<<<< HEAD
 from django.template import RequestContext, loader
-=======
-from django.template import loader
 from django.shortcuts import render
->>>>>>> 4a43fbb507a01e68453743cc02904850b8043eea
 from .forms import scheduleForm
 from intention_app.scheduling.scheduler import make_schedule
+from intention_app.scheduling.rescheduler import get_tasks
 
 # Renders the Intention App homepage
 def schedule_view(request):
@@ -42,11 +39,9 @@ def schedule_view(request):
 
 def reschedule_view(request):
     template = loader.get_template('reschedule.html')
-    print("in reschedule view")
-    print(request)
     tasks = ['do laundry', 'clean room', 'call mom', 'prep dinner', 'email Professor Joe']
     if request.method == "GET": #trying to choose tasks to reschedule
-        print("in get")
+        tasks = get_tasks()
         context =  {'tasks' : tasks,}     
     elif request.method == "POST":
         # this will be called when someone wants to reschedule something
@@ -57,10 +52,8 @@ def reschedule_view(request):
         print ("SCHEDULE: ", schedule)
         # will call reschedule from scheduler.py
         #will render the calendar view
+        context =  {'tasks' : tasks,} 
         return HttpResponseRedirect('calendar')
-
-        context =  {'tasks' : tasks,}   
-    
     return HttpResponse(template.render(context, request))
    
 

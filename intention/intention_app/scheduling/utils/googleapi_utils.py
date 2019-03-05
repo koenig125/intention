@@ -64,3 +64,19 @@ def add_events_to_calendar(service, events, cid='primary'):
     """Makes API requests to insert new events into user calendar."""
     for event in events:
         service.events().insert(calendarId=cid, body=event).execute()
+
+
+def get_events_from_calendar(service, timeMin, timeMax, cid='primary'): 
+    tasks = []
+    page_token = None
+    while True:
+        events = service.events().list(calendarId=cid, pageToken=page_token, timeMin=timeMin, timeMax=timeMax).execute()
+        for event in events['items']:
+            # print(event.keys())
+            event_summary = event.get('summary', "Untitled")
+            print(event_summary)
+            tasks.append(event_summary)
+        page_token = events.get('nextPageToken')
+        if not page_token:
+            break
+    return tasks

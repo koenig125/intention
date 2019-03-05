@@ -26,7 +26,6 @@ def make_schedule(form):
     add_events_to_calendar(service, events)
     return True
 
-
 def _schedule_events(form, service):
     """Returns events to add to user calendar for multiple consecutive time periods.
 
