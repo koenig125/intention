@@ -1,25 +1,27 @@
 <!DOCTYPE HTML>
-<!--
-	Hyperspace by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
 <html>
 	<head>
-		<title>Hyperspace by HTML5 UP</title>
+		<title>Calendar</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="static/css/main.css" />
+		<link rel="stylesheet" href="static/css/calendar.css" />
 		<noscript><link rel="stylesheet" href="static/css/noscript.css" /></noscript>
 	</head>
 	<body class="is-preload">
-
-<!-- Calendar Page -->
-<section id="calendar" class="wrapper style1 fullscreen fade-up">
-        <h1>Your Schedule</h1>
-        <a href="{% url 'homepage' %}" class="button displayed">Add Another Goal</a>
-        <div class="responsive">
-            <iframe src="https://calendar.google.com/calendar/embed?title=Your%20Week&amp;showPrint=0&amp;showTz=0&amp;mode=WEEK&amp;height=800&amp;wkst=1&amp;bgcolor=%23ffffff&amp;src={{user_email}}&amp;color=%231B887A&amp;ctz=America%2FLos_Angeles" style="border-width:0" width="800" height="400" frameborder="0" scrolling="no"></iframe>
-        </div>
-    </section>
+		<!-- Calendar Page -->
+		<section id="calendar" class="wrapper style1 fullscreen fade-up">
+			<h1>Your Schedule</h1>
+			<div class="flex_container">
+				<div class="calendar_container"> 
+					<div class="responsive">
+						<iframe src="https://calendar.google.com/calendar/embed?title=Your%20Week&amp;showPrint=0&amp;showTz=0&amp;mode=WEEK&amp;height=800&amp;wkst=1&amp;bgcolor=%23ffffff&amp;src={{user_email}}&amp;color=%231B887A&amp;ctz=America%2FLos_Angeles" style="border-width:0" width="800" height="400" frameborder="0" scrolling="no"></iframe>
+					</div>
+				</div>
+				<div class="button_container">
+					<a href="{% url 'schedule_view' %}" class="button">schedule goal</a>
+					<a href="{% url 'reschedule_view' %}" class="button">reschedule task</a>
+				</div> 
+			</div>
+		</section>
+	</body>
 </html>

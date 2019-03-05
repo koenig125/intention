@@ -1,46 +1,27 @@
 <!DOCTYPE HTML>
 <html>  
-        <head>
-                <title>Intention</title>
-                <meta charset="utf-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-                <link rel="stylesheet" href="static/css/main.css" />
-                <noscript><link rel="stylesheet" href="static/css/noscript.css" /></noscript>
-            </head>
-<section id="two" class="wrapper fullscreen style2 fade-up">
-        <div class="inner">
-            <h2>Choose an Option</h2>
-            <p>Phasellus convallis elit id ullamcorper pulvinar. Duis aliquam turpis mauris, eu ultricies erat malesuada quis. Aliquam dapibus, lacus eget hendrerit bibendum, urna est aliquam sem, sit amet imperdiet est velit quis lorem.</p>
-            <div class="features">
-                <section>
-                    <div class="icon major fa-clock-o"></div>
-                    <a href="#schedule_goal" class="button scrolly">schedule goal</a>
-
-                    <!-- <p>Phasellus convallis elit id ullam corper amet et pulvinar. Duis aliquam turpis mauris, sed ultricies erat dapibus.</p> -->
-                </section>
-                <section>
-                    <span class="icon major fa-redo"></span>
-                    <!-- <h3>reschedule tasks</h3> -->
-                    <a href="{% url 'reschedule_view' %}" class="button scrolly">reschedule task</a>
-                    <!-- <p>Phasellus convallis elit id ullam corper amet et pulvinar. Duis aliquam turpis mauris, sed ultricies erat dapibus.</p> -->
-                </section>
-            </div>
-        </div>
-    </section>
-
-    <!-- Schedule -->
+    <head>
+        <title>Schedule</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+        <link rel="stylesheet" href="static/css/schedule.css" />
+        <noscript><link rel="stylesheet" href="static/css/noscript.css" /></noscript>
+    </head>
+    <body>
+        <!-- Schedule -->
         <section id="schedule_goal" class="wrapper fullscreen style3 fade-up">
-                <!-- <h2 class="formtitle">make an <strong>intentional</strong> goal.</h2> -->
             <div class="formstyle">
                     <h2 class="form_title">make an <strong>intentional</strong> goal.</h2>
                     <form method="POST"> {% csrf_token %}
-                      {% load crispy_forms_tags %}
-                      {% crispy form %}
+                    {% load crispy_forms_tags %}
+                    {% crispy form %}
                     <br>
                     <br>
                     <button class="form_button" type='submit'>schedule</button>
                 </form>
             </div>	 
         </section> 
+    </body>
+</html>
 
    
