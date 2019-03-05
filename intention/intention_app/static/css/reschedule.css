@@ -104,7 +104,7 @@ section, summary, time, mark, audio, video {
 	padding: 0;
 	border: 0;
 	font-size: 100%;
-	font: inherit;
+	/* font: inherit; */
 	/* margin-bottom: auto;
 	margin-top: auto; */
 	text-align: center;
