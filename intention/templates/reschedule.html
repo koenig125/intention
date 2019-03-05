@@ -23,12 +23,13 @@
                     <div class="task"><p>{{task}}</p></div>
                     {% endfor %}
                 </div>
+                <form id="task_form" method="post">{% csrf_token %}
+                </form>
                 <div class="button_container">
-                    <a href="#schedule_goal" class="button reschedule">later today</a>
-                    <a href="#four" class="button reschedule">later this week</a> 
+                        <button id = "tomorrow" class="button reschedule">later this week</button>
+                        <button id = "today" class="button reschedule">later today</button>
                 </div> 
             </div>
-
         </section> 
         <script src="static/js/reschedule.js"></script>
     </body>

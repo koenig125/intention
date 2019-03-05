@@ -43,4 +43,3 @@ class scheduleForm(forms.ModelForm):
     class Meta:
       model = Schedule
       fields = ('name', 'frequency', 'period', 'duration', 'timeunit', 'timerange')
-    

@@ -1,4 +1,5 @@
 from django.db import models
+from django import forms
 
 PERIOD_CHOICES = (('DAY', 'day'), ('WEEK', 'week'), ('MONTH', 'month'),)
 TIMEUNIT_CHOICES = (('HOURS', 'hours'), ('MINUTES', 'minutes'),)
@@ -12,4 +13,5 @@ class Schedule(models.Model):
     duration = models.IntegerField(choices = [(x, x) for x in range(1, 61)], default = 1)
     timeunit = models.CharField(max_length=200, choices = TIMEUNIT_CHOICES, default="HOURS")
     timerange = models.CharField(max_length=200, choices = TIMERANGE_CHOICES, default="MORNING")
+
 

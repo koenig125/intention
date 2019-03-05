@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
-from django.template import loader
+from django.template import RequestContext, loader
 from .forms import scheduleForm
 from .scheduler import make_schedule, get_tasks
 
@@ -39,13 +39,25 @@ def reschedule_view(request):
     template = loader.get_template('reschedule.html')
     print("in reschedule view")
     print(request)
+    tasks = ['do laundry', 'clean room', 'call mom', 'prep dinner', 'email Professor Joe']
     if request.method == "GET": #trying to choose tasks to reschedule
         print("in get")
-        tasks = ["brush teeth", "call mom", "play piano", "laundry", "get boba"]#get_tasks()
-        context = {
-         'tasks' : tasks,
-        }
+        context =  {'tasks' : tasks,}     
+    elif request.method == "POST":
+        # this will be called when someone wants to reschedule something
+        print ("in post")
+        schedule = request.POST.get('schedule', '')
+        tasks_returned = request.POST.get('mydata').split(",")
+        print ("TASKS: ", tasks_returned)
+        print ("SCHEDULE: ", schedule)
+        # will call reschedule from scheduler.py
+        #will render the calendar view
+        return HttpResponseRedirect('calendar')
+
+        context =  {'tasks' : tasks,}   
+    
     return HttpResponse(template.render(context, request))
+   
 
 # A view that will allow people to choose if they want to schedule or reschedule a goal.
 def homepage_view(request):
