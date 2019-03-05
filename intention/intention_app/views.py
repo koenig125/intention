@@ -1,8 +1,8 @@
-from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
+from django.shortcuts import render
 from .forms import scheduleForm
-from .scheduler import make_schedule, get_tasks
+from intention_app.scheduling.scheduler import make_schedule
 
 # Renders the Intention App homepage
 def schedule_view(request):
@@ -42,7 +42,7 @@ def reschedule_view(request):
     print(request)
     if request.method == "GET": #trying to choose tasks to reschedule
         print("in get")
-        tasks = ["brush teeth", "call mom", "play piano", "laundry", "get boba"]#get_tasks()
+        tasks = ["brush teeth", "call mom", "play piano", "laundry", "get boba"] #get_tasks()
         context = {
          'tasks' : tasks,
         }
@@ -50,18 +50,15 @@ def reschedule_view(request):
 
 # A view that will allow people to choose if they want to schedule or reschedule a goal.
 def homepage_view(request):
-    # template = loader.get_template('index.html')
     context = {}
     return render(request, 'index.html', context=context)
 
 # A view that will allow people to view their updated calendar schedule.
 def calendar_view(request):
-    # template = loader.get_template('calendar.html')
     context = {}
     return render(request, 'calendar.html', context=context)
     
 # A view following log-in/authentication that will allow user to choose from available scheduling options
 def scheduling_options_view(request):
-    # template = loader.get_template('scheduling_options.html')
     context = {}
     return render(request, 'scheduling_options.html', context=context)

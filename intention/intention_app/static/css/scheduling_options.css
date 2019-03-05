@@ -15,7 +15,6 @@ button,
     -ms-transition: border-color 0.2s ease;
     transition: border-color 0.2s ease;
     background: #FFFFFF;
-    /*		background-color: transparent;*/
     border: solid 1px !important;
     border-color: rgba(255, 255, 255, 0.15) !important;
     border-radius: 3em;
@@ -467,20 +466,4 @@ p {
 
     .wrapper.style3-alt {
         background-color: #953d75;
-    }
-
-    .wrapper.fullscreen {
-        display: -moz-flex;
-        display: -webkit-flex;
-        display: -ms-flex;
-        display: flex;
-        -moz-flex-direction: column;
-        -webkit-flex-direction: column;
-        -ms-flex-direction: column;
-        flex-direction: column;
-        -moz-justify-content: center;
-        -webkit-justify-content: center;
-        -ms-justify-content: center;
-        justify-content: center;
-        min-height: 100vh;
     }
