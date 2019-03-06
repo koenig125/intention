@@ -4,6 +4,8 @@ Manipulates datetime objects over days, weeks, and months.
 
 Exported Functions
 ------------------
+make_day_start(day)
+make_day_end(day)
 make_start_hour(day, timerange)
 make_end_hour(day, timerange)
 make_next_hour(day)
@@ -62,6 +64,20 @@ AFTERNOON_START, EVENING_START = 12, 18 # Military time.
 MORNING_HOURS = {'start': DAY_START_HOUR, 'end': AFTERNOON_START}
 AFTERNOON_HOURS = {'start': AFTERNOON_START, 'end': EVENING_START}
 EVENING_HOURS = {'start': EVENING_START, 'end': DAY_END_HOUR}
+
+
+def make_day_start(day):
+    """Returns day set to start hour based on DAY_START_TIME, regardless of timerange.."""
+    if day.hour < DAY_START_HOUR: # Time is past midnight. Likely want to reschedule previous day.
+        day -= timedelta(days=1)
+    return day.replace(hour=DAY_START_HOUR, minute=0, second=0, microsecond=0)
+
+
+def make_day_end(day):
+    """Returns day set to start hour based on DAY_END_TIME, regardless of timerange.."""
+    if DAY_END_HOUR < DAY_START_HOUR and not day.hour < DAY_START_HOUR:
+        day += timedelta(days=1) # DAY_END_HOUR is past midnight
+    return day.replace(hour=DAY_END_HOUR, minute=0, second=0, microsecond=0)
 
 
 def make_start_hour(day, timerange):

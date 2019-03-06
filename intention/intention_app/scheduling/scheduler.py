@@ -9,7 +9,6 @@ make_schedule(form_data)
 """
 
 from __future__ import print_function
-from datetime import datetime
 from intention_app.scheduling.consolidator import consolidate_multiple_periods
 from intention_app.scheduling.utils.googleapi_utils import *
 from intention_app.scheduling.utils.scheduling_utils import *
@@ -25,6 +24,7 @@ def make_schedule(form):
     if not events: return False
     add_events_to_calendar(service, events)
     return True
+
 
 def _schedule_events(form, service):
     """Returns events to add to user calendar for multiple consecutive time periods.

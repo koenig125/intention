@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from intention_app.views import homepage_view, schedule_view, reschedule_view, calendar_view, scheduling_options_view
-# from django.conf.urls import url
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),

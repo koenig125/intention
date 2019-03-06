@@ -1,19 +1,10 @@
 """Module to intelligently reschedule user events."""
 
 from __future__ import print_function
-from datetime import datetime
-from intention_app.scheduling.utils.googleapi_utils import get_service, get_localtz, get_events_from_calendar
+from datetime import datetime, timedelta
+from intention_app.scheduling.utils.datetime_utils import make_day_start, make_day_end
+from intention_app.scheduling.utils.googleapi_utils import get_service, get_localtz, get_events_in_range
 
-def get_tasks(): 
-    service = get_service()
-    localtz = get_localtz(service)
-    # time_min = datetime.now(localtz)
-    # time_max = datetime.now(localtz)
-    # tasks =  get_events_from_calendar(service, time_min, time_max)
-    tasks =  get_events_from_calendar(service, localtz)
-    print('### returned tasks ###')
-    print(tasks)
-    return tasks
 
 # All selected events should be rescheduled for a later time
 # in the day than they are currently scheduled for.
@@ -28,3 +19,13 @@ def reschedule(form_data):
     return True
 
 
+def get_events_current_day():
+    service = get_service()
+    localtz = get_localtz(service)
+    current_day = datetime.now(localtz)
+    day_start = make_day_start(current_day)
+    day_end = make_day_end(current_day)
+    events =  get_events_in_range(service, day_start, day_end)
+    print('### returned tasks ###')
+    print(events)
+    return events
