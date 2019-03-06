@@ -14,6 +14,13 @@ def get_tasks():
     print(tasks)
     return tasks
 
+# All selected events should be rescheduled for a later time
+# in the day than they are currently scheduled for.
+#
+# Events whose start times are before the current time have the
+# added constraint that they need to be later than the current time.
+#
+# If there's no time left in the day for some events, notify the user.
 def reschedule(form_data):
     service = get_service()
     # TODO: implement this
