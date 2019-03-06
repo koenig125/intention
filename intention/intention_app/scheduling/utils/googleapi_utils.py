@@ -14,6 +14,8 @@ add_events_to_calendar(service, events, cid='primary')
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from pytz import timezone
+from datetime import datetime
+from intention_app.scheduling.utils.datetime_utils import make_start_hour, make_end_hour
 
 CREDENTIALS_FILE = 'credentials.json'
 SCOPES = ['https://www.googleapis.com/auth/calendar']
@@ -66,13 +68,16 @@ def add_events_to_calendar(service, events, cid='primary'):
         service.events().insert(calendarId=cid, body=event).execute()
 
 
-def get_events_from_calendar(service, timeMin, timeMax, cid='primary'): 
+def get_events_from_calendar(service, localtz, cid='primary'): 
     tasks = []
     page_token = None
     while True:
-        events = service.events().list(calendarId=cid, pageToken=page_token, timeMin=timeMin, timeMax=timeMax).execute()
+        today = datetime.now(localtz)
+        start_time = make_start_hour(today, "ANYTIME")
+        end_time = make_end_hour(today, "ANYTIME")
+        events = service.events().list(calendarId=cid, timeMin=start_time.isoformat(), 
+        timeMax=end_time.isoformat(), pageToken=page_token).execute()
         for event in events['items']:
-            # print(event.keys())
             event_summary = event.get('summary', "Untitled")
             print(event_summary)
             tasks.append(event_summary)

@@ -7,9 +7,10 @@ from intention_app.scheduling.utils.googleapi_utils import get_service, get_loca
 def get_tasks(): 
     service = get_service()
     localtz = get_localtz(service)
-    time_min = datetime.now(localtz)
-    time_max = datetime.now(localtz)
-    tasks =  get_events_from_calendar(service, time_min, time_max)
+    # time_min = datetime.now(localtz)
+    # time_max = datetime.now(localtz)
+    # tasks =  get_events_from_calendar(service, time_min, time_max)
+    tasks =  get_events_from_calendar(service, localtz)
     print('### returned tasks ###')
     print(tasks)
     return tasks

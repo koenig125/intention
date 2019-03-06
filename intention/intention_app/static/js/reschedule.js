@@ -5,12 +5,14 @@ $(document).ready(function() {
         if($(this).hasClass('selected')){
             $(this).removeClass('selected');
             delete selectedList[selectedList.indexOf($(this).text())]
+            console.log(selectedList);
         } else {
             $(this).addClass("selected");
             if(typeof selectedList == 'undefined'){
                 selectedList = []
             }
             selectedList.push($(this).text())
+            console.log(selectedList);
         }
     });
 
@@ -23,7 +25,7 @@ $(document).ready(function() {
             selectedList = selectedList.filter(function (el) {
                 return el != null;
             });
-            
+            console.log(selectedList);
         }
 
         if($(this).id == 'today'){
