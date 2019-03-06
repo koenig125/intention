@@ -124,3 +124,4 @@ dmypy.json
 
 # Google OAth credentials
 credentials.json
+client_secret.json

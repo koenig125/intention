@@ -40,6 +40,11 @@ INSTALLED_APPS = [
     'crispy_forms',
     'django.contrib.staticfiles',
     'intention_app',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
 MIDDLEWARE = [
@@ -126,3 +131,18 @@ STATICFILES_DIRS = (
 )
 
 STATIC_URL = '/static/'
+
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+SITE_ID = 1
+
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
+os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
+
+LOGIN_REDIRECT_URL = 'scheduling_options_view'
+
+ACCOUNT_SESSION_REMEMBER = True

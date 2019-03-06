@@ -1,3 +1,5 @@
+{% load socialaccount %}
+
 <!DOCTYPE HTML>
 <!--
 	Hyperspace by HTML5 UP
@@ -39,8 +41,28 @@
 								<img id="logo" src="{% static "cozyco.png" %}"/ alt="" data-position="top center">
 							</div>
 	
-							<p>let's live today with <b>intention</b>.</p>
-								<a href="{% url 'scheduling_options_view' %}" class="button scrolly">log in with Google</a>
+							<p>Let's live today with <b>intention</b>.</p>
+                            {% if request.user.is_authenticated %}
+                                <p>Welcome,
+                                    {% if request.user.first_name or request.user.last_name %}
+                                        {{ request.user.first_name }} {{ request.user.last_name }}
+                                    {% else %}
+                                        {{ request.user.username }}
+                                    {% endif %}</p><br />
+
+                                <a href="{% url 'scheduling_options_view' %}" class="button scrolly">Get Started</a><br />
+
+                                <form method="post" action="{% url 'account_logout' %}">
+                                    {% csrf_token %}
+                                    {% if redirect_field_value %}
+                                        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+                                    {% endif %}
+                                    <button type="submit">Logout</button>
+                                </form>
+                            {% else %}
+                                <a href="{% provider_login_url 'google' %}" class="button scrolly">Sign In With Google</a>
+                            {% endif %}
+
 						</div>
 					</section>
 
