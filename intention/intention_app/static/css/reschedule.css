@@ -3,13 +3,13 @@
 
 .task {
 	background: #e5e5e5;
-	height: 20%;
-	line-height: 4em;
+	height: auto;
 	margin-top: 1em;
 	margin-bottom: 0;
 	width: auto;
 	border-radius: 40px;	
-	font-size: 130%
+	font-size: 130%;
+	padding: 1em;
 }
 
 .selected {
@@ -41,7 +41,6 @@ p {
 .button_container{
 	display: flex;
 	flex-direction: column;
-	margin-top: 10%;
 	width: 70%;
 }
 
@@ -129,6 +128,7 @@ h1 {
 
 h2 {
 	font-size: 2.75em;
+	padding-bottom: 1.5em;
 }
 
 h3 {
