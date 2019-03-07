@@ -12,8 +12,8 @@ create_event(name, start, end)
 add_events_to_calendar(service, events, cid='primary')
 """
 
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+import google.oauth2.credentials
 from pytz import timezone
 
 CREDENTIALS_FILE = 'credentials.json'
@@ -22,11 +22,10 @@ API_SERVICE_NAME = 'calendar'
 API_VERSION = 'v3'
 
 
-def get_service():
+def get_service(credentials_dict):
     """Returns service object to make Google Calendar API requests."""
-    flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_FILE, SCOPES)
-    creds = flow.run_local_server()
-    service = build(API_SERVICE_NAME, API_VERSION, credentials=creds)
+    credentials = google.oauth2.credentials.Credentials(**credentials_dict)
+    service = build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
     return service
 
 

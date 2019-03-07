@@ -3,7 +3,7 @@
 from __future__ import print_function
 from datetime import datetime, timedelta
 from intention_app.scheduling.utils.datetime_utils import make_day_start, make_day_end
-from intention_app.scheduling.utils.googleapi_utils import get_service, get_localtz, get_events_in_range
+from intention_app.scheduling.utils.googleapi_utils import get_localtz, get_events_in_range
 
 
 # All selected events should be rescheduled for a later time
@@ -13,14 +13,12 @@ from intention_app.scheduling.utils.googleapi_utils import get_service, get_loca
 # added constraint that they need to be later than the current time.
 #
 # If there's no time left in the day for some events, notify the user.
-def reschedule(form_data):
-    service = get_service()
+def reschedule(form_data, service):
     # TODO: implement this
     return True
 
 
-def get_events_current_day():
-    service = get_service()
+def get_events_current_day(service):
     localtz = get_localtz(service)
     current_day = datetime.now(localtz)
     day_start = make_day_start(current_day)

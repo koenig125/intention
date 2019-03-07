@@ -9,17 +9,17 @@ make_schedule(form_data)
 """
 
 from __future__ import print_function
+from datetime import datetime
 from intention_app.scheduling.consolidator import consolidate_multiple_periods
 from intention_app.scheduling.utils.googleapi_utils import *
 from intention_app.scheduling.utils.scheduling_utils import *
 
 
-def make_schedule(form):
+def make_schedule(form, service):
     """Schedules events based on form_data and adds them to user Google calendar.
 
     Returns whether or not events were successfully scheduled based on availability.
     """
-    service = get_service()
     events = _schedule_events(form, service)
     if not events: return False
     add_events_to_calendar(service, events)
