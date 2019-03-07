@@ -51,6 +51,7 @@ def get_busy_ranges(service, timeMin, timeMax, cid='primary'):
 def get_events_in_range(service, timeMin, timeMax, cid='primary'):
     """Returns ids and titles of events in user calendar from start hour to end hour of current day."""
     events = []
+    event_map = {}
     page_token = None
     while True:
         events_list = service.events().list(calendarId=cid, pageToken=page_token, singleEvents=True, showDeleted=False,
@@ -60,12 +61,13 @@ def get_events_in_range(service, timeMin, timeMax, cid='primary'):
             event_summary = event['summary']
             event_start = event['start']['dateTime']
             events.append((event_id, event_summary, event_start))
+            event_map[event_id] = event
         page_token = events_list.get('nextPageToken')
         if not page_token:
             break
     events.sort(key=lambda x : x[2]) # sort events by start time.
     ids_and_titles = [(event[0], event[1]) for event in events]
-    return ids_and_titles
+    return ids_and_titles, event_map
 
 
 def create_event(name, start, end):

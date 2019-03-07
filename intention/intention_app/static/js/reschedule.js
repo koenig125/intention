@@ -4,14 +4,14 @@ $(document).ready(function() {
     $(".task").click(function(e) {
         if($(this).hasClass('selected')){
             $(this).removeClass('selected');
-            delete selectedList[selectedList.indexOf($(this).text())]
+            delete selectedList[selectedList.indexOf($(this).attr('id'))]
             console.log(selectedList);
         } else {
             $(this).addClass("selected");
             if(typeof selectedList == 'undefined'){
                 selectedList = []
             }
-            selectedList.push($(this).text())
+            selectedList.push($(this).attr('id'))
             console.log(selectedList);
         }
     });

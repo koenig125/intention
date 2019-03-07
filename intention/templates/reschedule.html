@@ -19,8 +19,8 @@
             <div class="flex_container">
                 <div class="task_container"> 
                     <h3>today's tasks</h3>
-                    {% for task in tasks %}
-                    <div class="task"><p>{{task}}</p></div>
+                    {% for id, task in tasks %}
+                    <div class="task" id='{{ id }}'><p>{{ task }}</p></div>
                     {% endfor %}
                 </div>
                 <form id="task_form" method="post">{% csrf_token %}

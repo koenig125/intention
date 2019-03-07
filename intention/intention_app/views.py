@@ -65,19 +65,26 @@ def reschedule_view(request):
 
     # Populate list of rescheduling candidates with events.
     if request.method == "GET":
-        tasks = get_events_current_day()
+        tasks, all_events = get_events_current_day()
+        request.session['events'] = all_events
         ids = [task[0] for task in tasks]
         titles = [task[1] for task in tasks]
-        context =  {'tasks' : titles,}
+        context =  {'tasks' : tasks,}
         return HttpResponse(template.render(context, request))
 
     # Called when rescheduling initiated after events selected.
     elif request.method == "POST":
         print ("in post")
+        # print(request.session['events'])
+        # check what things you clicked, use the id to look up the event objects for selected events
         schedule = request.POST.get('schedule', '')
         tasks_returned = request.POST.get('mydata').split(",")
-        print ("TASKS: ", tasks_returned)
+        print ("TASK_IDS_SELECTED: ", tasks_returned)
         print ("SCHEDULE: ", schedule)
+
+        events = request.session['events']
+        tasks = [events[id] for id in tasks_returned] 
+        print ("EVENTS_RETURNED: ", tasks)
         # will call reschedule from scheduler.py
         # will render the calendar view
         context =  {'tasks' : tasks,}
