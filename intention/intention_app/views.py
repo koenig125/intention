@@ -6,12 +6,10 @@ from intention_app.scheduling.scheduler import make_schedule
 from intention_app.scheduling.rescheduler import get_events_current_day
 from django.contrib.auth.decorators import login_required
 from google_auth_oauthlib.flow import InstalledAppFlow
-from intention_app.scheduling.utils.googleapi_utils import get_service
+from google.oauth2.credentials import Credentials
 
 CLIENT_SECRETS_FILE = 'client_secret.json'
 SCOPES = ['https://www.googleapis.com/auth/calendar']
-API_SERVICE_NAME = 'calendar'
-API_VERSION = 'v3'
 
 
 def homepage_view(request):
@@ -39,8 +37,9 @@ def schedule_view(request):
         form = scheduleForm(request.POST)
         if form.is_valid():
             form_data = unpack_form_data(request)
-            service = get_service(request.session['credentials'])
-            success = make_schedule(form_data, service)
+            credentials = Credentials(**request.session['credentials'])
+            success = make_schedule(form_data, credentials)
+            request.session['credentials'] = credentials_to_dict(credentials)
             if not success:
                 form = scheduleForm()
                 context = {
@@ -71,8 +70,9 @@ def reschedule_view(request):
 
     # Populate list of rescheduling candidates with events.
     if request.method == "GET":
-        service = get_service(request.session['credentials'])
-        tasks, all_events = get_events_current_day(service)
+        credentials = Credentials(**request.session['credentials'])
+        tasks, all_events = get_events_current_day(credentials)
+        request.session['credentials'] = credentials_to_dict(credentials)
         request.session['events'] = all_events
         ids = [task[0] for task in tasks]
         titles = [task[1] for task in tasks]

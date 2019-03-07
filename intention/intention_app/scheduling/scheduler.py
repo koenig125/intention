@@ -15,25 +15,25 @@ from intention_app.scheduling.utils.googleapi_utils import *
 from intention_app.scheduling.utils.scheduling_utils import *
 
 
-def make_schedule(form, service):
+def make_schedule(form, credentials):
     """Schedules events based on form_data and adds them to user Google calendar.
 
     Returns whether or not events were successfully scheduled based on availability.
     """
-    events = _schedule_events(form, service)
+    events = _schedule_events(form, credentials)
     if not events: return False
-    add_events_to_calendar(service, events)
+    add_events_to_calendar(credentials, events)
     return True
 
 
-def _schedule_events(form, service):
+def _schedule_events(form, credentials):
     """Returns events to add to user calendar for multiple consecutive time periods.
 
     If period is day, schedules events daily until the end of the week. If week,
     schedules events weekly until the 2nd to last week of the current month. If
     month, schedules events monthly for the current month and 2 months further.
     """
-    localtz = get_localtz(service)
+    localtz = get_localtz(credentials)
     name, frequency, period, duration, timeunit, timerange = unpack_form(form)
     period_start_time = get_start_time(datetime.now(localtz), timerange)
     period_end_time = get_end_of_period(datetime.now(localtz), period, timerange, localtz)
@@ -42,15 +42,15 @@ def _schedule_events(form, service):
     event_start_max = decrement_time(period_end_time, timeunit, duration)
     range_start, range_end = get_day_start_end_times(period_start_time, timerange)
 
-    events_consolidated = _schedule_events_consolidated_periods(form, service, localtz, period_start_time,
-                                                period_end_time, event_start, event_start_max, range_start, range_end)
+    events_consolidated = _schedule_events_consolidated_periods(form, credentials, localtz, period_start_time,
+                                                                period_end_time, event_start, event_start_max, range_start, range_end)
     if events_consolidated: return events_consolidated
-    events_multiple = _schedule_events_multiple_periods(form, service, localtz, period_start_time, period_end_time,
-                                                       event_start, event_start_max, range_start, range_end)
+    events_multiple = _schedule_events_multiple_periods(form, credentials, localtz, period_start_time, period_end_time,
+                                                        event_start, event_start_max, range_start, range_end)
     return events_multiple
 
 
-def _schedule_events_consolidated_periods(form, service, localtz, first_period_start, first_period_end,
+def _schedule_events_consolidated_periods(form, credentials, localtz, first_period_start, first_period_end,
                                           event_start, event_start_max, range_start, range_end):
     """Returns events to add to user calendar using consolidated time periods.
 
@@ -59,7 +59,7 @@ def _schedule_events_consolidated_periods(form, service, localtz, first_period_s
     """
     name, frequency, period, duration, timeunit, timerange = unpack_form(form)
     multi_period_end = get_end_of_multi_period(first_period_start, period, timerange, localtz)
-    busy_times = get_busy_ranges(service, first_period_start, multi_period_end)
+    busy_times = get_busy_ranges(credentials, first_period_start, multi_period_end)
     consolidated = consolidate_multiple_periods(busy_times, first_period_start, first_period_end, period, localtz)
     events = _schedule_events_single_period(form, event_start, event_start_max,
                                             consolidated, range_start, range_end, localtz)
@@ -68,7 +68,7 @@ def _schedule_events_consolidated_periods(form, service, localtz, first_period_s
     return _copy_events(events, num_copies, period, name, localtz)
 
 
-def _schedule_events_multiple_periods(form, service, localtz, period_start_time, period_end_time,
+def _schedule_events_multiple_periods(form, credentials, localtz, period_start_time, period_end_time,
                                       event_start, event_start_max, range_start, range_end):
     """Returns events to add to user calendar for multiple consecutive time periods.
 
@@ -77,7 +77,7 @@ def _schedule_events_multiple_periods(form, service, localtz, period_start_time,
     """
     events = []
     name, frequency, period, duration, timeunit, timerange = unpack_form(form)
-    busy_times = get_busy_ranges(service, period_start_time, period_end_time)
+    busy_times = get_busy_ranges(credentials, period_start_time, period_end_time)
     num_periods = get_number_periods(period_start_time, period, localtz)
     for i in range(num_periods):
         events_for_single_period = _schedule_events_single_period(form, event_start, event_start_max,
@@ -89,7 +89,7 @@ def _schedule_events_multiple_periods(form, service, localtz, period_start_time,
         event_start = period_start_time
         event_start_max = decrement_time(period_end_time, timeunit, duration)
         range_start, range_end = get_day_start_end_times(period_start_time, timerange)
-        busy_times = get_busy_ranges(service, period_start_time, period_end_time)
+        busy_times = get_busy_ranges(credentials, period_start_time, period_end_time)
     return events
 
 

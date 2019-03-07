@@ -4,57 +4,49 @@ Handles all requests and responses with Google Cal API.
 
 Exported Functions
 ------------------
-get_service()
-get_localtz(service, cid='primary')
-get_busy_ranges(service, timeMin, timeMax, cid='primary')
-get_events_in_range(service, localtz, cid='primary')
+get_localtz(credentials, cid='primary')
+get_busy_ranges(credentials, timeMin, timeMax, cid='primary')
+get_events_in_range(credentials, localtz, cid='primary')
 create_event(name, start, end)
-add_events_to_calendar(service, events, cid='primary')
+add_events_to_calendar(credentials, events, cid='primary')
 """
 
 from googleapiclient.discovery import build
-import google.oauth2.credentials
 from pytz import timezone
 
-CREDENTIALS_FILE = 'credentials.json'
-SCOPES = ['https://www.googleapis.com/auth/calendar']
 API_SERVICE_NAME = 'calendar'
 API_VERSION = 'v3'
 
 
-def get_service(credentials_dict):
-    """Returns service object to make Google Calendar API requests."""
-    credentials = google.oauth2.credentials.Credentials(**credentials_dict)
-    service = build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
-    return service
-
-
-def get_localtz(service, cid='primary'):
+def get_localtz(credentials, cid='primary'):
     """Returns timezone associated with user calendar."""
+    service = build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
     calendar = service.calendars().get(calendarId=cid).execute()
     timezone_name = calendar['timeZone']
     return timezone(timezone_name)
 
 
-def get_busy_ranges(service, timeMin, timeMax, cid='primary'):
+def get_busy_ranges(credentials, timeMin, timeMax, cid='primary'):
     """Returns free/busy information for user calendar."""
     params = {
         'timeMin': timeMin.isoformat(),
         'timeMax': timeMax.isoformat(),
         'items': [{'id': cid}],
     }
+    service = build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
     busy_ranges = service.freebusy().query(body=params).execute()
     return busy_ranges['calendars'][cid]['busy']
 
 
-def get_events_in_range(service, timeMin, timeMax, cid='primary'):
+def get_events_in_range(credentials, timeMin, timeMax, cid='primary'):
     """Returns ids and titles of events in user calendar from start hour to end hour of current day."""
     events = []
     event_map = {}
     page_token = None
     while True:
+        service = build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
         events_list = service.events().list(calendarId=cid, pageToken=page_token, singleEvents=True, showDeleted=False,
-                                            maxResults=1000, timeMin=timeMin.isoformat(), timeMax=timeMax.isoformat()).execute()
+                                                maxResults=1000, timeMin=timeMin.isoformat(), timeMax=timeMax.isoformat()).execute()
         for event in events_list['items']:
             event_id = event['id']
             event_summary = event['summary']
@@ -82,7 +74,8 @@ def create_event(name, start, end):
         }
 
 
-def add_events_to_calendar(service, events, cid='primary'):
+def add_events_to_calendar(credentials, events, cid='primary'):
     """Makes API requests to insert new events into user calendar."""
     for event in events:
+        service = build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
         service.events().insert(calendarId=cid, body=event).execute()

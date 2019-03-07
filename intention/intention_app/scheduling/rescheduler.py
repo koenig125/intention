@@ -18,12 +18,10 @@ def reschedule(form_data, service):
     return True
 
 
-def get_events_current_day(service):
-    localtz = get_localtz(service)
+def get_events_current_day(credentials):
+    localtz = get_localtz(credentials)
     current_day = datetime.now(localtz)
     day_start = make_day_start(current_day)
     day_end = make_day_end(current_day)
-    events =  get_events_in_range(service, day_start, day_end)
-    print('### returned tasks ###')
-    print(events)
-    return events
+    ids_and_titles, event_map = get_events_in_range(credentials, day_start, day_end)
+    return ids_and_titles, event_map
