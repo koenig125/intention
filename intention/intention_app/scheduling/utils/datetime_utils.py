@@ -105,12 +105,6 @@ def make_next_hour(day):
     return day.replace(hour=day.hour, minute=0, second=0, microsecond=0) + timedelta(hours=1)
 
 
-def make_max_next_hour(day, day_of_event):
-    """Returns day set to hour proceeding the current hour."""
-    start_of_reschedule_hour = max(day, day_of_event)
-    return day.replace(hour=day.hour, minute=0, second=0, microsecond=0) + timedelta(hours=1)
-
-
 def get_start_of_day(day, timerange):
     """Returns day provided set to start hour."""
     return make_start_hour(day, timerange)
@@ -286,3 +280,9 @@ def _get_dst_correction(base_dt, new_dt, localtz):
         return timedelta(hours=1)
     else:
         return timedelta(hours=0)
+
+
+def get_event_length(event):
+    event_original_start_time = parse_datetime(event["start"]["dateTime"])
+    event_original_end_time = parse_datetime(event["end"]["dateTime"])
+    return event_original_end_time - event_original_start_time

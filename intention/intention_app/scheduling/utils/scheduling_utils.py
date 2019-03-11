@@ -109,8 +109,22 @@ def update_index(index, events, threshold_time):
     return index
 
 
+def update_index_events(index, events, threshold_time):
+    while (index < len(events) and
+           parse_datetime(events[index]['end']['dateTime']) <= threshold_time):
+        index += 1
+    return index
+
+
 def get_range_start_end(timerange, localtz):
     """Returns start and end datetime objects of the timerange provided."""
     range_start = parse_datetime(timerange['start']).astimezone(localtz)
     range_end = parse_datetime(timerange['end']).astimezone(localtz)
+    return range_start, range_end
+
+
+def get_range_start_end_events(timerange, localtz):
+    """Returns start and end datetime objects of the timerange provided."""
+    range_start = parse_datetime(timerange['start']['dateTime']).astimezone(localtz)
+    range_end = parse_datetime(timerange['end']['dateTime']).astimezone(localtz)
     return range_start, range_end

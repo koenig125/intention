@@ -79,3 +79,10 @@ def add_events_to_calendar(credentials, events, cid='primary'):
     for event in events:
         service = build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
         service.events().insert(calendarId=cid, body=event).execute()
+
+
+def update_events_in_calendar(credentials, events, cid="primary"):
+    """Makes API requests to update events into user calendar."""
+    for event in events:
+        service = build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+        service.events().update(calendarId=cid, eventId=event['id'], body=event).execute()

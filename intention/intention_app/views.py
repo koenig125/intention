@@ -3,7 +3,7 @@ from django.template import loader
 from django.shortcuts import render
 from .forms import scheduleForm
 from intention_app.scheduling.scheduler import make_schedule
-from intention_app.scheduling.rescheduler import get_events_current_day
+from intention_app.scheduling.rescheduler import get_events_current_day, reschedule
 from django.contrib.auth.decorators import login_required
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.oauth2.credentials import Credentials
@@ -74,28 +74,20 @@ def reschedule_view(request):
         tasks, all_events = get_events_current_day(credentials)
         request.session['credentials'] = credentials_to_dict(credentials)
         request.session['events'] = all_events
-        ids = [task[0] for task in tasks]
-        titles = [task[1] for task in tasks]
         context =  {'tasks' : tasks,}
         return HttpResponse(template.render(context, request))
 
     # Called when rescheduling initiated after events selected.
     elif request.method == "POST":
-        print ("in post")
-        # print(request.session['events'])
-        # check what things you clicked, use the id to look up the event objects for selected events
-        schedule = request.POST.get('schedule', '')
-        tasks_returned = request.POST.get('mydata').split(",")
-        if tasks_returned[0] == '': tasks_returned = []
-        print ("TASK_IDS_SELECTED: ", tasks_returned)
-        print ("SCHEDULE: ", schedule)
-
+        if request.POST.get('mydata') == '': # no events selected by user.
+            return HttpResponseRedirect('reschedule')
         events = request.session['events']
-        tasks = [events[tid] for tid in tasks_returned]
-        print ("EVENTS_RETURNED: ", tasks)
-        # will call reschedule from scheduler.py
-        # will render the calendar view
-        context =  {'tasks' : tasks,}
+        event_ids = request.POST.get('mydata').split(",")
+        selected_events = [events[eid] for eid in event_ids]
+        deadline = request.POST.get('schedule', '')
+        credentials = Credentials(**request.session['credentials'])
+        reschedule(selected_events, deadline, credentials)
+        request.session['credentials'] = credentials_to_dict(credentials)
         return HttpResponseRedirect('calendar')
 
 

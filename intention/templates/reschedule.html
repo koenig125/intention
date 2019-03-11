@@ -15,10 +15,10 @@
     <body>
         <!-- Reschedule -->
         <section id="reschedule" class="wrapper fullscreen style2 fade-up">
-            <h2>Select Tasks To Reschedule</h2>
+            <h2>Select Events To Reschedule</h2>
             <div class="flex_container">
                 <div class="task_container"> 
-                    <h3>Today's Tasks</h3>
+                    <h3>Today's Events</h3>
                     {% for id, task in tasks %}
                     <div class="task" id='{{ id }}'><p>{{ task }}</p></div>
                     {% endfor %}
@@ -28,7 +28,7 @@
                 <div class="button_container">
                         <button id = "tomorrow" class="button reschedule">Later This Week</button>
                         <button id = "today" class="button reschedule">Later Today</button>
-                </div> 
+                </div>
             </div>
         </section> 
         <script src="static/js/reschedule.js"></script>
