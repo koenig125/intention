@@ -105,6 +105,12 @@ def make_next_hour(day):
     return day.replace(hour=day.hour, minute=0, second=0, microsecond=0) + timedelta(hours=1)
 
 
+def make_max_next_hour(day, day_of_event):
+    """Returns day set to hour proceeding the current hour."""
+    start_of_reschedule_hour = max(day, day_of_event)
+    return day.replace(hour=day.hour, minute=0, second=0, microsecond=0) + timedelta(hours=1)
+
+
 def get_start_of_day(day, timerange):
     """Returns day provided set to start hour."""
     return make_start_hour(day, timerange)
