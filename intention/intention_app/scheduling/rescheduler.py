@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 from intention_app.scheduling.utils.googleapi_utils import *
 from intention_app.scheduling.utils.scheduling_utils import *
 
-LATER_TODAY = "LATER_TODAY"
+TODAY = "TODAY"
 LATER_THIS_WEEK = "LATER_THIS_WEEK"
 NEXT_WEEK = "NEXT_WEEK"
 
@@ -59,7 +59,7 @@ def get_minimum_start_times(events, localtz):
 
 def get_scheduling_deadline(deadline, localtz):
     now = datetime.now(localtz)
-    if deadline == LATER_TODAY: return make_day_end(now)
+    if deadline == TODAY: return make_day_end(now)
     elif deadline == LATER_THIS_WEEK: return get_end_of_week(now, "ANYTIME", localtz)
     elif deadline == NEXT_WEEK: pass
 

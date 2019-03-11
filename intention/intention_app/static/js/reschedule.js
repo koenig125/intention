@@ -28,7 +28,7 @@ $(document).ready(function() {
             console.log(selectedList);
         }
 
-        if($(this).id == 'today'){
+        if(this.id == 'today'){
             schedule = $("<input>").attr("type", "hidden")
             .attr("name", "schedule").val("TODAY");
         } else {
