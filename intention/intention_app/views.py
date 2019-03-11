@@ -74,7 +74,7 @@ def reschedule_view(request):
         tasks, all_events = get_events_current_day(credentials)
         request.session['credentials'] = credentials_to_dict(credentials)
         request.session['events'] = all_events
-        context =  {'tasks' : tasks,}
+        context =  {'tasks' : tasks, 'message': 'Select Events to Reschedule'}
         return HttpResponse(template.render(context, request))
 
     # Called when rescheduling initiated after events selected.
@@ -86,7 +86,12 @@ def reschedule_view(request):
         selected_events = [events[eid] for eid in event_ids]
         deadline = request.POST.get('schedule', '')
         credentials = Credentials(**request.session['credentials'])
-        reschedule(selected_events, deadline, credentials)
+        if not reschedule(selected_events, deadline, credentials):
+            tasks, all_events = get_events_current_day(credentials)
+            request.session['credentials'] = credentials_to_dict(credentials)
+            request.session['events'] = all_events
+            context = {'tasks': tasks, 'message': 'Looks like you\'re overbooked! Try again.'}
+            return HttpResponse(template.render(context, request))
         request.session['credentials'] = credentials_to_dict(credentials)
         return HttpResponseRedirect('calendar')
 
