@@ -28,6 +28,11 @@
 					<a href="{% url 'reschedule_view' %}" class="button">Reschedule Task</a>
                     <a href="{% url 'homepage' %}" class="button">Back to Home</a>
 				</div> 
+				<div>
+				{% for event in selected_events %}
+ 				 <p>{{event.0}} was rescheduled to {{event.1}} </p>
+				{% endfor %}
+				</div>
 			</div>
 		</section>
 	</body>
