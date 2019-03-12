@@ -12,7 +12,7 @@ import numpy as np
 from datetime import timedelta
 from intention_app.scheduling.utils.datetime_utils import add_timedelta, get_weekday_index, get_week_number, \
     is_dst, DAY, WEEK, MONTH, SECONDS_IN_MINUTE, MINUTES_IN_HOUR, HOURS_IN_DAY, DAYS_IN_WEEK
-from intention_app.scheduling.utils.scheduling_utils import get_range_start_end
+from intention_app.scheduling.utils.scheduling_utils import get_range_freebusy
 
 # Number days in month consolidation.
 DAYS_IN_MONTH_ARRAY = 28
@@ -46,8 +46,8 @@ def _make_minute_array(period, minutes_in_period):
 
 def _consolidate_days_or_weeks(busy_ranges, first_period_start, minutes_in_period, minute_array, localtz):
     """Populates minute array for days or weeks with values set to False for busy ranges."""
-    for busy_range in busy_ranges:
-        busy_start, busy_end = get_range_start_end(busy_range, localtz)
+    for i in range(len(busy_ranges)):
+        busy_start, busy_end = get_range_freebusy(i, busy_ranges, localtz)
         start_minute = int(_get_minutes_between(first_period_start, busy_start, localtz) % minutes_in_period)
         end_minute = int(_get_minutes_between(first_period_start, busy_end, localtz) % minutes_in_period)
         minute_array[start_minute:end_minute] = False
@@ -59,8 +59,8 @@ def _consolidate_days_or_weeks(busy_ranges, first_period_start, minutes_in_perio
 def _consolidate_months(busy_ranges, first_period_start, minute_array, localtz):
     """Populates minute array for months with values set to False for busy ranges."""
     first_seven_days_week_nums = _get_first_seven_days_week_nums(first_period_start)
-    for busy_range in busy_ranges:
-        busy_start, busy_end = get_range_start_end(busy_range, localtz)
+    for i in range(len(busy_ranges)):
+        busy_start, busy_end = get_range_freebusy(i, busy_ranges, localtz)
         busy_day_week_num = get_week_number(busy_start)
         orig_day = first_seven_days_week_nums[get_weekday_index(busy_start)][0]
         orig_day_week_num = first_seven_days_week_nums[get_weekday_index(busy_start)][1]

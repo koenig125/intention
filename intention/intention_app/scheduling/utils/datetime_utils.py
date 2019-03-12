@@ -4,11 +4,6 @@ Manipulates datetime objects over days, weeks, and months.
 
 Exported Functions
 ------------------
-make_day_start(day)
-make_day_end(day)
-make_start_hour(day, timerange)
-make_end_hour(day, timerange)
-make_next_hour(day)
 get_start_of_day(day, timerange)
 get_start_of_next_day(day, timerange, localtz)
 get_start_of_next_week(day, timerange, localtz)
@@ -25,12 +20,17 @@ get_days_left_in_week(day)
 get_days_left_in_month(day)
 get_days_left_in_quarter(day)
 get_weeks_left_in_month(day, localtz)
-get_day_start_end_times(day, timerange)
-increment_time(day, timeunit, duration)
-decrement_time(day, timeunit, duration)
+make_start_hour(day, timerange)
+make_end_hour(day, timerange)
+make_day_start(day)
+make_day_end(day)
+make_next_hour(day)
+get_timerange_start_end_time(day, timerange)
+get_day_start_end_time(day)
 add_timedelta(td, dt, localtz)
 parse_datetime(dt_str)
 is_dst(dt, localtz)
+is_whole_hour(dt)
 get_week_number(day)
 get_weekday_index(day)
 get_month_timedelta(day, num_periods, localtz)
@@ -64,45 +64,6 @@ AFTERNOON_START, EVENING_START = 12, 18 # Military time.
 MORNING_HOURS = {'start': DAY_START_HOUR, 'end': AFTERNOON_START}
 AFTERNOON_HOURS = {'start': AFTERNOON_START, 'end': EVENING_START}
 EVENING_HOURS = {'start': EVENING_START, 'end': DAY_END_HOUR}
-
-
-def make_day_start(day):
-    """Returns day set to start hour based on DAY_START_TIME, regardless of timerange.."""
-    if day.hour < DAY_START_HOUR: # Time is past midnight. Likely want to reschedule previous day.
-        day -= timedelta(days=1)
-    return day.replace(hour=DAY_START_HOUR, minute=0, second=0, microsecond=0)
-
-
-def make_day_end(day):
-    """Returns day set to start hour based on DAY_END_TIME, regardless of timerange.."""
-    if DAY_END_HOUR < DAY_START_HOUR and not day.hour < DAY_START_HOUR:
-        day += timedelta(days=1) # DAY_END_HOUR is past midnight
-    return day.replace(hour=DAY_END_HOUR, minute=0, second=0, microsecond=0)
-
-
-def make_start_hour(day, timerange):
-    """Returns day set to start hour based on timerange."""
-    start_hour = DAY_START_HOUR
-    if timerange == MORNING: start_hour = MORNING_HOURS['start']
-    elif timerange == AFTERNOON: start_hour = AFTERNOON_HOURS['start']
-    elif timerange == EVENING: start_hour = EVENING_HOURS['start']
-    return day.replace(hour=start_hour, minute=0, second=0, microsecond=0)
-
-
-def make_end_hour(day, timerange):
-    """Returns day set to end hour based on timerange."""
-    end_hour = DAY_END_HOUR
-    if timerange == MORNING: end_hour = MORNING_HOURS['end']
-    elif timerange == AFTERNOON: end_hour = AFTERNOON_HOURS['end']
-    elif timerange == EVENING: end_hour = EVENING_HOURS['end']
-    if end_hour == DAY_END_HOUR and DAY_END_HOUR < DAY_START_HOUR:
-        day += timedelta(days=1) # Day end time is past midnight.
-    return day.replace(hour=end_hour, minute=0, second=0, microsecond=0)
-
-
-def make_next_hour(day):
-    """Returns day set to hour proceeding the current hour."""
-    return day.replace(hour=day.hour, minute=0, second=0, microsecond=0) + timedelta(hours=1)
 
 
 def get_start_of_day(day, timerange):
@@ -199,21 +160,53 @@ def get_weeks_left_in_month(day, localtz):
     return weeks_remaining + 1 # 1 for current week
 
 
-def get_day_start_end_times(day, timerange):
+def make_start_hour(day, timerange):
+    """Returns day set to start hour based on timerange."""
+    start_hour = DAY_START_HOUR
+    if timerange == MORNING: start_hour = MORNING_HOURS['start']
+    elif timerange == AFTERNOON: start_hour = AFTERNOON_HOURS['start']
+    elif timerange == EVENING: start_hour = EVENING_HOURS['start']
+    return day.replace(hour=start_hour, minute=0, second=0, microsecond=0)
+
+
+def make_end_hour(day, timerange):
+    """Returns day set to end hour based on timerange."""
+    end_hour = DAY_END_HOUR
+    if timerange == MORNING: end_hour = MORNING_HOURS['end']
+    elif timerange == AFTERNOON: end_hour = AFTERNOON_HOURS['end']
+    elif timerange == EVENING: end_hour = EVENING_HOURS['end']
+    if end_hour == DAY_END_HOUR and DAY_END_HOUR < DAY_START_HOUR:
+        day += timedelta(days=1) # Day end time is past midnight.
+    return day.replace(hour=end_hour, minute=0, second=0, microsecond=0)
+
+
+def make_day_start(day):
+    """Returns day set to start hour based on DAY_START_TIME, regardless of timerange."""
+    if day.hour < DAY_START_HOUR: # Time is past midnight. Likely want to reschedule previous day.
+        day -= timedelta(days=1)
+    return day.replace(hour=DAY_START_HOUR, minute=0, second=0, microsecond=0)
+
+
+def make_day_end(day):
+    """Returns day set to start hour based on DAY_END_TIME, regardless of timerange."""
+    if DAY_END_HOUR < DAY_START_HOUR and not day.hour < DAY_START_HOUR:
+        day += timedelta(days=1) # DAY_END_HOUR is past midnight
+    return day.replace(hour=DAY_END_HOUR, minute=0, second=0, microsecond=0)
+
+
+def make_next_hour(day):
+    """Returns day set to hour proceeding the current hour."""
+    return day.replace(hour=day.hour, minute=0, second=0, microsecond=0) + timedelta(hours=1)
+
+
+def get_timerange_start_end_time(day, timerange):
     """Returns start and end times of day provided based on timerange."""
     return get_start_of_day(day, timerange), get_end_of_day(day, timerange)
 
 
-def increment_time(day, timeunit, duration):
-    """Returns day incremented by duration of unit timeunit."""
-    if timeunit == HOURS: return day + timedelta(hours=duration)
-    elif timeunit == MINUTES: return day + timedelta(minutes=duration)
-
-
-def decrement_time(day, timeunit, duration):
-    """Returns day decremented by duration of unit timeunit."""
-    if timeunit == HOURS: return day - timedelta(hours=duration)
-    elif timeunit == MINUTES: return day - timedelta(minutes=duration)
+def get_day_start_end_time(day):
+    """Returns start and end times of day provided based on DAY_START and DAY_END."""
+    return make_day_start(day), make_day_end(day)
 
 
 def add_timedelta(td, dt, localtz):
@@ -230,6 +223,11 @@ def is_dst(dt, localtz):
     """Returns whether or not datetime provided is in daylight savings time."""
     dt_loc = localtz.localize(dt.replace(tzinfo=None))
     return bool(dt_loc.dst())
+
+
+def is_whole_hour(dt):
+    """Returns whether or not datetime provided is whole hour, ie 1:00, 2:00, etc."""
+    return dt.minute == 0 and dt.second == 0 and dt.microsecond == 0
 
 
 def get_week_number(day):

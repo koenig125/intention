@@ -28,12 +28,15 @@ $(document).ready(function() {
             console.log(selectedList);
         }
 
-        if($(this).id == 'today'){
+        if(this.id == 'today'){
             schedule = $("<input>").attr("type", "hidden")
             .attr("name", "schedule").val("TODAY");
+        } else if (this.id == 'this_week') {
+            schedule = $("<input>").attr("type", "hidden")
+            .attr("name", "schedule").val("THIS_WEEK");
         } else {
             schedule = $("<input>").attr("type", "hidden")
-            .attr("name", "schedule").val("LATER_THIS_WEEK");
+            .attr("name", "schedule").val("NEXT_WEEK");
         }
         
         var selected = $("<input>").attr("type", "hidden")
