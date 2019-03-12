@@ -37,102 +37,110 @@ def _schedule_events(form, credentials):
     name, frequency, period, duration, timeunit, timerange = unpack_form(form)
     period_start_time = get_start_time(datetime.now(localtz), timerange)
     period_end_time = get_end_of_period(datetime.now(localtz), period, timerange, localtz)
-    if period_start_time > period_end_time: return None # Triggered when can't schedule event by end of day/week
+    if period_start_time > period_end_time: return None # Can't schedule event by end of day/week
+    day_start, day_end = get_timerange_start_end_time(period_start_time, timerange)
     event_start = period_start_time
-    event_start_max = decrement_time(period_end_time, timeunit, duration)
-    range_start, range_end = get_timerange_start_end_time(period_start_time, timerange)
+    event_length = get_event_duration(timeunit, duration)
+    event_start_max = period_end_time - event_length
 
     events_consolidated = _schedule_events_consolidated_periods(form, credentials, localtz, period_start_time,
-                                                                period_end_time, event_start, event_start_max, range_start, range_end)
+                                                                period_end_time, day_start, day_end, event_start,
+                                                                event_length, event_start_max)
     if events_consolidated: return events_consolidated
     events_multiple = _schedule_events_multiple_periods(form, credentials, localtz, period_start_time, period_end_time,
-                                                        event_start, event_start_max, range_start, range_end)
+                                                        day_start, day_end, event_start, event_length, event_start_max)
     return events_multiple
 
 
-def _schedule_events_consolidated_periods(form, credentials, localtz, first_period_start, first_period_end,
-                                          event_start, event_start_max, range_start, range_end):
+def _schedule_events_consolidated_periods(form, credentials, localtz, first_period_start, first_period_end, day_start,
+                                          day_end, event_start, event_length, event_start_max):
     """Returns events to add to user calendar using consolidated time periods.
 
     Consolidates user calendar free busy information across multiple periods into a
     single period timeframe and attempts to schedule events within that timeframe.
+    :param event_length:
     """
     name, frequency, period, duration, timeunit, timerange = unpack_form(form)
     multi_period_end = get_end_of_multi_period(first_period_start, period, timerange, localtz)
-    busy_times = get_freebusy_in_range(credentials, first_period_start, multi_period_end)
-    consolidated = consolidate_multiple_periods(busy_times, first_period_start, first_period_end, period, localtz)
-    events = _schedule_events_single_period(form, event_start, event_start_max,
-                                            consolidated, range_start, range_end, localtz)
+    freebusy_ranges = get_freebusy_in_range(credentials, first_period_start, multi_period_end)
+    consolidated = consolidate_multiple_periods(freebusy_ranges, first_period_start, first_period_end, period, localtz)
+    events = _schedule_events_single_period(form, localtz, day_start, day_end, event_start, event_length,
+                                            event_start_max, consolidated)
     if not events: return None
     num_copies = get_number_periods(first_period_start, period, localtz) - 1
     return _copy_events(events, num_copies, period, name, localtz)
 
 
-def _schedule_events_multiple_periods(form, credentials, localtz, period_start_time, period_end_time,
-                                      event_start, event_start_max, range_start, range_end):
+def _schedule_events_multiple_periods(form, credentials, localtz, period_start_time, period_end_time, day_start,
+                                      day_end, event_start, event_length, event_start_max):
     """Returns events to add to user calendar for multiple consecutive time periods.
 
     Does not consolidate user calendar free busy information. Rather, schedules across
     multiple time periods directly, provides more flexibility, but less consistency.
+    :param event_length:
     """
     events = []
     name, frequency, period, duration, timeunit, timerange = unpack_form(form)
-    busy_times = get_freebusy_in_range(credentials, period_start_time, period_end_time)
+    freebusy_ranges = get_freebusy_in_range(credentials, period_start_time, period_end_time)
     num_periods = get_number_periods(period_start_time, period, localtz)
     for i in range(num_periods):
-        events_for_single_period = _schedule_events_single_period(form, event_start, event_start_max,
-                                                                  busy_times, range_start, range_end, localtz)
+        events_for_single_period = _schedule_events_single_period(form, localtz, day_start, day_end, event_start,
+                                                                  event_length, event_start_max, freebusy_ranges)
         if not events_for_single_period: return None
         else: events.extend(events_for_single_period)
         period_start_time = get_start_of_next_period(period_start_time, period, timerange, localtz)
         period_end_time = get_end_of_period(period_start_time, period, timerange, localtz)
         event_start = period_start_time
-        event_start_max = decrement_time(period_end_time, timeunit, duration)
-        range_start, range_end = get_timerange_start_end_time(period_start_time, timerange)
-        busy_times = get_freebusy_in_range(credentials, period_start_time, period_end_time)
+        event_start_max = period_end_time - event_length
+        day_start, day_end = get_timerange_start_end_time(period_start_time, timerange)
+        freebusy_ranges = get_freebusy_in_range(credentials, period_start_time, period_end_time)
     return events
 
 
-def _schedule_events_single_period(form, event_start, event_start_max, busy_times, range_start, range_end, localtz):
-    """Returns events to add to user calendar for single period of time."""
+def _schedule_events_single_period(form, localtz, day_start, day_end, event_start, event_length, event_start_max,
+                                   freebusy_ranges):
+    """Returns events to add to user calendar for single period of time.
+    :param event_length:
+    """
     events = []
-    event_index = 0
+    freebusy_index = 0
     name, frequency, period, duration, timeunit, timerange = unpack_form(form)
     for i in range(frequency):
         if event_start > event_start_max: return None
-        success, start_time, end_time = _find_time_for_single_event(busy_times, duration, timeunit, range_start,
-                                                                    range_end, event_start, event_start_max,
-                                                                    event_index, localtz)
+        success, start_time = _find_time_for_single_event(localtz, day_start, day_end, event_start, event_length,
+                                                          event_start_max, freebusy_ranges, freebusy_index)
         if not success: return None
-        events.append(create_event(name, start_time, end_time))
-        event_start = get_start_of_next_event(start_time, end_time, period, timerange, localtz)
-        if period != DAY: range_start, range_end = get_timerange_start_end_time(event_start, timerange)
-        event_index = update_index_freebusy(event_index, busy_times, event_start)
+        events.append(create_event(name, start_time, start_time + event_length))
+        event_start = get_start_of_next_event(start_time, start_time + event_length, period, timerange, localtz)
+        if period != DAY: day_start, day_end = get_timerange_start_end_time(event_start, timerange)
+        freebusy_index = update_index_freebusy(freebusy_index, freebusy_ranges, event_start)
     return events
 
 
-def _find_time_for_single_event(busy_times, duration, timeunit, range_start, range_end, event_start, max_start_time,
-                                event_index, localtz):
+def _find_time_for_single_event(localtz, day_start, day_end, event_start, event_length, max_start_time,
+                                freebusy_ranges, freebusy_index):
     """Returns start and end bounds for single event within timerange provided."""
-    if event_index >= len(busy_times): # No more busy times, event_start successful.
-        return True, event_start, increment_time(event_start, timeunit, duration)
-    event_end = increment_time(event_start, timeunit, duration)
-    busy_start, busy_end = get_range_freebusy(busy_times[event_index], localtz)
-    while (event_index < len(busy_times) and event_start <= max_start_time and
-           (is_conflicting(busy_start, busy_end, event_start, event_end) or not
-           in_timerange(range_start, range_end, event_start, event_end))):
-        if event_end > range_end:
-            range_start += timedelta(hours=HOURS_IN_DAY)
-            range_end += timedelta(hours=HOURS_IN_DAY)
-            event_start = range_start
-            event_index = update_index_freebusy(event_index, busy_times, range_start)
-        else:
+    while freebusy_index < len(freebusy_ranges) and event_start <= max_start_time:
+        event_end = event_start + event_length
+        freebusy_index = update_index_freebusy(freebusy_index, freebusy_ranges, event_start)
+        busy_start, busy_end = get_range_freebusy(freebusy_index, freebusy_ranges, localtz)
+
+        # Conflicts with existing event on calendar.
+        if busy_start and is_conflicting(busy_start, busy_end, event_start, event_end):
             event_start = busy_end
-            event_index += 1
-        event_end = increment_time(event_start, timeunit, duration)
-        if event_index < len(busy_times): busy_start, busy_end = get_range_freebusy(busy_times[event_index], localtz)
-    search_successful = event_start <= max_start_time and in_timerange(range_start, range_end, event_start, event_end)
-    return search_successful, event_start, event_end
+
+        # If not conflicting above, and in desired timerange, success.
+        elif in_timerange(day_start, day_end, event_start, event_end):
+            break
+
+        # Check if updated start time is outside the desired timerange.
+        if not in_timerange(day_start, day_end, event_start, event_end):
+            day_start += timedelta(days=1)
+            day_end += timedelta(days=1)
+            event_start = day_start
+
+    search_successful = event_start <= max_start_time
+    return search_successful, event_start
 
 
 def _copy_events(events, num_copies, period, name, localtz):

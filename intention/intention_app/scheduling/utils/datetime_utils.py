@@ -27,8 +27,6 @@ make_day_end(day)
 make_next_hour(day)
 get_timerange_start_end_time(day, timerange)
 get_day_start_end_time(day)
-increment_time(day, timeunit, duration)
-decrement_time(day, timeunit, duration)
 add_timedelta(td, dt, localtz)
 parse_datetime(dt_str)
 is_dst(dt, localtz)
@@ -209,18 +207,6 @@ def get_timerange_start_end_time(day, timerange):
 def get_day_start_end_time(day):
     """Returns start and end times of day provided based on DAY_START and DAY_END."""
     return make_day_start(day), make_day_end(day)
-
-
-def increment_time(day, timeunit, duration):
-    """Returns day incremented by duration of unit timeunit."""
-    if timeunit == HOURS: return day + timedelta(hours=duration)
-    elif timeunit == MINUTES: return day + timedelta(minutes=duration)
-
-
-def decrement_time(day, timeunit, duration):
-    """Returns day decremented by duration of unit timeunit."""
-    if timeunit == HOURS: return day - timedelta(hours=duration)
-    elif timeunit == MINUTES: return day - timedelta(minutes=duration)
 
 
 def add_timedelta(td, dt, localtz):

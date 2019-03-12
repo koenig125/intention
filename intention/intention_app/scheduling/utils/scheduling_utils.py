@@ -17,6 +17,7 @@ get_end_of_period(period_start_time, period, timerange, localtz)
 get_reschedule_end_time(day, deadline, localtz)
 get_minimum_start_times(events, current_time)
 get_event_length(event)
+get_event_duration(timeunit, duration)
 is_conflicting(range_start, range_end, event_start, event_end)
 in_timerange(range_start, range_end, event_start, event_end)
 get_range_freebusy(timerange, localtz)
@@ -136,6 +137,12 @@ def get_event_length(event):
     return event_original_end_time - event_original_start_time
 
 
+def get_event_duration(timeunit, duration):
+    """Returns the length of an event based on its timeunit and duration."""
+    if timeunit == HOURS: return timedelta(hours=duration)
+    elif timeunit == MINUTES: return timedelta(minutes=duration)
+
+
 def is_conflicting(range_start, range_end, event_start, event_end):
     """Returns whether or not event times conflict with the provided range."""
     return (range_start <= event_start < range_end or
@@ -149,14 +156,17 @@ def in_timerange(range_start, range_end, event_start, event_end):
             range_start <= event_end <= range_end)
 
 
-def get_range_freebusy(timerange, localtz):
+def get_range_freebusy(index, freebusy_ranges, localtz):
     """Returns start and end datetime objects of the event list at index provided.
 
     Expects list of google calendar freebusy time ranges.
     """
-    range_start = parse_datetime(timerange['start']).astimezone(localtz)
-    range_end = parse_datetime(timerange['end']).astimezone(localtz)
-    return range_start, range_end
+    if index < len(freebusy_ranges):
+        range_start = parse_datetime(freebusy_ranges[index]['start']).astimezone(localtz)
+        range_end = parse_datetime(freebusy_ranges[index]['end']).astimezone(localtz)
+        return range_start, range_end
+    else:
+        return None, None
 
 
 def get_range_gcal_events(index, gcal_events, localtz):
