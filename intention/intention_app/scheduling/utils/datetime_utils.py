@@ -34,6 +34,7 @@ is_whole_hour(dt)
 get_week_number(day)
 get_weekday_index(day)
 get_month_timedelta(day, num_periods, localtz)
+convert_to_military(h, m, ap)
 """
 
 from datetime import timedelta
@@ -278,3 +279,10 @@ def _get_dst_correction(base_dt, new_dt, localtz):
         return timedelta(hours=1)
     else:
         return timedelta(hours=0)
+
+
+def convert_to_military(h, m, ap):
+    """Returns string of given hour, minute, and am/pm indicator converted to military time."""
+    if h == 12 and ap == 'am': h = 0
+    if ap == 'pm': h += 12
+    return '%s:%s' % (h, m)
