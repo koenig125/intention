@@ -121,8 +121,10 @@ def get_minimum_start_times(events, reschedule_start_time):
     """
     events_with_min_times = []
     for event in events:
-        event_start_time = make_next_hour(parse_datetime(event['start']['dateTime']))
-        min_start_time = max(reschedule_start_time, event_start_time)
+        event_end_time = parse_datetime(event['end']['dateTime'])
+        if not is_whole_hour(event_end_time):
+            event_end_time = make_next_hour(event_end_time)
+        min_start_time = max(reschedule_start_time, event_end_time)
         events_with_min_times.append((event, min_start_time))
     return events_with_min_times
 

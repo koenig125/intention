@@ -38,8 +38,9 @@ def _reschedule_events(events, deadline, credentials):
     for event, start_time in events_with_min_times:
         # edge case (ie start_time=12:30am, deadline=12:00am)
         if start_time > reschedule_end: return None
+    event_ids = [event['id'] for event in events]
     existing_events = get_events_in_range(credentials, reschedule_start, reschedule_end)
-    filtered_events = [event for event in existing_events if event['id'] not in events]
+    filtered_events = [event for event in existing_events if event['id'] not in event_ids]
     return _reschedule_multiple_events(events_with_min_times, reschedule_end, filtered_events, localtz)
 
 

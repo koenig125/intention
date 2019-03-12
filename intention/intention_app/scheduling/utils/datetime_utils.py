@@ -32,6 +32,7 @@ decrement_time(day, timeunit, duration)
 add_timedelta(td, dt, localtz)
 parse_datetime(dt_str)
 is_dst(dt, localtz)
+is_whole_hour(dt)
 get_week_number(day)
 get_weekday_index(day)
 get_month_timedelta(day, num_periods, localtz)
@@ -236,6 +237,11 @@ def is_dst(dt, localtz):
     """Returns whether or not datetime provided is in daylight savings time."""
     dt_loc = localtz.localize(dt.replace(tzinfo=None))
     return bool(dt_loc.dst())
+
+
+def is_whole_hour(dt):
+    """Returns whether or not datetime provided is whole hour, ie 1:00, 2:00, etc."""
+    return dt.minute == 0 and dt.second == 0 and dt.microsecond == 0
 
 
 def get_week_number(day):
