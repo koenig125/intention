@@ -95,8 +95,9 @@ def reschedule_view(request):
 @login_required
 def calendar_view(request):
     """Allows people to view their updated calendar schedule."""
-    context = {}
-    return render(request, 'calendar.html', context=context)
+    template = loader.get_template('calendar.html')
+    context = {'user_email': request.user.email}
+    return HttpResponse(template.render(context, request))
 
 
 @login_required
