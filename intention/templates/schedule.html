@@ -13,7 +13,7 @@
         <!-- Schedule -->
         <section id="schedule_goal" class="wrapper fullscreen style3 fade-up">
             <div class="formstyle">
-                    <h2 class="form_title">Make An <strong>Intentional</strong> Goal</h2>
+                    <h2 class="form_title">{{ message }}</h2>
                     <form method="POST"> {% csrf_token %}
                     {% load crispy_forms_tags %}
                     {% crispy form %}

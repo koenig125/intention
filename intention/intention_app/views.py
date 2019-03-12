@@ -32,32 +32,32 @@ def schedule_view(request):
         return HttpResponseRedirect('authorize')
     template = loader.get_template('schedule.html')
 
+    # User first arrives at scheduling page.
+    if request.method == "GET":
+        form = scheduleForm()
+        context = {
+            'message': 'Make An Intentional Goal.',
+            'form': form,
+        }
+        return HttpResponse(template.render(context, request))
+
     # Scheduling form submitted - act on info.
-    if request.method == "POST":
+    elif request.method == "POST":
         form = scheduleForm(request.POST)
         if form.is_valid():
-            form_data = unpack_form_data(request)
+            form_data = _unpack_form_data(request)
             credentials = Credentials(**request.session['credentials'])
             success = make_schedule(form_data, credentials)
-            request.session['credentials'] = credentials_to_dict(credentials)
+            request.session['credentials'] = _credentials_to_dict(credentials)
             if not success:
                 form = scheduleForm()
                 context = {
-                    'message': 'Sorry, you\'re overbooked! Try again.',
+                    'message': 'Looks like you\'re overbooked! Try again.',
                     'form': form,
                 }
                 return HttpResponse(template.render(context, request))
             else:
                 return HttpResponseRedirect('calendar')
-
-    # User first arrives at scheduling page.
-    else:
-        form = scheduleForm()
-        context = {
-            'form' :form,
-            'message': 'What do you want to accomplish?',
-        }
-        return HttpResponse(template.render(context, request))
 
 
 @login_required
@@ -66,33 +66,28 @@ def reschedule_view(request):
         request.session['endurl'] = 'http://127.0.0.1:8000/reschedule'
         return HttpResponseRedirect('authorize')
     template = loader.get_template('reschedule.html')
-    tasks = ['do laundry', 'clean room', 'call mom', 'prep dinner', 'email Professor Joe']
 
     # Populate list of rescheduling candidates with events.
     if request.method == "GET":
-        credentials = Credentials(**request.session['credentials'])
-        tasks, all_events = get_events_current_day(credentials)
-        request.session['credentials'] = credentials_to_dict(credentials)
-        request.session['events'] = all_events
-        context =  {'tasks' : tasks, 'message': 'Select Events to Reschedule'}
+        ids_and_titles = _get_rescheduling_info(request)
+        context =  {'events' : ids_and_titles, 'message': 'Select Events to Reschedule'}
         return HttpResponse(template.render(context, request))
 
-    # Called when rescheduling initiated after events selected.
+    # Rescheduling initiated after events selected by user.
     elif request.method == "POST":
         if request.POST.get('mydata') == '': # no events selected by user.
             return HttpResponseRedirect('reschedule')
-        events = request.session['events']
+        event_map = request.session['event_map']
         event_ids = request.POST.get('mydata').split(",")
-        selected_events = [events[eid] for eid in event_ids]
+        selected_events = [event_map[eid] for eid in event_ids]
         deadline = request.POST.get('schedule', '')
         credentials = Credentials(**request.session['credentials'])
         if not reschedule(selected_events, deadline, credentials):
-            tasks, all_events = get_events_current_day(credentials)
-            request.session['credentials'] = credentials_to_dict(credentials)
-            request.session['events'] = all_events
-            context = {'tasks': tasks, 'message': 'Looks like you\'re overbooked! Try again.'}
+            # Reschedule attempt failed - inform user.
+            ids_and_titles = _get_rescheduling_info(request)
+            context = {'events': ids_and_titles, 'message': 'Looks like you\'re overbooked! Try again.'}
             return HttpResponse(template.render(context, request))
-        request.session['credentials'] = credentials_to_dict(credentials)
+        request.session['credentials'] = _credentials_to_dict(credentials)
         return HttpResponseRedirect('calendar')
 
 
@@ -123,11 +118,11 @@ def oauth2callback(request):
     authorization_response = request.build_absolute_uri()
     flow.fetch_token(authorization_response=authorization_response)
     credentials = flow.credentials
-    request.session['credentials'] = credentials_to_dict(credentials)
+    request.session['credentials'] = _credentials_to_dict(credentials)
     return HttpResponseRedirect(request.session['endurl'])
 
 
-def credentials_to_dict(credentials):
+def _credentials_to_dict(credentials):
     return {'token': credentials.token,
             'refresh_token': credentials.refresh_token,
             'token_uri': credentials.token_uri,
@@ -136,7 +131,7 @@ def credentials_to_dict(credentials):
             'scopes': credentials.scopes}
 
 
-def unpack_form_data(request):
+def _unpack_form_data(request):
     form_data = {}
     form_data['name'] = request.POST['name']
     form_data['frequency'] = request.POST['frequency']
@@ -145,3 +140,11 @@ def unpack_form_data(request):
     form_data['timeunit'] = request.POST['timeunit']
     form_data['timerange'] = request.POST['timerange']
     return form_data
+
+
+def _get_rescheduling_info(request):
+    credentials = Credentials(**request.session['credentials'])
+    ids_and_titles, event_map = get_events_current_day(credentials)
+    request.session['credentials'] = _credentials_to_dict(credentials)
+    request.session['event_map'] = event_map
+    return ids_and_titles
