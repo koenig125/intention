@@ -85,12 +85,12 @@ def reschedule_view(request):
         credentials = Credentials(**request.session['credentials'])
         if not reschedule(selected_events, deadline, credentials):
             # Reschedule attempt failed - inform user.
+            request.session['credentials'] = _credentials_to_dict(credentials)
             ids_and_titles = _get_rescheduling_info(request)
             context = {'events': ids_and_titles, 'message': 'Looks like you\'re overbooked! Try again.'}
             return HttpResponse(template.render(context, request))
         request.session['credentials'] = _credentials_to_dict(credentials)
         return HttpResponseRedirect('calendar')
-
 
 @login_required
 def calendar_view(request):
@@ -99,7 +99,6 @@ def calendar_view(request):
     context = {'user_email': request.user.email}
     return HttpResponse(template.render(context, request))
 
-
 @login_required
 def authorize(request):
     flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
@@ -107,6 +106,7 @@ def authorize(request):
     authorization_url, state = flow.authorization_url(
         access_type='offline',
         include_granted_scopes='true',
+        approval_prompt='force',
     )
     request.session['state'] = state
     return HttpResponseRedirect(authorization_url)
