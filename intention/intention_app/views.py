@@ -1,6 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.shortcuts import render
+from django.urls import reverse
 from .forms import scheduleForm
 from intention_app.scheduling.scheduler import make_schedule
 from intention_app.scheduling.rescheduler import get_events_current_day, reschedule
@@ -28,7 +29,7 @@ def scheduling_options_view(request):
 @login_required
 def schedule_view(request):
     if 'credentials' not in request.session:
-        request.session['endurl'] = 'http://127.0.0.1:8000/schedule'
+        request.session['endurl'] = _build_full_view_url(request, 'schedule_view')
         return HttpResponseRedirect('authorize')
     template = loader.get_template('schedule.html')
 
@@ -63,7 +64,7 @@ def schedule_view(request):
 @login_required
 def reschedule_view(request):
     if 'credentials' not in request.session:
-        request.session['endurl'] = 'http://127.0.0.1:8000/reschedule'
+        request.session['endurl'] = _build_full_view_url(request, 'reschedule_view')
         return HttpResponseRedirect('authorize')
     template = loader.get_template('reschedule.html')
 
@@ -101,7 +102,7 @@ def calendar_view(request):
 @login_required
 def authorize(request):
     flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
-    flow.redirect_uri = 'http://127.0.0.1:8000/oauth2callback'
+    flow.redirect_uri = _build_full_view_url(request, 'oauth2callback')
     authorization_url, state = flow.authorization_url(
         access_type='offline',
         include_granted_scopes='true',
@@ -114,7 +115,7 @@ def authorize(request):
 def oauth2callback(request):
     state = request.session['state']
     flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES, state=state)
-    flow.redirect_uri = 'http://127.0.0.1:8000/oauth2callback'
+    flow.redirect_uri = _build_full_view_url(request, 'oauth2callback')
     authorization_response = request.build_absolute_uri()
     flow.fetch_token(authorization_response=authorization_response)
     credentials = flow.credentials
@@ -132,14 +133,14 @@ def _credentials_to_dict(credentials):
 
 
 def _unpack_form_data(request):
-    form_data = {}
-    form_data['name'] = request.POST['name']
-    form_data['frequency'] = request.POST['frequency']
-    form_data['period'] = request.POST['period']
-    form_data['duration'] = request.POST['duration']
-    form_data['timeunit'] = request.POST['timeunit']
-    form_data['timerange'] = request.POST['timerange']
-    return form_data
+    return {
+        'name': request.POST['name'],
+        'frequency': request.POST['frequency'],
+        'period': request.POST['period'],
+        'duration': request.POST['duration'],
+        'timeunit': request.POST['timeunit'],
+        'timerange': request.POST['timerange']
+    }
 
 
 def _get_rescheduling_info(request):
@@ -148,3 +149,7 @@ def _get_rescheduling_info(request):
     request.session['credentials'] = _credentials_to_dict(credentials)
     request.session['event_map'] = event_map
     return ids_and_titles
+
+
+def _build_full_view_url(request, view):
+    return 'http://' + request.environ['HTTP_HOST'] + reverse(view)
