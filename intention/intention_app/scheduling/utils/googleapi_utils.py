@@ -65,6 +65,10 @@ def get_events_in_range(credentials, timeMin, timeMax, cid='primary'):
         page_token = events_list.get('nextPageToken')
         if not page_token:
             break
+<<<<<<< HEAD
+=======
+    events = [x for x in events if 'dateTime' in x['start']]
+>>>>>>> 94ced97e588fa081d26065dfae6d161573f2f9c1
     events.sort(key=lambda x : x['start']['dateTime'])
     return events
 

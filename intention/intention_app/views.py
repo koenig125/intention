@@ -62,6 +62,10 @@ def schedule_view(request):
             else:
                 return HttpResponseRedirect('calendar')
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 94ced97e588fa081d26065dfae6d161573f2f9c1
 @login_required
 def reschedule_view(request):
     """Displays and reschedule interface - allows user to reschedule today's events."""
@@ -91,6 +95,7 @@ def reschedule_view(request):
             context = {'events': ids_and_titles, 'message': 'Looks like you\'re overbooked! Try again.'}
             return HttpResponse(template.render(context, request))
         request.session['credentials'] = _credentials_to_dict(credentials)
+<<<<<<< HEAD
         template = loader.get_template('calendar.html')
         template_events = [(event['summary'], dateTime_helper(event['start']['dateTime'])) for event in selected_events]
         context =  {'selected_events' : template_events,}
@@ -101,6 +106,17 @@ def calendar_view(request):
     """Allows user to view their updated calendar schedule."""
     context = {}
     return render(request, 'calendar.html', context=context)
+=======
+        return HttpResponseRedirect('calendar')
+
+
+@login_required
+def calendar_view(request):
+    """Allows people to view their updated calendar schedule."""
+    template = loader.get_template('calendar.html')
+    context = {'user_email': request.user.email}
+    return HttpResponse(template.render(context, request))
+>>>>>>> 94ced97e588fa081d26065dfae6d161573f2f9c1
 
 
 @login_required
@@ -130,7 +146,6 @@ def oauth2callback(request):
 
 
 def _credentials_to_dict(credentials):
-    """Helper function that adds sign-in credentials to dictionary."""
     return {'token': credentials.token,
             'refresh_token': credentials.refresh_token,
             'token_uri': credentials.token_uri,
@@ -139,13 +154,7 @@ def _credentials_to_dict(credentials):
             'scopes': credentials.scopes}
 
 
-def dateTime_helper(string):
-    date_array = string.split('-')
-    return MONTHS[date_array[1]] + ' '  + date_array[2][0:2] + ' at ' +  date_array[3]
-
-
 def _unpack_form_data(request):
-    """Helper method that unpacks the data from scheduleForm."""
     return {
         'name': request.POST['name'],
         'frequency': request.POST['frequency'],
@@ -157,7 +166,6 @@ def _unpack_form_data(request):
 
 
 def _get_rescheduling_info(request):
-    """Helper method that retrieves the rescheduling data from the session."""
     credentials = Credentials(**request.session['credentials'])
     ids_and_titles, event_map = get_events_current_day(credentials)
     request.session['credentials'] = _credentials_to_dict(credentials)
