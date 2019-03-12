@@ -5,23 +5,14 @@ these updates to the Google Calendar API to reflect in the user cal.
 
 Exported Functions
 ------------------
-get_events_current_day(credentials)
 reschedule(events, deadline, credentials)
+get_events_current_day(credentials)
 """
 
 from __future__ import print_function
 from intention_app.scheduling.utils.googleapi_utils import *
 from intention_app.scheduling.utils.scheduling_utils import *
-
-
-def get_events_current_day(credentials):
-    """Returns events from DAY_START_HOUR to DAY_END_HOUR for user indicated in credentials."""
-    localtz = get_localtz(credentials)
-    current_day = datetime.now(localtz)
-    day_start = make_day_start(current_day)
-    day_end = make_day_end(current_day)
-    ids_and_titles, event_map = get_events_in_range(credentials, day_start, day_end)
-    return ids_and_titles, event_map
+from datetime import datetime
 
 
 def reschedule(events, deadline, credentials):
@@ -40,13 +31,15 @@ def _reschedule_events(events, deadline, credentials):
     current time must be scheduled after their original start time.
     """
     localtz = get_localtz(credentials)
-    events_with_min_times = get_minimum_start_times(events, localtz)
-    scheduling_deadline = get_reschedule_deadline(datetime.now(localtz), deadline, localtz)
+    now = datetime.now(localtz)
+    events_with_min_times = get_minimum_start_times(events, now)
+    scheduling_deadline = get_reschedule_deadline(now, deadline, localtz)
     for event, start_time in events_with_min_times:
         # edge case (ie start_time=12:30am, deadline=12:00am)
         if start_time > scheduling_deadline: return None
-    existing_events = get_existing_events(credentials, events_with_min_times, scheduling_deadline, localtz)
-    return _reschedule_multiple_events(events_with_min_times, scheduling_deadline, existing_events, localtz)
+    existing_events = get_events_in_range(credentials, make_next_hour(now), scheduling_deadline)
+    filtered_events = [event for event in existing_events if event['id'] not in events]
+    return _reschedule_multiple_events(events_with_min_times, scheduling_deadline, filtered_events, localtz)
 
 
 def _reschedule_multiple_events(events, deadline, existing_events, localtz):
@@ -63,7 +56,7 @@ def _reschedule_multiple_events(events, deadline, existing_events, localtz):
                                                        rescheduled_events, rescheduled_event_index)
         if not success: return None
         rescheduled_events.append((event, start_time, start_time + event_length))
-    return replace_event_times(rescheduled_events)
+    return _replace_event_times(rescheduled_events)
 
 
 def _reschedule_single_event(event_start, event_length, max_start_time, range_start, range_end, localtz,
@@ -75,7 +68,7 @@ def _reschedule_single_event(event_start, event_length, max_start_time, range_st
         existing_index = update_index_gcal_events(existing_index, existing_events, event_start)
         resched_index = update_index_rescheduled(resched_index, resched_events, event_start)
         existing_start, existing_end = get_range_gcal_events(existing_index, existing_events, localtz)
-        resched_start, resched_end = get_range_rescheduled(resched_index, resched_events, localtz)
+        resched_start, resched_end = get_range_rescheduled(resched_index, resched_events)
 
         # Conflicts with existing event on calendar.
         if existing_start and is_conflicting(existing_start, existing_end, event_start, event_end):
@@ -99,9 +92,27 @@ def _reschedule_single_event(event_start, event_length, max_start_time, range_st
     return search_successful, event_start
 
 
-def replace_event_times(rescheduled_events):
+def _replace_event_times(rescheduled_events):
     """Returns list of events in rescheduled_events with their start and end times updated."""
     for event, new_start, new_end in rescheduled_events:
         event['start']['dateTime'] = new_start.isoformat()
         event['end']['dateTime'] = new_end.isoformat()
     return [event for event, new_start, new_end in rescheduled_events]
+
+
+def get_events_current_day(credentials):
+    """Returns events from DAY_START_HOUR to DAY_END_HOUR for user indicated in credentials."""
+    localtz = get_localtz(credentials)
+    current_day = datetime.now(localtz)
+    events = get_events_in_range(credentials, make_day_start(current_day), make_day_end(current_day))
+    return _filter_event_information(events)
+
+
+def _filter_event_information(events):
+    """Returns ids, titles, and map of event ids to events for list of events provided."""
+    ids_and_titles = []
+    event_map = {}
+    for event in events:
+        ids_and_titles.append((event['id'], event['summary']))
+        event_map[event['id']] = event
+    return ids_and_titles, event_map

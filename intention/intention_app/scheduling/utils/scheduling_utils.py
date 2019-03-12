@@ -15,8 +15,7 @@ get_start_of_next_event(curr_event_start_time, last_scheduled_event_end_time, pe
 get_end_of_multi_period(day, period, timerange, localtz)
 get_end_of_period(period_start_time, period, timerange, localtz)
 get_reschedule_deadline(day, deadline, localtz)
-get_existing_events(credentials, selected_events, scheduling_deadline, localtz)
-get_minimum_start_times(events, localtz)
+get_minimum_start_times(events, current_time)
 get_event_length(event)
 is_conflicting(range_start, range_end, event_start, event_end)
 in_timerange(range_start, range_end, event_start, event_end)
@@ -28,8 +27,6 @@ update_index_rescheduled(index, rescheduled_events, threshold_time)
 """
 
 from intention_app.scheduling.utils.datetime_utils import *
-from intention_app.scheduling.utils.googleapi_utils import get_events_in_range
-from datetime import datetime
 
 # Length scheduled when period is months.
 NUMBER_MONTHS_TO_SCHEDULE = 3
@@ -109,23 +106,13 @@ def get_reschedule_deadline(day, deadline, localtz):
     elif deadline == NEXT_WEEK: return get_end_of_week(get_next_week(day, localtz), "ANYTIME", localtz)
 
 
-def get_existing_events(credentials, selected_events, scheduling_deadline, localtz):
-    """Returns events on user calendar between now and scheduling_deadline, excluding those in selected_events."""
-    _, event_map = get_events_in_range(credentials, make_next_hour(datetime.now(localtz)), scheduling_deadline)
-    existing_events_all = sorted(event_map.values(), key=lambda x: x['start']['dateTime'])
-    selected_event_ids = [event['id'] for event, time in selected_events]
-    filtered = [event for event in existing_events_all if event['id'] not in selected_event_ids]
-    return filtered
-
-
-def get_minimum_start_times(events, localtz):
+def get_minimum_start_times(events, current_time):
     """Returns list of provided events along with their minimum start time.
 
     Minimum start time is defined as later the max of the hour proceeding
     the current time and the hour proceeding the existing start time of an event.
     """
     events_with_min_times = []
-    current_time = datetime.now(localtz)
     for event in events:
         event_start_time = parse_datetime(event['start']['dateTime'])
         min_start_time = max(current_time, event_start_time)
@@ -177,7 +164,7 @@ def get_range_gcal_events(index, gcal_events, localtz):
         return None, None
 
 
-def get_range_rescheduled(index, rescheduled_events, localtz):
+def get_range_rescheduled(index, rescheduled_events):
     """Returns start and end datetime objects of the event list at index provided.
 
     Expects list of rescheduled events in format (event_object, new_start_time, new_end_time)

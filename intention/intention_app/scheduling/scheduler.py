@@ -12,6 +12,7 @@ from __future__ import print_function
 from intention_app.scheduling.consolidator import consolidate_multiple_periods
 from intention_app.scheduling.utils.googleapi_utils import *
 from intention_app.scheduling.utils.scheduling_utils import *
+from datetime import datetime
 
 
 def make_schedule(form, credentials):
@@ -58,7 +59,7 @@ def _schedule_events_consolidated_periods(form, credentials, localtz, first_peri
     """
     name, frequency, period, duration, timeunit, timerange = unpack_form(form)
     multi_period_end = get_end_of_multi_period(first_period_start, period, timerange, localtz)
-    busy_times = get_busy_ranges(credentials, first_period_start, multi_period_end)
+    busy_times = get_freebusy_in_range(credentials, first_period_start, multi_period_end)
     consolidated = consolidate_multiple_periods(busy_times, first_period_start, first_period_end, period, localtz)
     events = _schedule_events_single_period(form, event_start, event_start_max,
                                             consolidated, range_start, range_end, localtz)
@@ -76,7 +77,7 @@ def _schedule_events_multiple_periods(form, credentials, localtz, period_start_t
     """
     events = []
     name, frequency, period, duration, timeunit, timerange = unpack_form(form)
-    busy_times = get_busy_ranges(credentials, period_start_time, period_end_time)
+    busy_times = get_freebusy_in_range(credentials, period_start_time, period_end_time)
     num_periods = get_number_periods(period_start_time, period, localtz)
     for i in range(num_periods):
         events_for_single_period = _schedule_events_single_period(form, event_start, event_start_max,
@@ -88,7 +89,7 @@ def _schedule_events_multiple_periods(form, credentials, localtz, period_start_t
         event_start = period_start_time
         event_start_max = decrement_time(period_end_time, timeunit, duration)
         range_start, range_end = get_timerange_start_end_time(period_start_time, timerange)
-        busy_times = get_busy_ranges(credentials, period_start_time, period_end_time)
+        busy_times = get_freebusy_in_range(credentials, period_start_time, period_end_time)
     return events
 
 
