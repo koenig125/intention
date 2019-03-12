@@ -9,7 +9,6 @@ make_schedule(form_data)
 """
 
 from __future__ import print_function
-from datetime import datetime
 from intention_app.scheduling.consolidator import consolidate_multiple_periods
 from intention_app.scheduling.utils.googleapi_utils import *
 from intention_app.scheduling.utils.scheduling_utils import *
@@ -40,7 +39,7 @@ def _schedule_events(form, credentials):
     if period_start_time > period_end_time: return None # Triggered when can't schedule event by end of day/week
     event_start = period_start_time
     event_start_max = decrement_time(period_end_time, timeunit, duration)
-    range_start, range_end = get_day_start_end_times(period_start_time, timerange)
+    range_start, range_end = get_timerange_start_end_time(period_start_time, timerange)
 
     events_consolidated = _schedule_events_consolidated_periods(form, credentials, localtz, period_start_time,
                                                                 period_end_time, event_start, event_start_max, range_start, range_end)
@@ -88,7 +87,7 @@ def _schedule_events_multiple_periods(form, credentials, localtz, period_start_t
         period_end_time = get_end_of_period(period_start_time, period, timerange, localtz)
         event_start = period_start_time
         event_start_max = decrement_time(period_end_time, timeunit, duration)
-        range_start, range_end = get_day_start_end_times(period_start_time, timerange)
+        range_start, range_end = get_timerange_start_end_time(period_start_time, timerange)
         busy_times = get_busy_ranges(credentials, period_start_time, period_end_time)
     return events
 
@@ -106,8 +105,8 @@ def _schedule_events_single_period(form, event_start, event_start_max, busy_time
         if not success: return None
         events.append(create_event(name, start_time, end_time))
         event_start = get_start_of_next_event(start_time, end_time, period, timerange, localtz)
-        if period != DAY: range_start, range_end = get_day_start_end_times(event_start, timerange)
-        event_index = update_index(event_index, busy_times, event_start)
+        if period != DAY: range_start, range_end = get_timerange_start_end_time(event_start, timerange)
+        event_index = update_index_freebusy(event_index, busy_times, event_start)
     return events
 
 
@@ -117,7 +116,7 @@ def _find_time_for_single_event(busy_times, duration, timeunit, range_start, ran
     if event_index >= len(busy_times): # No more busy times, event_start successful.
         return True, event_start, increment_time(event_start, timeunit, duration)
     event_end = increment_time(event_start, timeunit, duration)
-    busy_start, busy_end = get_range_start_end(busy_times[event_index], localtz)
+    busy_start, busy_end = get_range_freebusy(busy_times[event_index], localtz)
     while (event_index < len(busy_times) and event_start <= max_start_time and
            (is_conflicting(busy_start, busy_end, event_start, event_end) or not
            in_timerange(range_start, range_end, event_start, event_end))):
@@ -125,12 +124,12 @@ def _find_time_for_single_event(busy_times, duration, timeunit, range_start, ran
             range_start += timedelta(hours=HOURS_IN_DAY)
             range_end += timedelta(hours=HOURS_IN_DAY)
             event_start = range_start
-            event_index = update_index(event_index, busy_times, range_start)
+            event_index = update_index_freebusy(event_index, busy_times, range_start)
         else:
             event_start = busy_end
             event_index += 1
         event_end = increment_time(event_start, timeunit, duration)
-        if event_index < len(busy_times): busy_start, busy_end = get_range_start_end(busy_times[event_index], localtz)
+        if event_index < len(busy_times): busy_start, busy_end = get_range_freebusy(busy_times[event_index], localtz)
     search_successful = event_start <= max_start_time and in_timerange(range_start, range_end, event_start, event_end)
     return search_successful, event_start, event_end
 
