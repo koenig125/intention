@@ -14,7 +14,7 @@ get_start_of_next_period(curr_period_start_time, period, timerange, localtz)
 get_start_of_next_event(curr_event_start_time, last_scheduled_event_end_time, period, timerange, localtz)
 get_end_of_multi_period(day, period, timerange, localtz)
 get_end_of_period(period_start_time, period, timerange, localtz)
-get_reschedule_deadline(day, deadline, localtz)
+get_reschedule_end_time(day, deadline, localtz)
 get_minimum_start_times(events, current_time)
 get_event_length(event)
 is_conflicting(range_start, range_end, event_start, event_end)
@@ -99,14 +99,21 @@ def get_end_of_period(period_start_time, period, timerange, localtz):
     elif period == MONTH: return get_end_of_month(period_start_time, timerange, localtz)
 
 
-def get_reschedule_deadline(day, deadline, localtz):
-    """Returns the datetime corresponding to the deadline provided, relative to the current time."""
+def get_reschedule_start_time(day, deadline, localtz):
+    """Returns the start time for the deadline provided, relative to the current time."""
+    if deadline == TODAY: return make_next_hour(day)
+    elif deadline == THIS_WEEK: return get_start_of_next_day(day, "ANYTIME", localtz)
+    elif deadline == NEXT_WEEK: return get_start_of_next_week(day, "ANYTIME", localtz)
+
+
+def get_reschedule_end_time(day, deadline, localtz):
+    """Returns the end time for the deadline provided, relative to the current time."""
     if deadline == TODAY: return make_day_end(day)
     elif deadline == THIS_WEEK: return get_end_of_week(day, "ANYTIME", localtz)
     elif deadline == NEXT_WEEK: return get_end_of_week(get_next_week(day, localtz), "ANYTIME", localtz)
 
 
-def get_minimum_start_times(events, current_time):
+def get_minimum_start_times(events, reschedule_start_time):
     """Returns list of provided events along with their minimum start time.
 
     Minimum start time is defined as later the max of the hour proceeding
@@ -114,10 +121,9 @@ def get_minimum_start_times(events, current_time):
     """
     events_with_min_times = []
     for event in events:
-        event_start_time = parse_datetime(event['start']['dateTime'])
-        min_start_time = max(current_time, event_start_time)
-        min_start_hour = make_next_hour(min_start_time)
-        events_with_min_times.append((event, min_start_hour))
+        event_start_time = make_next_hour(parse_datetime(event['start']['dateTime']))
+        min_start_time = max(reschedule_start_time, event_start_time)
+        events_with_min_times.append((event, min_start_time))
     return events_with_min_times
 
 

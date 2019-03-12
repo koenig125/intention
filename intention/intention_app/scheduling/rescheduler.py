@@ -32,14 +32,15 @@ def _reschedule_events(events, deadline, credentials):
     """
     localtz = get_localtz(credentials)
     now = datetime.now(localtz)
-    events_with_min_times = get_minimum_start_times(events, now)
-    scheduling_deadline = get_reschedule_deadline(now, deadline, localtz)
+    reschedule_start = get_reschedule_start_time(now, deadline, localtz)
+    reschedule_end = get_reschedule_end_time(now, deadline, localtz)
+    events_with_min_times = get_minimum_start_times(events, reschedule_start)
     for event, start_time in events_with_min_times:
         # edge case (ie start_time=12:30am, deadline=12:00am)
-        if start_time > scheduling_deadline: return None
-    existing_events = get_events_in_range(credentials, make_next_hour(now), scheduling_deadline)
+        if start_time > reschedule_end: return None
+    existing_events = get_events_in_range(credentials, reschedule_start, reschedule_end)
     filtered_events = [event for event in existing_events if event['id'] not in events]
-    return _reschedule_multiple_events(events_with_min_times, scheduling_deadline, filtered_events, localtz)
+    return _reschedule_multiple_events(events_with_min_times, reschedule_end, filtered_events, localtz)
 
 
 def _reschedule_multiple_events(events, deadline, existing_events, localtz):
@@ -48,7 +49,7 @@ def _reschedule_multiple_events(events, deadline, existing_events, localtz):
     for event, event_start in events:
         event_length = get_event_length(event)
         max_start_time = deadline - event_length
-        range_start, range_end = get_day_start_end_time(datetime.now(localtz))
+        range_start, range_end = get_day_start_end_time(event_start)
         existing_event_index = update_index_gcal_events(0, existing_events, event_start)
         rescheduled_event_index = update_index_rescheduled(0, rescheduled_events, event_start)
         success, start_time = _reschedule_single_event(event_start, event_length, max_start_time, range_start,
