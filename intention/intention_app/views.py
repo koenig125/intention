@@ -11,20 +11,18 @@ from google.oauth2.credentials import Credentials
 CLIENT_SECRETS_FILE = 'client_secret.json'
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
-
+# Application homepage. Links to login and introduces user to product.
 def homepage_view(request):
-    """Application homepage. Links to login and introduces user to product."""
     context = {}
     return render(request, 'index.html', context=context)
 
-
+# Follows log-in - allows user to choose from available scheduling options.
 @login_required
 def scheduling_options_view(request):
-    """Follows log-in - allows user to choose from available scheduling options"""
     context = {}
     return render(request, 'scheduling_options.html', context=context)
 
-
+# Displays and submits scheduleForm - allows user to schedule events on their calendar.
 @login_required
 def schedule_view(request):
     if 'credentials' not in request.session:
@@ -59,7 +57,7 @@ def schedule_view(request):
         }
         return HttpResponse(template.render(context, request))
 
-
+# Displays reschedule interface - allows user to reschedule today's events.
 @login_required
 def reschedule_view(request):
     if 'credentials' not in request.session:
@@ -82,8 +80,6 @@ def reschedule_view(request):
     # Called when rescheduling initiated after events selected.
     elif request.method == "POST":
         print ("in post")
-        # print(request.session['events'])
-        # check what things you clicked, use the id to look up the event objects for selected events
         schedule = request.POST.get('schedule', '')
         tasks_returned = request.POST.get('mydata').split(",")
         if tasks_returned[0] == '': tasks_returned = []
