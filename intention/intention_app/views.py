@@ -124,10 +124,8 @@ def schedule_view(request):
                 return HttpResponse(template.render(context, request))
             else:
                 template = loader.get_template('calendar.html')
-                context =  {'event' : form_data }
-                print(form_data)
+                context =  {'event' : form_data, 'user_email': request.user.email}
                 return HttpResponse(template.render(context, request))
-                # return HttpResponseRedirect('calendar')
 
 
 @login_required

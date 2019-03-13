@@ -242,7 +242,7 @@ def get_weekday_index(day):
 
 
 def get_month_timedelta(day, num_periods, localtz):
-    """Returns the day num_periods months in the future that corresponds to the provided day.
+    """Returns the timedelta to the day num_periods months in the future corresponding to the provided day.
 
     For example, if day is the 3rd Monday of January, get_month_timedelta(day, 2, localtz)
     will return the 3rd Monday of March. Raises an error if provided a day that is the 5th
@@ -256,7 +256,8 @@ def get_month_timedelta(day, num_periods, localtz):
     day_difference = day_weekday_idx - mth_weekday_idx
     days_to_target = (day_difference if day_difference >= 0
                       else DAYS_IN_WEEK + day_difference)
-    return month_first_day + get_week_number(day) * DAYS_IN_WEEK + days_to_target
+    total_days = get_week_number(day) * DAYS_IN_WEEK + days_to_target
+    return timedelta(days=total_days)
 
 
 def _get_last_sunday_in_month(day, localtz):

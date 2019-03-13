@@ -66,7 +66,7 @@ def _consolidate_months(busy_ranges, first_period_start, minute_array, localtz):
         orig_day_week_num = first_seven_days_week_nums[get_weekday_index(busy_start)][1]
         if busy_day_week_num < orig_day_week_num or busy_start.day > DAYS_IN_MONTH_ARRAY: continue
         modulo = _get_month_modulo(first_period_start, busy_start, orig_day, busy_day_week_num, orig_day_week_num)
-        if (busy_start - timedelta(minutes=modulo)) < first_period_start: continue
+        if not modulo == float('inf') and (busy_start - timedelta(minutes=modulo)) < first_period_start: continue
         start_minute = int(_get_minutes_between(first_period_start, busy_start, localtz) % modulo)
         end_minute = int(_get_minutes_between(first_period_start, busy_end, localtz) % modulo)
         minute_array[start_minute:end_minute] = False
