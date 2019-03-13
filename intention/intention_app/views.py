@@ -25,84 +25,6 @@ def homepage_view(request):
 
 
 @login_required
-def user_preferences_view(request):
-    """Follows log-in - allows user to enter scheduling preferences for account."""
-    if 'credentials' not in request.session:
-        request.session['endurl'] = _build_full_view_url(request, 'user_preferences_view')
-        return HttpResponseRedirect('authorize')
-
-    if request.method == "GET":
-        credentials = Credentials(**request.session['credentials'])
-        calendar_list = get_calendars(credentials)
-        request.session['credentials'] = _credentials_to_dict(credentials)
-        calendars = [(cal['id'], cal['summary']) for cal in calendar_list]
-        template = loader.get_template('user_preferences.html')
-        wake_form = TimeForm()
-        sleep_form = TimeForm()
-        main_cal_form = MainCalForm(calendars=calendars)
-        context = {
-            'message': 'Enter your preferences',
-            'sleep_form': sleep_form,
-            'wake_form': wake_form,
-            'main_cal_form': main_cal_form
-        }
-        return HttpResponse(template.render(context, request))
-
-    if request.method == "POST":
-
-        # User udpated sleep time
-        if 'sleep' in request.POST:
-            sleep_form = TimeForm(request.POST)
-            if sleep_form.is_valid():
-                sleep_time = request.POST['time']
-                HH, MM = sleep_time.split(':')
-                sleep_hour, sleep_min = int(HH), int(MM)
-                user = User.objects.get(email=request.user.email)
-                user.preferences.day_end_hour = sleep_hour
-                user.preferences.day_end_min = sleep_min
-                user.save()
-            else:
-                pass
-
-        # User updated wake time.
-        elif 'wake' in request.POST:
-            wake_form = TimeForm(request.POST)
-            if wake_form.is_valid():
-                wake_time = request.POST['time']
-                HH, MM = wake_time.split(':')
-                wake_hour, wake_min = int(HH), int(MM)
-                user = User.objects.get(email=request.user.email)
-                user.preferences.day_start_hour = wake_hour
-                user.preferences.day_start_min = wake_min
-                user.save()
-            else:
-                pass
-
-        # User updated main calendar.
-        elif 'main_cal' in request.POST:
-            calendar_id = request.POST['calendar']
-            user = User.objects.get(email=request.user.email)
-            user.preferences.calendar_id = calendar_id
-            user.save()
-
-        credentials = Credentials(**request.session['credentials'])
-        calendar_list = get_calendars(credentials)
-        request.session['credentials'] = _credentials_to_dict(credentials)
-        calendars = [(cal['id'], cal['summary']) for cal in calendar_list]
-        template = loader.get_template('user_preferences.html')
-        wake_form = TimeForm()
-        sleep_form = TimeForm()
-        main_cal_form = MainCalForm(calendars=calendars)
-        context = {
-            'message': 'Your preferences have been saved!',
-            'sleep_form': sleep_form,
-            'wake_form': wake_form,
-            'main_cal_form': main_cal_form
-        }
-        return HttpResponse(template.render(context, request))
-
-
-@login_required
 def scheduling_options_view(request):
     """Follows log-in - allows user to choose from available scheduling options"""
     template = loader.get_template('scheduling_options.html')
@@ -111,16 +33,61 @@ def scheduling_options_view(request):
 
 
 @login_required
+def user_preferences_view(request):
+    """Follows log-in - allows user to enter scheduling preferences for account."""
+    if 'credentials' not in request.session:
+        request.session['endurl'] = _build_full_view_url(request, 'user_preferences_view')
+        return HttpResponseRedirect('authorize')
+    template = loader.get_template('user_preferences.html')
+    calendars = _get_calendar_list(request)
+    wake_form = TimeForm()
+    sleep_form = TimeForm()
+    main_cal_form = MainCalForm(calendars=calendars)
+
+    if request.method == "GET":
+        context = {
+            'message': 'Enter your preferences',
+            'sleep_form': sleep_form,
+            'wake_form': wake_form,
+            'main_cal_form': main_cal_form
+        }
+        return HttpResponse(template.render(context, request))
+
+    elif request.method == "POST":
+        message = "Sorry, preferences could not be saved. Please try again!"
+        if 'sleep' in request.POST:
+            sleep_form = TimeForm(request.POST)
+            if sleep_form.is_valid():
+                save_sleep_time(request)
+                message = "Sleep time saved!"
+        elif 'wake' in request.POST:
+            wake_form = TimeForm(request.POST)
+            if wake_form.is_valid():
+                save_wake_time(request)
+                message = "Wake time saved!"
+        elif 'main_cal' in request.POST:
+            save_calendar(request)
+            message = "Calendar choice saved!"
+        context = {
+            'message': message,
+            'sleep_form': sleep_form,
+            'wake_form': wake_form,
+            'main_cal_form': main_cal_form
+        }
+        return HttpResponse(template.render(context, request))
+
+
+@login_required
 def schedule_view(request):
     """Displays and submits scheduleForm - allows user to schedule events on their calendar."""
     if 'credentials' not in request.session:
         request.session['endurl'] = _build_full_view_url(request, 'schedule_view')
         return HttpResponseRedirect('authorize')
-    template = loader.get_template('schedule.html')
 
     # User first arrives at scheduling page.
     if request.method == "GET":
         form = ScheduleForm()
+        template = loader.get_template('schedule.html')
         context = {
             'message': 'Make An Intentional Goal.',
             'form': form,
@@ -137,6 +104,7 @@ def schedule_view(request):
             request.session['credentials'] = _credentials_to_dict(credentials)
             if not success:
                 form = ScheduleForm()
+                template = loader.get_template('schedule.html')
                 context = {
                     'message': 'Looks like you\'re overbooked! Try again.',
                     'form': form,
@@ -154,11 +122,11 @@ def reschedule_view(request):
     if 'credentials' not in request.session:
         request.session['endurl'] = _build_full_view_url(request, 'reschedule_view')
         return HttpResponseRedirect('authorize')
-    template = loader.get_template('reschedule.html')
 
     # Populate list of rescheduling candidates with events.
     if request.method == "GET":
-        ids_and_titles = _get_rescheduling_info(request)
+        ids_and_titles = _get_calendar_events(request)
+        template = loader.get_template('reschedule.html')
         context =  {'events' : ids_and_titles, 'message': 'Select Events to Reschedule'}
         return HttpResponse(template.render(context, request))
 
@@ -174,7 +142,8 @@ def reschedule_view(request):
         if not reschedule(selected_events, deadline, credentials):
             # Reschedule attempt failed - inform user.
             request.session['credentials'] = _credentials_to_dict(credentials)
-            ids_and_titles = _get_rescheduling_info(request)
+            ids_and_titles = _get_calendar_events(request)
+            template = loader.get_template('reschedule.html')
             context = {'events': ids_and_titles, 'message': 'Looks like you\'re overbooked! Try again.'}
             return HttpResponse(template.render(context, request))
         request.session['credentials'] = _credentials_to_dict(credentials)
@@ -219,6 +188,28 @@ def oauth2callback(request):
     return HttpResponseRedirect(request.session['endurl'])
 
 
+def _build_full_view_url(request, view):
+    """Returns the full url route to the view provided."""
+    return 'http://' + request.environ['HTTP_HOST'] + reverse(view)
+
+
+def _get_calendar_events(request):
+    """Returns list of (event_id, event_name) tuples of calendar events for current day."""
+    credentials = Credentials(**request.session['credentials'])
+    ids_and_titles, event_map = get_events_current_day(credentials)
+    request.session['credentials'] = _credentials_to_dict(credentials)
+    request.session['event_map'] = event_map
+    return ids_and_titles
+
+
+def _get_calendar_list(request):
+    """Returns list of (cal_id, cal_name) tuples of all user google calendars."""
+    credentials = Credentials(**request.session['credentials'])
+    calendar_list = get_calendars(credentials)
+    request.session['credentials'] = _credentials_to_dict(credentials)
+    return [(cal['id'], cal['summary']) for cal in calendar_list]
+
+
 def _credentials_to_dict(credentials):
     """Helper function that adds sign-in credentials to dictionary."""
     return {'token': credentials.token,
@@ -240,6 +231,7 @@ def _unpack_form_data(request):
         'timerange': request.POST['timerange']
     }
 
+
 def dateTime_helper(datestr):
     dateobj = parse_datetime(datestr)
     am_pm = 'am'
@@ -252,14 +244,29 @@ def dateTime_helper(datestr):
       hour = hour - 12
     return str(month) + '/' + str(day) + ' at ' +  str(hour) + ':' + str(min)[0:2] + ' ' + am_pm
 
-def _get_rescheduling_info(request):
-    """Helper method that retrieves the rescheduling data from the session."""
-    credentials = Credentials(**request.session['credentials'])
-    ids_and_titles, event_map = get_events_current_day(credentials)
-    request.session['credentials'] = _credentials_to_dict(credentials)
-    request.session['event_map'] = event_map
-    return ids_and_titles
+
+def save_wake_time(request):
+    wake_time = request.POST['time']
+    HH, MM = wake_time.split(':')
+    wake_hour, wake_min = int(HH), int(MM)
+    user = User.objects.get(email=request.user.email)
+    user.preferences.day_start_hour = wake_hour
+    user.preferences.day_start_min = wake_min
+    user.save()
 
 
-def _build_full_view_url(request, view):
-    return 'http://' + request.environ['HTTP_HOST'] + reverse(view)
+def save_sleep_time(request):
+    sleep_time = request.POST['time']
+    HH, MM = sleep_time.split(':')
+    sleep_hour, sleep_min = int(HH), int(MM)
+    user = User.objects.get(email=request.user.email)
+    user.preferences.day_end_hour = sleep_hour
+    user.preferences.day_end_min = sleep_min
+    user.save()
+
+
+def save_calendar(request):
+    calendar_id = request.POST['calendar']
+    user = User.objects.get(email=request.user.email)
+    user.preferences.calendar_id = calendar_id
+    user.save()

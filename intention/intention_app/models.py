@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from allauth.account.signals import user_signed_up
 from intention_app.scheduling.utils.datetime_utils import convert_to_military
 
 PERIOD_CHOICES = (('DAY', 'day'), ('WEEK', 'week'), ('MONTH', 'month'),)
@@ -25,6 +24,7 @@ class Preferences(models.Model):
 def create_user_preferences(sender, instance, created, **kwargs):
     if created:
         Preferences.objects.create(user=instance)
+
 
 @receiver(post_save, sender=User)
 def save_user_preferences(sender, instance, **kwargs):
