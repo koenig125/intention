@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.shortcuts import render
 from django.urls import reverse
-from .forms import scheduleForm
+from .forms import scheduleForm, timeForm
 from intention_app.scheduling.scheduler import make_schedule
 from intention_app.scheduling.rescheduler import get_events_current_day, reschedule
 from django.contrib.auth.decorators import login_required
@@ -24,10 +24,70 @@ def homepage_view(request):
 
 
 @login_required
+def user_preferences_view(request):
+    """Follows log-in - allows user to enter scheduling preferences for account."""
+    if 'credentials' not in request.session:
+        request.session['endurl'] = _build_full_view_url(request, 'user_preferences_view')
+        return HttpResponseRedirect('authorize')
+
+    if request.method == "GET":
+        template = loader.get_template('user_preferences.html')
+        wake_form = timeForm()
+        sleep_form = timeForm()
+        context = {
+            'sleep_form': sleep_form,
+            'wake_form': wake_form,
+            'message': 'Enter Your Preferences'
+        }
+        return HttpResponse(template.render(context, request))
+
+    if request.method == "POST":
+
+        # User udpated sleep time
+        if 'sleep' in request.POST:
+            sleep_form = timeForm(request.POST)
+            if sleep_form.is_valid():
+                sleep_time = request.POST['time']
+                # save to user record in db
+            else:
+                pass
+                # invalid form response
+
+        # User updated wake time.
+        elif 'wake' in request.POST:
+            wake_form = timeForm(request.POST)
+            if wake_form.is_valid():
+                wake_time = request.POST['time']
+                # save to user record in db
+            else:
+                pass
+                # invalid form response
+
+        # User updated main calendar.
+        elif 'main_cal' in request.POST:
+            pass
+
+        # User updated all calendars.
+        elif 'all_cals' in request.POST:
+            pass
+
+        template = loader.get_template('user_preferences.html')
+        wake_form = timeForm()
+        sleep_form = timeForm()
+        context = {
+            'sleep_form': sleep_form,
+            'wake_form': wake_form,
+            'message': 'Your Preferences Have Been Saved!'
+        }
+        return HttpResponse(template.render(context, request))
+
+
+@login_required
 def scheduling_options_view(request):
-    """Follows log-in - allows user to choose from available scheduling options."""
+    """Follows log-in - allows user to choose from available scheduling options"""
+    template = loader.get_template('scheduling_options.html')
     context = {}
-    return render(request, 'scheduling_options.html', context=context)
+    return HttpResponse(template.render(context, request))
 
 
 @login_required
@@ -64,10 +124,9 @@ def schedule_view(request):
                 return HttpResponse(template.render(context, request))
             else:
                 template = loader.get_template('calendar.html')
-                context =  {'event' : form_data }
-                print(form_data)
+                context =  {'event' : form_data, 'user_email': request.user.email}
                 return HttpResponse(template.render(context, request))
-                # return HttpResponseRedirect('calendar')
+
 
 @login_required
 def reschedule_view(request):
@@ -92,15 +151,18 @@ def reschedule_view(request):
         selected_events = [event_map[eid] for eid in event_ids]
         deadline = request.POST.get('schedule', '')
         credentials = Credentials(**request.session['credentials'])
-        if not reschedule(selected_events, deadline, credentials): # Reschedule attempt failed - inform user.
+        if not reschedule(selected_events, deadline, credentials):
+            # Reschedule attempt failed - inform user.
+            request.session['credentials'] = _credentials_to_dict(credentials)
             ids_and_titles = _get_rescheduling_info(request)
             context = {'events': ids_and_titles, 'message': 'Looks like you\'re overbooked! Try again.'}
             return HttpResponse(template.render(context, request))
         request.session['credentials'] = _credentials_to_dict(credentials)
         template = loader.get_template('calendar.html')
         template_events = [(event['summary'], dateTime_helper(event['start']['dateTime'])) for event in selected_events]
-        context =  {'selected_events' : template_events,}
+        context = {'selected_events': template_events, 'user_email': request.user.email}
         return HttpResponse(template.render(context, request))
+
 
 @login_required
 def calendar_view(request):
@@ -117,6 +179,7 @@ def authorize(request):
     authorization_url, state = flow.authorization_url(
         access_type='offline',
         include_granted_scopes='true',
+        approval_prompt='force',
     )
     request.session['state'] = state
     return HttpResponseRedirect(authorization_url)
@@ -136,6 +199,7 @@ def oauth2callback(request):
 
 
 def _credentials_to_dict(credentials):
+    """Helper function that adds sign-in credentials to dictionary."""
     return {'token': credentials.token,
             'refresh_token': credentials.refresh_token,
             'token_uri': credentials.token_uri,
@@ -145,6 +209,7 @@ def _credentials_to_dict(credentials):
 
 
 def _unpack_form_data(request):
+    """Helper method that unpacks the data from scheduleForm."""
     return {
         'name': request.POST['name'],
         'frequency': request.POST['frequency'],
@@ -161,12 +226,13 @@ def dateTime_helper(datestr):
   day = dateobj.date().day
   hour = dateobj.time().hour
   min = dateobj.time().min
-  if hour > 12: 
+  if hour > 12:
       am_pm = 'pm'
       hour = hour - 12
   return str(month) + '/' + str(day) + ' at ' +  str(hour) + ':' + str(min)[0:2] + ' ' + am_pm
 
 def _get_rescheduling_info(request):
+    """Helper method that retrieves the rescheduling data from the session."""
     credentials = Credentials(**request.session['credentials'])
     ids_and_titles, event_map = get_events_current_day(credentials)
     request.session['credentials'] = _credentials_to_dict(credentials)
