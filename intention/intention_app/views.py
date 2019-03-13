@@ -94,7 +94,7 @@ def reschedule_view(request):
         request.session['credentials'] = _credentials_to_dict(credentials)
         template = loader.get_template('calendar.html')
         template_events = [(event['summary'], dateTime_helper(event['start']['dateTime'])) for event in selected_events]
-        context = {'selected_events': template_events, }
+        context = {'selected_events': template_events, 'user_email': request.user.email}
         return HttpResponse(template.render(context, request))
 
 
