@@ -10,6 +10,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.oauth2.credentials import Credentials
 from intention_app.scheduling.utils.datetime_utils import parse_datetime
 from intention_app.scheduling.utils.googleapi_utils import get_calendars
+from django.contrib.auth.models import User
 
 
 CLIENT_SECRETS_FILE = 'client_secret.json'
@@ -40,7 +41,7 @@ def user_preferences_view(request):
         sleep_form = TimeForm()
         main_cal_form = MainCalForm(calendars=calendars)
         context = {
-            'message': 'Enter Your Preferences',
+            'message': 'Enter your preferences',
             'sleep_form': sleep_form,
             'wake_form': wake_form,
             'main_cal_form': main_cal_form
@@ -55,11 +56,13 @@ def user_preferences_view(request):
             if sleep_form.is_valid():
                 sleep_time = request.POST['time']
                 HH, MM = sleep_time.split(':')
-                SLEEP_HOUR, SLEEP_MIN = int(HH), int(MM)
-                # save to user record in db
+                sleep_hour, sleep_min = int(HH), int(MM)
+                user = User.objects.get(email=request.user.email)
+                user.preferences.day_end_hour = sleep_hour
+                user.preferences.day_end_min = sleep_min
+                user.save()
             else:
                 pass
-                # invalid form response
 
         # User updated wake time.
         elif 'wake' in request.POST:
@@ -67,23 +70,34 @@ def user_preferences_view(request):
             if wake_form.is_valid():
                 wake_time = request.POST['time']
                 HH, MM = wake_time.split(':')
-                WAKE_HOUR, WAKE_MIN = int(HH), int(MM)
-                # save to user record in db
+                wake_hour, wake_min = int(HH), int(MM)
+                user = User.objects.get(email=request.user.email)
+                user.preferences.day_start_hour = wake_hour
+                user.preferences.day_start_min = wake_min
+                user.save()
             else:
                 pass
-                # invalid form response
 
         # User updated main calendar.
         elif 'main_cal' in request.POST:
-            calendar = request.POST.calendar
+            calendar_id = request.POST['calendar']
+            user = User.objects.get(email=request.user.email)
+            user.preferences.calendar_id = calendar_id
+            user.save()
 
+        credentials = Credentials(**request.session['credentials'])
+        calendar_list = get_calendars(credentials)
+        request.session['credentials'] = _credentials_to_dict(credentials)
+        calendars = [(cal['id'], cal['summary']) for cal in calendar_list]
         template = loader.get_template('user_preferences.html')
         wake_form = TimeForm()
         sleep_form = TimeForm()
+        main_cal_form = MainCalForm(calendars=calendars)
         context = {
+            'message': 'Your preferences have been saved!',
             'sleep_form': sleep_form,
             'wake_form': wake_form,
-            'message': 'Your Preferences Have Been Saved!'
+            'main_cal_form': main_cal_form
         }
         return HttpResponse(template.render(context, request))
 
