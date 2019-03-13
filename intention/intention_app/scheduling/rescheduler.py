@@ -106,7 +106,9 @@ def get_events_current_day(credentials):
     """Returns events from DAY_START_HOUR to DAY_END_HOUR for user indicated in credentials."""
     localtz = get_localtz(credentials)
     current_day = datetime.now(localtz)
-    if current_day.hour >= DAY_END_HOUR or current_day.hour < DAY_START_HOUR < DAY_END_HOUR:
+    if (DAY_END_HOUR <= current_day.hour < DAY_START_HOUR or
+        current_day.hour < DAY_START_HOUR < DAY_END_HOUR or
+        DAY_START_HOUR < DAY_END_HOUR <= current_day.hour):
         current_day = get_start_of_next_day(current_day, "ANYTIME", localtz)
     events = get_events_in_range(credentials, make_day_start(current_day), make_day_end(current_day))
     return _filter_event_information(events)
