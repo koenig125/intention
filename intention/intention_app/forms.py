@@ -1,14 +1,33 @@
 from django import forms
-from .models import Schedule, Time
+from .models import *
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.bootstrap import Div
 from crispy_forms.layout import Layout, HTML
 
-class scheduleForm(forms.ModelForm):
+
+class TimeForm(forms.ModelForm):
+    class Meta:
+        model = Time
+        fields = ('time',)
+
+
+class MainCalForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
-        super(scheduleForm, self).__init__(*args, **kwargs)
+        cals = kwargs.pop('calendars')
+        super(MainCalForm, self).__init__(*args, **kwargs)
+        self.fields['calendar'] = forms.ChoiceField(choices=cals)
+
+
+    class Meta:
+        fields = ('calendar',)
+
+
+class ScheduleForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(ScheduleForm, self).__init__(*args, **kwargs)
        
         self.helper = FormHelper()
         self.helper.form_tag = False
@@ -41,9 +60,3 @@ class scheduleForm(forms.ModelForm):
     class Meta:
       model = Schedule
       fields = ('name', 'frequency', 'period', 'duration', 'timeunit', 'timerange')
-
-
-class timeForm(forms.ModelForm):
-    class Meta:
-        model = Time
-        fields = ('time',)

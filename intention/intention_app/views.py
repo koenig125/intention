@@ -2,14 +2,14 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.shortcuts import render
 from django.urls import reverse
-from .forms import scheduleForm, timeForm
+from .forms import *
 from intention_app.scheduling.scheduler import make_schedule
 from intention_app.scheduling.rescheduler import get_events_current_day, reschedule
 from django.contrib.auth.decorators import login_required
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.oauth2.credentials import Credentials
 from intention_app.scheduling.utils.datetime_utils import parse_datetime
-from datetime import datetime
+from intention_app.scheduling.utils.googleapi_utils import get_calendars
 
 
 CLIENT_SECRETS_FILE = 'client_secret.json'
@@ -31,13 +31,19 @@ def user_preferences_view(request):
         return HttpResponseRedirect('authorize')
 
     if request.method == "GET":
+        credentials = Credentials(**request.session['credentials'])
+        calendar_list = get_calendars(credentials)
+        request.session['credentials'] = _credentials_to_dict(credentials)
+        calendars = [(cal['id'], cal['summary']) for cal in calendar_list]
         template = loader.get_template('user_preferences.html')
-        wake_form = timeForm()
-        sleep_form = timeForm()
+        wake_form = TimeForm()
+        sleep_form = TimeForm()
+        main_cal_form = MainCalForm(calendars=calendars)
         context = {
+            'message': 'Enter Your Preferences',
             'sleep_form': sleep_form,
             'wake_form': wake_form,
-            'message': 'Enter Your Preferences'
+            'main_cal_form': main_cal_form
         }
         return HttpResponse(template.render(context, request))
 
@@ -45,9 +51,11 @@ def user_preferences_view(request):
 
         # User udpated sleep time
         if 'sleep' in request.POST:
-            sleep_form = timeForm(request.POST)
+            sleep_form = TimeForm(request.POST)
             if sleep_form.is_valid():
                 sleep_time = request.POST['time']
+                HH, MM = sleep_time.split(':')
+                SLEEP_HOUR, SLEEP_MIN = int(HH), int(MM)
                 # save to user record in db
             else:
                 pass
@@ -55,9 +63,11 @@ def user_preferences_view(request):
 
         # User updated wake time.
         elif 'wake' in request.POST:
-            wake_form = timeForm(request.POST)
+            wake_form = TimeForm(request.POST)
             if wake_form.is_valid():
                 wake_time = request.POST['time']
+                HH, MM = wake_time.split(':')
+                WAKE_HOUR, WAKE_MIN = int(HH), int(MM)
                 # save to user record in db
             else:
                 pass
@@ -65,15 +75,11 @@ def user_preferences_view(request):
 
         # User updated main calendar.
         elif 'main_cal' in request.POST:
-            pass
-
-        # User updated all calendars.
-        elif 'all_cals' in request.POST:
-            pass
+            calendar = request.POST.calendar
 
         template = loader.get_template('user_preferences.html')
-        wake_form = timeForm()
-        sleep_form = timeForm()
+        wake_form = TimeForm()
+        sleep_form = TimeForm()
         context = {
             'sleep_form': sleep_form,
             'wake_form': wake_form,
@@ -100,7 +106,7 @@ def schedule_view(request):
 
     # User first arrives at scheduling page.
     if request.method == "GET":
-        form = scheduleForm()
+        form = ScheduleForm()
         context = {
             'message': 'Make An Intentional Goal.',
             'form': form,
@@ -109,14 +115,14 @@ def schedule_view(request):
 
     # Scheduling form submitted - act on info.
     elif request.method == "POST":
-        form = scheduleForm(request.POST)
+        form = ScheduleForm(request.POST)
         if form.is_valid():
             form_data = _unpack_form_data(request)
             credentials = Credentials(**request.session['credentials'])
             success = make_schedule(form_data, credentials)
             request.session['credentials'] = _credentials_to_dict(credentials)
             if not success:
-                form = scheduleForm()
+                form = ScheduleForm()
                 context = {
                     'message': 'Looks like you\'re overbooked! Try again.',
                     'form': form,
@@ -221,16 +227,16 @@ def _unpack_form_data(request):
     }
 
 def dateTime_helper(datestr):
-  dateobj = parse_datetime(datestr)
-  am_pm = 'am'
-  month = dateobj.date().month
-  day = dateobj.date().day
-  hour = dateobj.time().hour
-  min = dateobj.time().min
-  if hour > 12:
+    dateobj = parse_datetime(datestr)
+    am_pm = 'am'
+    month = dateobj.date().month
+    day = dateobj.date().day
+    hour = dateobj.time().hour
+    min = dateobj.time().min
+    if hour > 12:
       am_pm = 'pm'
       hour = hour - 12
-  return str(month) + '/' + str(day) + ' at ' +  str(hour) + ':' + str(min)[0:2] + ' ' + am_pm
+    return str(month) + '/' + str(day) + ' at ' +  str(hour) + ':' + str(min)[0:2] + ' ' + am_pm
 
 def _get_rescheduling_info(request):
     """Helper method that retrieves the rescheduling data from the session."""
