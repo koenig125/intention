@@ -9,13 +9,14 @@ body, input, select, textarea {
     color: rgba(0, 0, 0, 0.7);
     font-family: "Source Sans Pro", Helvetica, sans-serif;
     font-weight: normal;
+    
 }
 
 h1, h2, h3, h4, h5, h6 {
 	color: rgba(0, 0, 0, 0.7);
 	font-weight: bold;
 	line-height: 1.5;
-	margin: 0 0 0.5em 0;
+    margin: 0 0 0.5em 0;
 }
 
 html, body, div, span, applet, object,
@@ -39,6 +40,9 @@ section, summary, time, mark, audio, video {
     text-align: center;
 }
 
+div{
+    letter-spacing: 0.2em;
+}
 div.formstyle {
     margin-top: 120px;
 }
@@ -100,7 +104,7 @@ button,
     cursor: pointer;
     display: block;
     font-size: 0.9em;
-    font-weight: bold;
+    font-weight: 400;
     height: calc(4.75em + 2px);
     letter-spacing: 0.20em;
     line-height: 4.75em;
@@ -441,14 +445,9 @@ input[type="radio"] + label:before {
         background-color: #953d75;
     }
 
-/* .row {
-    display: flex;
-    flex-wrap: nowrap;
-    box-sizing: border-box;
-    align-items: stretch;
-    margin-top: 0;
-    width: 2000px;
-} */
+.row {
+    line-spacing: 0.8em;
+}
 
 input[type="text"],
 input[type="password"],

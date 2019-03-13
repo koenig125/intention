@@ -23,18 +23,15 @@ button,
     cursor: pointer;
     display: block;
     font-size: 1.3em;
-    font-weight: bold;
+    font-weight: 400;
     height: calc(4.75em + 2px);
     letter-spacing: 0.20em;
     line-height: 4.75em;
     margin-left: auto;
     margin-right: auto;     
-    /* outline: 0; */
-    /* padding: 0 3.75em; */
     position: relative;
     text-align: center;
     text-decoration: none;
-    /*		text-transform: uppercase;*/
     white-space: nowrap;
     width: 20em;
     margin-top: 15%;
@@ -362,8 +359,6 @@ section, summary, time, mark, audio, video {
     border: 0;
     font-size: 100%;
     font: inherit;
-    /* margin-bottom: auto;
-    margin-top: auto; */
     text-align: center;
 }
 
@@ -385,18 +380,21 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-	font-size: 3em;
+    font-size: 3em;
 }
 
 h2 {
     font-size: 2.75em;
     padding-bottom: 0.7em;
+    font-weight: 600;
+    letter-spacing: 0.13em;
 }
 
 h3 {
     font-size: 1.8em;
     padding-bottom: 0.8em;
     font-weight: 300;
+    letter-spacing: 0.11em;
 }
 
 h4 {

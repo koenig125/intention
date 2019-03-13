@@ -15,7 +15,6 @@
     <body>
         <!-- Reschedule -->
         <section id="reschedule" class="wrapper fullscreen style2 fade-up">
-            <h2>{{ message }}</h2>
             <div class="flex_container">
                 <div class="task_container"> 
                     <h3>today's events</h3>
@@ -26,6 +25,8 @@
                 <form id="task_form" method="post">{% csrf_token %}
                 </form>
                 <div class="button_container">
+                        <h2>{{ message }}</h2>
+                        <h4>select the tasks you want to reschedule in the left menu, then choose when you would like to reschedule them</h4>
                         <button id = "today" class="button reschedule">later today</button>
                         <button id = "this_week" class="button reschedule">later this week</button>
                         <button id = "next_week" class="button reschedule">next week</button>

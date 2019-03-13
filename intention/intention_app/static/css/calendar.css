@@ -51,9 +51,8 @@ h1.major {
 
 h1, h2, h3, h4, h5, h6 {
 	color: #E09C19;
-    /* color: black
-    font-family: Arial, Helvetica, sans-serif; */
-    font-weight: 700;
+	font-weight: 550;
+	letter-spacing: 0.10em;
 	text-align: center;
 	margin-top: 1%;
 }
@@ -92,7 +91,6 @@ button,
 	cursor: pointer;
 	display: block;
 	font-size: 0.9em;
-	font-weight: bold;
 	letter-spacing: 0.20em;
 	line-height: 4.75em;
 	margin-left: auto;
@@ -181,5 +179,5 @@ button,
 
 .image {
 	width: 96%;
-	margin: 2.4%;
+	margin: 2.1%;
 }

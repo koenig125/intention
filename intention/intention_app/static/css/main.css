@@ -23,6 +23,8 @@ section, summary, time, mark, audio, video {
 	padding: 0;
 	border: 0;
 	font-size: 100%;
+	letter-spacing: 0.05em;
+	color: rgb(43, 41, 41);
 	font: inherit;
 
 	/* margin-top: auto; */
@@ -73,9 +75,11 @@ body {
 	top: 0;
 	left: 0;
 	width: auto;
-	margin-left:4.6em;
 }
 
+#link {
+	font-weight: 400;
+}
 mark {
 	background-color: transparent;
 	color: inherit;
@@ -194,6 +198,7 @@ input, select, textarea {
 
 	p {
 	margin: 0 0 0.8em 0;
+	font-weight: 390;
 	}
 
 	.h1_logout{
@@ -1886,7 +1891,7 @@ input, select, textarea {
 		cursor: pointer;
 		display: block;
 		font-size: 0.9em;
-		font-weight: 530;
+		font-weight: 350;
 		height: calc(4.75em + 2px);
 		letter-spacing: 0.20em;
 		line-height: 4.75em;

@@ -34,9 +34,9 @@
                                         {{ request.user.username }}
                                     {% endif %}</p><br />
 
-                                <a href="{% url 'scheduling_options_view' %}" class="button "> <b>get started</b></a><br />
+                                <a href="{% url 'scheduling_options_view' %}" id = "link" class="button"> get started</a><br />
 
-                                <a href="{% url 'user_preferences_view' %}" class="button"><b>user preferences</b></a><br />
+                                <a href="{% url 'user_preferences_view' %}" id = "link" class="button"> user preferences</a><br />
 
                                 <form method="post" action="{% url 'account_logout' %}">
                                     {% csrf_token %}
