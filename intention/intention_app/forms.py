@@ -20,7 +20,7 @@ class scheduleForm(forms.ModelForm):
 
         self.helper.layout = Layout(
         Div(
-            HTML("<label> I want to </label>"),
+            HTML("<label> i want to </label>"),
             Div('name', css_class="col-xs-6"),
             Div('frequency', css_class="col-sm-2"),
             HTML("<label class=\"form_label\"> times a </label>"),
@@ -33,7 +33,7 @@ class scheduleForm(forms.ModelForm):
         ),
 
          Div(
-            HTML("<label> I prefer to do this in the  </label>"),
+            HTML("<label> i prefer to do this in the  </label>"),
             Div('timerange', css_class="col-sm-2"),
             HTML("<label class=\"form_punctuation\">.</label>"),
             css_class='row',

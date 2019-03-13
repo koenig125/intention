@@ -39,7 +39,7 @@ def schedule_view(request):
     if request.method == "GET":
         form = scheduleForm()
         context = {
-            'message': 'Make An Intentional Goal.',
+            'message': 'make an intentional goal',
             'form': form,
         }
         return HttpResponse(template.render(context, request))
