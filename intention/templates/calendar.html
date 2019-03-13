@@ -12,7 +12,7 @@
 	<body class="is-preload">
 		<!-- Calendar Page -->
 		<section id="calendar" class="wrapper style1 fullscreen fade-up">
-			<h1>Your Schedule</h1>
+			<h1>your schedule</h1>
 			<div class = 'outer_most_flex'>
 			<div class="calendar_container">
 				<div class="calendar_container"> 
@@ -23,7 +23,7 @@
 			</div>
 				<div class="button_container">
 					{% if event %}
-					<h2>Recently Scheduled Events</h2>
+					<h2>recently scheduled events</h2>
 					<div class = 'text_container info_field'>
 						<p>{{event.name}} was scheduled for {{event.frequency}} times per {{event.period}} with each session lasting {{event.duration}} {{event.timeunit}} in the {{event.timerange}}.</p>
 					</div>
@@ -36,9 +36,9 @@
 						{% endfor %}
 					</div>
 					{% endif %}
-					<a href="{% url 'schedule_view' %}" class="button">Schedule Goal</a>
-					<a href="{% url 'reschedule_view' %}" class="button">Reschedule Task</a>
-                    <a href="{% url 'homepage' %}" class="button">Back to Home</a>
+					<a href="{% url 'schedule_view' %}" class="button">schedule goal</a>
+					<a href="{% url 'reschedule_view' %}" class="button">reschedule task</a>
+                    <a href="{% url 'homepage' %}" class="button">back to home</a>
 		</div>
 		</section>
 	</body>

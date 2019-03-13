@@ -24,8 +24,8 @@ section, summary, time, mark, audio, video {
 	border: 0;
 	font-size: 100%;
 	font: inherit;
-	margin-bottom: auto;
-	margin-top: auto;
+
+	/* margin-top: auto; */
 	text-align: center;}
 
 article, aside, details, figcaption, figure,
@@ -73,6 +73,7 @@ body {
 	top: 0;
 	left: 0;
 	width: auto;
+	margin-left:4.6em;
 }
 
 mark {
@@ -195,6 +196,23 @@ input, select, textarea {
 	margin: 0 0 0.8em 0;
 	}
 
+	.h1_logout{
+		display: flex;
+		flex-direction: column;
+		margin-right: 85rem;
+		margin-top: 15rem;
+  		/* justify-content: center; */
+	} */
+
+	.logout {
+		position:fixed;
+		margin-right: 60rem;
+		width: 20%;
+   	 	top:50%; 
+		/* left:-175%;
+		margin-top:50rem; */ */
+	}
+	
 	h1, h2, h3, h4, h5, h6 {
 		color: rgba(0, 0, 0, 0.7);
 		font-weight: bold;
@@ -1868,13 +1886,13 @@ input, select, textarea {
 		cursor: pointer;
 		display: block;
 		font-size: 0.9em;
-		font-weight: 700;
+		font-weight: 530;
 		height: calc(4.75em + 2px);
 		letter-spacing: 0.20em;
 		line-height: 4.75em;
 		margin-left: auto;
 		margin-right: auto;
-		margin-top: 2em;
+		margin-top: 0.5rem;
 		/* outline: 0; */
 		/* padding: 0 3.75em; */
 		position: relative;

@@ -19,12 +19,10 @@
 
 				<!-- Landing Page -->
 					<section id="intro" class="wrapper style1 fullscreen fade-up">
-						<div class="h1">
-							<div>
+						<div >
 								{% load static %}
 								<img id="logo" src="{% static "cozyco.png" %}"/ alt="" data-position="top center">
-							</div>
-	
+						</div>
 							<p>let's live today with <b>intention</b></p>
                             {% if request.user.is_authenticated %}
                                 <p>welcome,
@@ -36,17 +34,17 @@
                                         {{ request.user.username }}
                                     {% endif %}</p><br />
 
-                                <a href="{% url 'scheduling_options_view' %}" class="button scrolly">get started</a><br />
+                                <a href="{% url 'scheduling_options_view' %}" class="button "> <b>get started</b></a><br />
 
                                 <form method="post" action="{% url 'account_logout' %}">
                                     {% csrf_token %}
                                     {% if redirect_field_value %}
                                         <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
-                                    {% endif %}
-                                    <button type="submit" class="button scrolly">logout</button>
-                                </form>
+									{% endif %}
+									<button type="submit" class="button ">logout</button>
+								</form>
                             {% else %}
-                                <a href="{% provider_login_url 'google' %}" class="button scrolly">sign in with google</a>
+                                <a href="{% provider_login_url 'google' %}" class="button">sign in with google</a>
                             {% endif %}
 
 						</div>
