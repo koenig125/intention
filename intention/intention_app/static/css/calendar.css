@@ -8,6 +8,7 @@ body {
 
 .outer_most_flex{
 	display: flex;
+	margin-left: 3em;
 	/* flex-direction: row; */
 }
 .responsive {
@@ -32,7 +33,6 @@ h1.major, h2.major, h3.major {
 h1 {
     font-size: 3rem;
     line-height: 1.2;
-    text-align: center
 }
 
 h1.major {
@@ -40,12 +40,14 @@ h1.major {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    color: black;
-    font-family: Arial, Helvetica, sans-serif;
+	color: #e3520b;
+    /* color: black
+    font-family: Arial, Helvetica, sans-serif; */
     font-weight: 700;
     line-height: 1.3;
     margin: 0 0 0.75rem 0;
-    letter-spacing: -0.05em;
+	letter-spacing: -0.05em;
+	text-align: center
 }
 
 input[type="submit"],
@@ -89,13 +91,12 @@ button,
 	/*		background-color: transparent;*/
 	border: solid 1px !important;
 	border-color: rgba(255, 255, 255, 0.15) !important;
-	border-radius: 3em;
-	box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+	border-radius: 2em;
 	color: gray !important;
 	font-size: 1.2em;
 	height: calc(4.75em + 2px);
-	letter-spacing: 0.20em;
-	line-height: 1.75em;
+	letter-spacing: 0.05em;
+	/* line-height: 1.75em; */
 	margin-left: auto;
 	margin-right: auto;
 	position: relative;
@@ -104,25 +105,22 @@ button,
 	width: 16em;
 }
 
-.info_container {
-	display: flex;
-	flex-direction: column;
-	height: 80%;
-	width: 25%
-}
-
 .text_container{
 	display: flex;
 	flex-direction: vertical;
 	height: 70%;
+	margin: 1em;
+	padding: 1em;
 	width: auto;
 }
 
 .button_container{
 	display: flex;
 	flex-direction: column;
-    margin: auto;
-    margin-right: 2%;
+	margin: auto;
+	margin-top: 2em;
+	margin-right: 5em;
+	margin-left: 5em;
 }
 
 .calendar_container {
