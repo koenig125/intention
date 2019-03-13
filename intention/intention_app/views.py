@@ -8,6 +8,9 @@ from intention_app.scheduling.rescheduler import get_events_current_day, resched
 from django.contrib.auth.decorators import login_required
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.oauth2.credentials import Credentials
+from intention_app.scheduling.utils.datetime_utils import parse_datetime
+from datetime import datetime
+
 
 CLIENT_SECRETS_FILE = 'client_secret.json'
 SCOPES = ['https://www.googleapis.com/auth/calendar']
@@ -60,7 +63,11 @@ def schedule_view(request):
                 }
                 return HttpResponse(template.render(context, request))
             else:
-                return HttpResponseRedirect('calendar')
+                template = loader.get_template('calendar.html')
+                context =  {'event' : form_data }
+                print(form_data)
+                return HttpResponse(template.render(context, request))
+                # return HttpResponseRedirect('calendar')
 
 
 @login_required
@@ -142,11 +149,6 @@ def _credentials_to_dict(credentials):
             'scopes': credentials.scopes}
 
 
-def dateTime_helper(string):
-    date_array = string.split('-')
-    return MONTHS[date_array[1]] + ' '  + date_array[2][0:2] + ' at ' +  date_array[3]
-
-
 def _unpack_form_data(request):
     """Helper method that unpacks the data from scheduleForm."""
     return {
@@ -158,6 +160,17 @@ def _unpack_form_data(request):
         'timerange': request.POST['timerange']
     }
 
+def dateTime_helper(datestr):
+  dateobj = parse_datetime(datestr)
+  am_pm = 'am'
+  month = dateobj.date().month
+  day = dateobj.date().day
+  hour = dateobj.time().hour
+  min = dateobj.time().min
+  if hour > 12:
+      am_pm = 'pm'
+      hour = hour - 12
+  return str(month) + '/' + str(day) + ' at ' +  str(hour) + ':' + str(min)[0:2] + ' ' + am_pm
 
 def _get_rescheduling_info(request):
     """Helper method that retrieves the rescheduling data from the session."""

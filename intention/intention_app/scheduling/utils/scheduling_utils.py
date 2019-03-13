@@ -222,6 +222,6 @@ def update_index_rescheduled(index, rescheduled_events, threshold_time):
 
     Expects list of rescheduled events in format (event_object, new_start_time, new_end_time)
     """
-    while index < len(rescheduled_events) and parse_datetime(rescheduled_events[index][1]) <= threshold_time:
+    while index < len(rescheduled_events) and rescheduled_events[index][2] <= threshold_time:
         index += 1
     return index
