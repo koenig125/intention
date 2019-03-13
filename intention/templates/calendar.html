@@ -12,14 +12,15 @@
 	<body class="is-preload">
 		<!-- Calendar Page -->
 		<section id="calendar" class="wrapper style1 fullscreen fade-up">
-			<h1>Your Schedule</h1>
-            <div style="text-align:center">
-                <h3>If calendar does not display, please activate "Make Available to Public" at your
-                <a href="https://calendar.google.com/calendar/r/settings/">Google Calendar Settings</a></h3>
-            </div>
+			<h1>your schedule</h1>
+			<div style="text-align:center">
+					<h3>if calendar does not display, please activate "Make Available to Public" at your
+					<a href="https://calendar.google.com/calendar/r/settings/">google calendar settings</a></h3>
+			</div>
+			<a href="{% url 'homepage' %}" class="button smaller">back to home</a>
 			<div class = 'outer_most_flex'>
-			<div class="calendar_container">
-				<div class="calendar_container"> 
+			<div class="calendar_container background">
+				<div class="calendar_container image"> 
 					<div class="responsive">
                         <iframe src="https://calendar.google.com/calendar/embed?showTitle=0&amp;showDate=0&amp;showPrint=0&amp;showCalendars=0&amp;showTz=0&amp;mode=WEEK&amp;height=600&amp;wkst=1&amp;bgcolor=%23ffcc99&amp;src={{ user_email }}&amp;color=%231B887A&amp;ctz=America%2FLos_Angeles" style="border:solid 1px #777" width="800" height="600" frameborder="0" scrolling="no"></iframe>
 					</div>
@@ -40,9 +41,10 @@
 						{% endfor %}
 					</div>
 					{% endif %}
+					<div class="icon major fa-clock-o"></div>
 					<a href="{% url 'schedule_view' %}" class="button">schedule goal</a>
+					<span class="icon major fa-redo"></span>
 					<a href="{% url 'reschedule_view' %}" class="button">reschedule task</a>
-                    <a href="{% url 'homepage' %}" class="button">back to home</a>
 		</div>
 		</section>
 	</body>

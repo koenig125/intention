@@ -20,6 +20,10 @@ p {
 	color: #000000;
 }
 
+.h2{
+	width:65%;
+}
+
 .flex_container {
 	display: flex;
 	height: 80%;
