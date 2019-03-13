@@ -21,18 +21,24 @@
 					</div>
 				</div>
 			</div>
-			<div class = "info_container">
-				<div class = 'text_container info_field'>
-					{% for event in selected_events %}
-					<p>{{event.0}} was rescheduled to {{event.1}} </p>
-					{% endfor %}
-				</div>
 				<div class="button_container">
+					{% if event %}
+					<h2>Recently Scheduled Events</h2>
+					<div class = 'text_container info_field'>
+						<p>{{event.name}} was scheduled for {{event.frequency}} times per {{event.period}} with each session lasting {{event.duration}} {{event.timeunit}} in the {{event.timerange}}.</p>
+					</div>
+					{% endif %}
+					{% if selected_events %}
+					<h2>Recently Rescheduled Events</h2>
+					<div class = 'text_container info_field'>
+						{% for event in selected_events %}
+						<p>{{event.0}} was rescheduled to {{event.1}} </p>
+						{% endfor %}
+					</div>
+					{% endif %}
 					<a href="{% url 'schedule_view' %}" class="button">Schedule Goal</a>
 					<a href="{% url 'reschedule_view' %}" class="button">Reschedule Task</a>
                     <a href="{% url 'homepage' %}" class="button">Back to Home</a>
-				</div> 
-			</div>
 		</div>
 		</section>
 	</body>

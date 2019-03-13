@@ -8,6 +8,9 @@ from intention_app.scheduling.rescheduler import get_events_current_day, resched
 from django.contrib.auth.decorators import login_required
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.oauth2.credentials import Credentials
+from intention_app.scheduling.utils.datetime_utils import parse_datetime
+from datetime import datetime
+
 
 CLIENT_SECRETS_FILE = 'client_secret.json'
 SCOPES = ['https://www.googleapis.com/auth/calendar']
@@ -52,7 +55,7 @@ def schedule_view(request):
             credentials = Credentials(**request.session['credentials'])
             success = make_schedule(form_data, credentials)
             request.session['credentials'] = _credentials_to_dict(credentials)
-            if not success:
+            if not success: # scheduler unable to find time matching given specifications
                 form = scheduleForm()
                 context = {
                     'message': 'Looks like you\'re overbooked! Try again.',
@@ -60,7 +63,11 @@ def schedule_view(request):
                 }
                 return HttpResponse(template.render(context, request))
             else:
-                return HttpResponseRedirect('calendar')
+                template = loader.get_template('calendar.html')
+                context =  {'event' : form_data }
+                print(form_data)
+                return HttpResponse(template.render(context, request))
+                # return HttpResponseRedirect('calendar')
 
 @login_required
 def reschedule_view(request):
@@ -85,8 +92,7 @@ def reschedule_view(request):
         selected_events = [event_map[eid] for eid in event_ids]
         deadline = request.POST.get('schedule', '')
         credentials = Credentials(**request.session['credentials'])
-        if not reschedule(selected_events, deadline, credentials):
-            # Reschedule attempt failed - inform user.
+        if not reschedule(selected_events, deadline, credentials): # Reschedule attempt failed - inform user.
             ids_and_titles = _get_rescheduling_info(request)
             context = {'events': ids_and_titles, 'message': 'Looks like you\'re overbooked! Try again.'}
             return HttpResponse(template.render(context, request))
@@ -148,9 +154,17 @@ def _unpack_form_data(request):
         'timerange': request.POST['timerange']
     }
 
-def dateTime_helper(string):
-    dateArray = string.split('-')
-    return MONTHS[dateArray[1]] + ' ' + dateArray[2][0:2] + ' at '  + dateArray[3]
+def dateTime_helper(datestr):
+  dateobj = parse_datetime(datestr)
+  am_pm = 'am'
+  month = dateobj.date().month
+  day = dateobj.date().day
+  hour = dateobj.time().hour
+  min = dateobj.time().min
+  if hour > 12: 
+      am_pm = 'pm'
+      hour = hour - 12
+  return str(month) + '/' + str(day) + ' at ' +  str(hour) + ':' + str(min)[0:2] + ' ' + am_pm
 
 def _get_rescheduling_info(request):
     credentials = Credentials(**request.session['credentials'])
