@@ -76,6 +76,7 @@ def _convert_array_to_timeranges(minute_array_filled, first_period_start, first_
     """Returns list of busy time ranges corresponding to minute indices with values set to False."""
     busy_ranges = []
     busy_minutes = [int(x) for x in np.where(minute_array_filled == False)[0]]
+    if len(busy_minutes) == 0: return busy_ranges # No busy times to convert to time ranges.
     start_minute, end_minute = busy_minutes[0], busy_minutes[0]
     for i in range(1, len(busy_minutes)):
         if busy_minutes[i] - busy_minutes[i-1] != 1:
