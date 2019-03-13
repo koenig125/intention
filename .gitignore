@@ -121,6 +121,8 @@ dmypy.json
 
 # IDE .idea files
 .idea/ 
+.vscode/
+.vscode
 
 # Google OAth credentials
 credentials.json

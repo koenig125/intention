@@ -32,6 +32,10 @@ h1.major, h2.major, h3.major {
 
 h1 {
     font-size: 3rem;
+<<<<<<< HEAD
+=======
+    line-height: 1.2;
+>>>>>>> 1e68adcc6fb7015dbd5af44adff0453dd1815650
 }
 
 h1.major {
@@ -39,6 +43,7 @@ h1.major {
 }
 
 h1, h2, h3, h4, h5, h6 {
+<<<<<<< HEAD
 	color: #E09C19;
     /* color: black
     font-family: Arial, Helvetica, sans-serif; */
@@ -47,6 +52,16 @@ h1, h2, h3, h4, h5, h6 {
 	letter-spacing: -0.05em;
 	text-align: center;
 	margin-top: 3%;
+=======
+	color: #e3520b;
+    /* color: black
+    font-family: Arial, Helvetica, sans-serif; */
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0 0 0.75rem 0;
+	letter-spacing: -0.05em;
+	text-align: center
+>>>>>>> 1e68adcc6fb7015dbd5af44adff0453dd1815650
 }
 
 input[type="submit"],
@@ -86,7 +101,11 @@ button,
 }
 
 .info_field {
+<<<<<<< HEAD
 	background: #ef9558;
+=======
+	background: lightsalmon;
+>>>>>>> 1e68adcc6fb7015dbd5af44adff0453dd1815650
 	/*		background-color: transparent;*/
 	border: solid 1px !important;
 	border-color: rgba(255, 255, 255, 0.15) !important;

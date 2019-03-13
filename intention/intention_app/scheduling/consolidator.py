@@ -66,7 +66,7 @@ def _consolidate_months(busy_ranges, first_period_start, minute_array, localtz):
         orig_day_week_num = first_seven_days_week_nums[get_weekday_index(busy_start)][1]
         if busy_day_week_num < orig_day_week_num or busy_start.day > DAYS_IN_MONTH_ARRAY: continue
         modulo = _get_month_modulo(first_period_start, busy_start, orig_day, busy_day_week_num, orig_day_week_num)
-        if (busy_start - timedelta(minutes=modulo)) < first_period_start: continue
+        if not modulo == float('inf') and (busy_start - timedelta(minutes=modulo)) < first_period_start: continue
         start_minute = int(_get_minutes_between(first_period_start, busy_start, localtz) % modulo)
         end_minute = int(_get_minutes_between(first_period_start, busy_end, localtz) % modulo)
         minute_array[start_minute:end_minute] = False
@@ -76,6 +76,7 @@ def _convert_array_to_timeranges(minute_array_filled, first_period_start, first_
     """Returns list of busy time ranges corresponding to minute indices with values set to False."""
     busy_ranges = []
     busy_minutes = [int(x) for x in np.where(minute_array_filled == False)[0]]
+    if len(busy_minutes) == 0: return busy_ranges # No busy times to convert to time ranges.
     start_minute, end_minute = busy_minutes[0], busy_minutes[0]
     for i in range(1, len(busy_minutes)):
         if busy_minutes[i] - busy_minutes[i-1] != 1:

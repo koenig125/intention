@@ -1,11 +1,9 @@
 from django import forms
-from .models import Schedule
+from .models import Schedule, Time
 
 from crispy_forms.helper import FormHelper
-from crispy_forms import layout, bootstrap
-from crispy_forms.bootstrap import InlineField, FormActions, StrictButton, Div
-from crispy_forms.layout import Layout, HTML, Submit
-from crispy_forms import bootstrap, layout
+from crispy_forms.bootstrap import Div
+from crispy_forms.layout import Layout, HTML
 
 class scheduleForm(forms.ModelForm):
 
@@ -43,3 +41,9 @@ class scheduleForm(forms.ModelForm):
     class Meta:
       model = Schedule
       fields = ('name', 'frequency', 'period', 'duration', 'timeunit', 'timerange')
+
+
+class timeForm(forms.ModelForm):
+    class Meta:
+        model = Time
+        fields = ('time',)
