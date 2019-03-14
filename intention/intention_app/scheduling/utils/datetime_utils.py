@@ -244,13 +244,13 @@ def get_month_timedelta(day, num_periods, localtz):
     """
     month_first_day = get_next_month(day, localtz)
     for i in range(num_periods - 1):
-        month_first_day = get_next_month(day, localtz)
+        month_first_day = get_next_month(month_first_day, localtz)
     day_weekday_idx = get_weekday_index(day)
     mth_weekday_idx = get_weekday_index(month_first_day)
     day_difference = day_weekday_idx - mth_weekday_idx
     days_to_target = (day_difference if day_difference >= 0
                       else DAYS_IN_WEEK + day_difference)
-    total_days = get_week_number(day) * DAYS_IN_WEEK + days_to_target
+    total_days = (month_first_day - day).days + get_week_number(day) * DAYS_IN_WEEK + days_to_target
     return timedelta(days=total_days)
 
 
