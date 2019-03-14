@@ -1,4 +1,6 @@
-Intention is a web application that helps people make more intentional use of their time. It is built on Django web framework and interfaces with Google Calendar API to help users intelligently schedule and reschedule tasks, projects, and habits.
+<img src="https://drive.google.com/uc?export=view&id=1qnlK7Dll-NtvVySyRckIz7255SdjZegi" width="450">
+
+Intention is a web application that helps people make more intentional use of their time. It is built on Django web framework and interfaces with Google Calendar API to help users intelligently schedule and reschedule events, habits, and goals.
 
 ## Features:
 
