@@ -184,6 +184,8 @@ def make_day_end(day, day_start_time, day_end_time):
     """Returns day set to start hour based on day_end_time, regardless of timerange."""
     if day_end_time < day_start_time and not day.time() < day_start_time:
         day += timedelta(days=1) # day_end_time is past midnight
+    if not day_end_time < day_start_time and day.time() < day_start_time:
+        day -= timedelta(days=1) # day.time() is past midnight
     return day.replace(hour=day_end_time.hour, minute=day_end_time.minute, second=0, microsecond=0)
 
 
