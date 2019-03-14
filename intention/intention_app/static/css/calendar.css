@@ -116,7 +116,7 @@ button,
 }
 
 .info_field {
-	background:darkgrey;
+	background: #E09C19;
 	/*		background-color: transparent;*/
 	border: solid 1px !important;
 	border-color: rgba(255, 255, 255, 0.15) !important;
@@ -144,7 +144,7 @@ button,
 	color: #312450;
 	text-align: center;
 	line-height: 10em;
-	margin-left: 35%;
+	margin-left: calc(100% - 20em);
 	transform: scale(.7);
 }
 

@@ -139,7 +139,7 @@ def reschedule_view(request):
     # Populate list of rescheduling candidates with events.
     if request.method == "GET":
         ids_and_titles = _get_rescheduling_info(request)
-        context =  {'events' : ids_and_titles, 'message': 'select events to reschedule'}
+        context =  {'events' : ids_and_titles, 'message': 'choose when you would like to reschedule'}
         return HttpResponse(template.render(context, request))
 
     # Rescheduling initiated after events selected by user.

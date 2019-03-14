@@ -12,15 +12,15 @@
     <body>
         <section id="schedule_goal" class="wrapper fullscreen style3 fade-up">
             <div class="formstyle">
-                <h1 class="form_title">Scheduling Preferences</h1>
+                <h1 class="form_title">scheduling preferences</h1>
                 <form method="POST"> {% csrf_token %}
-                    <h3>At what time do you typically go to sleep?</h3><br />
+                    <h3>at what time do you typically go to sleep?</h3><br />
                         {{ sleep_form.time }}<br />
                         <button name = "sleep" type='submit'>Submit</button><br />
                 </form>
 
                 <form method="POST"> {% csrf_token %}
-                    <h3>At what time do you typically wake up?</h3><br />
+                    <h3>at what time do you typically wake up?</h3><br />
                         {{ wake_form.time }}<br />
                         <button name = "wake" type='submit'>Submit</button><br />
                 </form>

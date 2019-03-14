@@ -13,15 +13,19 @@
     <body>
         <section class="wrapper fullscreen style2 fade-up">
             <h2>let's get started</h2>
-            <h3>schedule recurring time to work towards a goal or reschedule asks from your existing calendar</h3>
+            <h3>schedule recurring time to help create a habit or reschedule events from your existing calendar</h3>
             <div class="features">
                 <section>
                     <div class="icon major fa-clock-o"></div>
-                    <a href="{% url 'schedule_view' %}" class="button scrolly">schedule goal</a>
+                    <a href="{% url 'schedule_view' %}" class="button scrolly">schedule habit</a>
+                </section>
+                <section>
+                        <span class="icon major fa-cog"></span>
+                        <a href="{% url 'user_preferences_view' %}" id = "link" class="button scrolly"> user preferences</a><br />
                 </section>
                 <section>
                     <span class="icon major fa-redo"></span>
-                    <a href="{% url 'reschedule_view' %}" class="button scrolly">reschedule task</a>
+                    <a href="{% url 'reschedule_view' %}" class="button scrolly">reschedule event</a>
                 </section>
             </div>
         </section>

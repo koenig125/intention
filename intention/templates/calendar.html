@@ -28,13 +28,13 @@
 			</div>
 				<div class="button_container">
 					{% if event %}
-					<h2>recently scheduled events</h2>
+					<h2>your scheduled event</h2>
 					<div class = 'text_container info_field'>
-						<p>{{event.name}} was scheduled for {{event.frequency}} times per {{event.period}} with each session lasting {{event.duration}} {{event.timeunit}} in the {{event.timerange}}.</p>
+						<p>{{event.name}} was scheduled  for<br>{{event.frequency}} times per {{event.period}}  <br>with each session lasting {{event.duration}} {{event.timeunit}} in the {{event.timerange}}.</p>
 					</div>
 					{% endif %}
 					{% if selected_events %}
-					<h2>Recently Rescheduled Events</h2>
+					<h2>your rescheduled event</h2>
 					<div class = 'text_container info_field'>
 						{% for event in selected_events %}
 						<p>{{event.0}} was rescheduled to {{event.1}} </p>
@@ -42,9 +42,9 @@
 					</div>
 					{% endif %}
 					<div class="icon major fa-clock-o"></div>
-					<a href="{% url 'schedule_view' %}" class="button">schedule goal</a>
+					<a href="{% url 'schedule_view' %}" class="button">schedule a new habit</a>
 					<span class="icon major fa-redo"></span>
-					<a href="{% url 'reschedule_view' %}" class="button">reschedule task</a>
+					<a href="{% url 'reschedule_view' %}" class="button">reschedule a new task</a>
 		</div>
 		</section>
 	</body>
