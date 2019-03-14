@@ -41,38 +41,34 @@ def user_preferences_view(request):
         return HttpResponseRedirect('authorize')
     template = loader.get_template('user_preferences.html')
     calendars = _get_calendar_list(request)
-    wake_form = TimeForm()
-    sleep_form = TimeForm()
+    time_form = TimeForm()
     main_cal_form = MainCalForm(calendars=calendars)
 
     if request.method == "GET":
         context = {
-            'message': 'Enter your preferences',
-            'sleep_form': sleep_form,
-            'wake_form': wake_form,
+            'message': 'tell us about yourself',
+            'time_form': time_form,
             'main_cal_form': main_cal_form
         }
         return HttpResponse(template.render(context, request))
 
     elif request.method == "POST":
         message = "Sorry, preferences could not be saved. Please try again!"
-        if 'sleep' in request.POST:
-            sleep_form = TimeForm(request.POST)
-            if sleep_form.is_valid():
+        print(request.POST)
+        if 'sleep_time' in request.POST:
+            time_form = TimeForm(request.POST)
+            print("HERE")
+            if time_form.is_valid():
+                print("I'm VALID")
                 save_sleep_time(request)
-                message = "Sleep time saved!"
-        elif 'wake' in request.POST:
-            wake_form = TimeForm(request.POST)
-            if wake_form.is_valid():
                 save_wake_time(request)
-                message = "Wake time saved!"
+                message = "sleep and wake times saved!"
         elif 'main_cal' in request.POST:
             save_calendar(request)
-            message = "Calendar choice saved!"
+            message = "calendar choice saved!"
         context = {
             'message': message,
-            'sleep_form': sleep_form,
-            'wake_form': wake_form,
+            'time_form': time_form,
             'main_cal_form': main_cal_form
         }
         return HttpResponse(template.render(context, request))
@@ -251,7 +247,7 @@ def dateTime_helper(datestr):
 
 
 def save_wake_time(request):
-    wake_time = request.POST['time']
+    wake_time = request.POST['wake_up_time']
     HH, MM = wake_time.split(':')
     wake_hour, wake_min = int(HH), int(MM)
     w_time = time(hour=wake_hour, minute=wake_min)
@@ -261,7 +257,7 @@ def save_wake_time(request):
 
 
 def save_sleep_time(request):
-    sleep_time = request.POST['time']
+    sleep_time = request.POST['sleep_time']
     HH, MM = sleep_time.split(':')
     sleep_hour, sleep_min = int(HH), int(MM)
     s_time = time(hour=sleep_hour, minute=sleep_min)
