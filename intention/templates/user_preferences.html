@@ -12,7 +12,8 @@
     <body>
         <section id="schedule_goal" class="wrapper fullscreen style3 fade-up">
             <div class="formstyle">
-                <h1 class="form_title">Scheduling Preferences</h1>
+                <h1 class="form_title">{{ message }}</h1>
+
                 <form method="POST"> {% csrf_token %}
                     <h3>At what time do you typically go to sleep?</h3><br />
                         {{ sleep_form.time }}<br />
@@ -25,9 +26,12 @@
                         <button name = "wake" type='submit'>Submit</button><br />
                 </form>
 
-                <h3>To which of your calendars should events be scheduled?</h3><br />
 
-                <h3>Which of your calendars should have their events taken into account?</h3><br />
+                <form method="POST"> {% csrf_token %}
+                    <h3>To which of your calendars should events be scheduled?</h3><br />
+                        {{ main_cal_form.calendar }}<br />
+                        <button name = "main_cal" type='submit'>Submit</button><br />
+                </form>
 
             </div>
             <a href="{% url 'homepage' %}" class="button scrolly">Back to Home</a><br />

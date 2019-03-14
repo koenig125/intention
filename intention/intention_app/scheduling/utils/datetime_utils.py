@@ -37,16 +37,13 @@ get_month_timedelta(day, num_periods, localtz)
 convert_to_military(h, m, ap)
 """
 
-from datetime import timedelta
+from datetime import timedelta, time
 from pytz import timezone
 from calendar import monthrange
 from dateutil.parser import parse
 
 # Basic time rates
 SECONDS_IN_MINUTE, MINUTES_IN_HOUR, HOURS_IN_DAY, DAYS_IN_WEEK = 60, 60, 24, 7
-
-# Day bounding hours
-DAY_START_HOUR, DAY_END_HOUR = 8, 1
 
 # Time zones
 utc = timezone('UTC')
@@ -61,56 +58,53 @@ DAY, WEEK, MONTH = "DAY", "WEEK", "MONTH"
 MORNING, AFTERNOON, EVENING = "MORNING", "AFTERNOON", "EVENING"
 
 # Timerange hours
-AFTERNOON_START, EVENING_START = 12, 18 # Military time.
-MORNING_HOURS = {'start': DAY_START_HOUR, 'end': AFTERNOON_START}
-AFTERNOON_HOURS = {'start': AFTERNOON_START, 'end': EVENING_START}
-EVENING_HOURS = {'start': EVENING_START, 'end': DAY_END_HOUR}
+AFTERNOON_START, EVENING_START = time(12), time(18) # Military time.
 
 
-def get_start_of_day(day, timerange):
+def get_start_of_day(day, timerange, day_start_time):
     """Returns day provided set to start hour."""
-    return make_start_hour(day, timerange)
+    return make_start_hour(day, timerange, day_start_time)
 
 
-def get_start_of_next_day(day, timerange, localtz):
+def get_start_of_next_day(day, timerange, localtz, day_start_time):
     """Returns the day after that provided set to start hour."""
-    if day.hour < DAY_START_HOUR: # Day is past midnight.
-        return make_start_hour(day, timerange)
+    if day.time() < day_start_time: # Day is past midnight.
+        return make_start_hour(day, timerange, day_start_time)
     else:
-        return make_start_hour(get_next_day(day, localtz), timerange)
+        return make_start_hour(get_next_day(day, localtz), timerange, day_start_time)
 
 
-def get_start_of_next_week(day, timerange, localtz):
+def get_start_of_next_week(day, timerange, localtz, day_start_time):
     """Returns the Sunday of the next week set to start hour."""
-    return make_start_hour(get_next_week(day, localtz), timerange)
+    return make_start_hour(get_next_week(day, localtz), timerange, day_start_time)
 
 
-def get_start_of_next_month(day, timerange, localtz):
+def get_start_of_next_month(day, timerange, localtz, day_start_time):
     """Returns the first day of the next month set to start hour."""
-    return make_start_hour(get_next_month(day, localtz), timerange)
+    return make_start_hour(get_next_month(day, localtz), timerange, day_start_time)
 
 
-def get_end_of_day(day, timerange):
+def get_end_of_day(day, timerange, day_start_time, day_end_time):
     """Returns the day provided set to end hour."""
-    return make_end_hour(day, timerange)
+    return make_end_hour(day, timerange, day_start_time, day_end_time)
 
 
-def get_end_of_week(day, timerange, localtz):
+def get_end_of_week(day, timerange, localtz, day_start_time, day_end_time):
     """Returns the Saturday of current week set to end hour."""
     last_day_of_week = get_next_week(day, localtz) - timedelta(days=1)
-    return make_end_hour(last_day_of_week, timerange)
+    return make_end_hour(last_day_of_week, timerange, day_start_time, day_end_time)
 
 
-def get_end_of_month(day, timerange, localtz):
+def get_end_of_month(day, timerange, localtz, day_start_time, day_end_time):
     """Returns the last day of the current month set to end hour."""
     last_day_of_month = get_next_month(day, localtz) - timedelta(days=1)
-    return make_end_hour(last_day_of_month, timerange)
+    return make_end_hour(last_day_of_month, timerange, day_start_time, day_end_time)
 
 
-def get_end_of_quarter(day, timerange, localtz):
+def get_end_of_quarter(day, timerange, localtz, day_start_time, day_end_time):
     """Returns the last day of the last month in the current quarter set to end hour."""
     last_day_of_quarter = get_next_quarter(day, localtz) - timedelta(days=1)
-    return make_end_hour(last_day_of_quarter, timerange)
+    return make_end_hour(last_day_of_quarter, timerange, day_start_time, day_end_time)
 
 
 def get_next_day(day, localtz):
@@ -161,38 +155,36 @@ def get_weeks_left_in_month(day, localtz):
     return weeks_remaining + 1 # 1 for current week
 
 
-def make_start_hour(day, timerange):
+def make_start_hour(day, timerange, day_start_time):
     """Returns day set to start hour based on timerange."""
-    start_hour = DAY_START_HOUR
-    if timerange == MORNING: start_hour = MORNING_HOURS['start']
-    elif timerange == AFTERNOON: start_hour = AFTERNOON_HOURS['start']
-    elif timerange == EVENING: start_hour = EVENING_HOURS['start']
-    return day.replace(hour=start_hour, minute=0, second=0, microsecond=0)
+    start_time = day_start_time
+    if timerange == AFTERNOON: start_time = AFTERNOON_START
+    elif timerange == EVENING: start_time = EVENING_START
+    return day.replace(hour=start_time.hour, minute=start_time.minute, second=0, microsecond=0)
 
 
-def make_end_hour(day, timerange):
+def make_end_hour(day, timerange, day_start_time, day_end_time):
     """Returns day set to end hour based on timerange."""
-    end_hour = DAY_END_HOUR
-    if timerange == MORNING: end_hour = MORNING_HOURS['end']
-    elif timerange == AFTERNOON: end_hour = AFTERNOON_HOURS['end']
-    elif timerange == EVENING: end_hour = EVENING_HOURS['end']
-    if end_hour == DAY_END_HOUR and DAY_END_HOUR < DAY_START_HOUR:
+    end_time = day_end_time
+    if timerange == MORNING: end_time = AFTERNOON_START
+    elif timerange == AFTERNOON: end_time = EVENING_START
+    if end_time < day_start_time:
         day += timedelta(days=1) # Day end time is past midnight.
-    return day.replace(hour=end_hour, minute=0, second=0, microsecond=0)
+    return day.replace(hour=end_time.hour, minute=end_time.minute, second=0, microsecond=0)
 
 
-def make_day_start(day):
-    """Returns day set to start hour based on DAY_START_TIME, regardless of timerange."""
-    if day.hour < DAY_START_HOUR: # Time is past midnight. Likely want to reschedule previous day.
+def make_day_start(day, day_start_time):
+    """Returns day set to start hour based on day_start_time, regardless of timerange."""
+    if day.time() < day_start_time: # Time is past midnight. Likely want to reschedule previous day.
         day -= timedelta(days=1)
-    return day.replace(hour=DAY_START_HOUR, minute=0, second=0, microsecond=0)
+    return day.replace(hour=day_start_time.hour, minute=day_start_time.minute, second=0, microsecond=0)
 
 
-def make_day_end(day):
-    """Returns day set to start hour based on DAY_END_TIME, regardless of timerange."""
-    if DAY_END_HOUR < DAY_START_HOUR and not day.hour < DAY_START_HOUR:
-        day += timedelta(days=1) # DAY_END_HOUR is past midnight
-    return day.replace(hour=DAY_END_HOUR, minute=0, second=0, microsecond=0)
+def make_day_end(day, day_start_time, day_end_time):
+    """Returns day set to start hour based on day_end_time, regardless of timerange."""
+    if day_end_time < day_start_time and not day.time() < day_start_time:
+        day += timedelta(days=1) # day_end_time is past midnight
+    return day.replace(hour=day_end_time.hour, minute=day_end_time.minute, second=0, microsecond=0)
 
 
 def make_next_hour(day):
@@ -200,14 +192,14 @@ def make_next_hour(day):
     return day.replace(hour=day.hour, minute=0, second=0, microsecond=0) + timedelta(hours=1)
 
 
-def get_timerange_start_end_time(day, timerange):
+def get_timerange_start_end_time(day, timerange, day_start_time, day_end_time):
     """Returns start and end times of day provided based on timerange."""
-    return get_start_of_day(day, timerange), get_end_of_day(day, timerange)
+    return get_start_of_day(day, timerange, day_start_time), get_end_of_day(day, timerange, day_start_time,day_end_time)
 
 
-def get_day_start_end_time(day):
-    """Returns start and end times of day provided based on DAY_START and DAY_END."""
-    return make_day_start(day), make_day_end(day)
+def get_day_start_end_time(day, day_start_time, day_end_time):
+    """Returns start and end times of day provided based on day_start_time and day_end_time."""
+    return make_day_start(day, day_start_time), make_day_end(day, day_start_time, day_end_time)
 
 
 def add_timedelta(td, dt, localtz):

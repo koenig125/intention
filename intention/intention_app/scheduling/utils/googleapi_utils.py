@@ -41,6 +41,20 @@ def update_events_in_calendar(credentials, events, cid="primary"):
         service.events().update(calendarId=cid, eventId=event['id'], body=event).execute()
 
 
+def get_calendars(credentials):
+    """Returns list of user calendars."""
+    calendars = []
+    page_token = None
+    while True:
+        service = build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+        calendar_list = service.calendarList().list(pageToken=page_token).execute()
+        calendars.extend(calendar_list['items'])
+        page_token = calendar_list.get('nextPageToken')
+        if not page_token:
+            break
+    return calendars
+
+
 def get_freebusy_in_range(credentials, timeMin, timeMax, cid='primary'):
     """Returns free/busy information for user calendar between timeMin and timeMax."""
     params = {
