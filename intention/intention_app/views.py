@@ -3,7 +3,7 @@ from django.template import loader
 from django.shortcuts import render
 from django.urls import reverse
 from .forms import *
-from intention_app.scheduling.scheduler import make_schedule
+from intention_app.scheduling.scheduler import schedule
 from intention_app.scheduling.rescheduler import get_events_current_day, reschedule
 from django.contrib.auth.decorators import login_required
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -11,6 +11,7 @@ from google.oauth2.credentials import Credentials
 from intention_app.scheduling.utils.datetime_utils import parse_datetime
 from intention_app.scheduling.utils.googleapi_utils import get_calendars
 from django.contrib.auth.models import User
+from datetime import time
 
 
 CLIENT_SECRETS_FILE = 'client_secret.json'
@@ -99,8 +100,9 @@ def schedule_view(request):
         form = ScheduleForm(request.POST)
         if form.is_valid():
             form_data = _unpack_form_data(request)
+            preferences = User.objects.get(email=request.user.email).preferences
             credentials = Credentials(**request.session['credentials'])
-            success = make_schedule(form_data, credentials)
+            success = schedule(form_data, preferences, credentials)
             request.session['credentials'] = _credentials_to_dict(credentials)
             if not success:
                 form = ScheduleForm()
@@ -112,7 +114,7 @@ def schedule_view(request):
                 return HttpResponse(template.render(context, request))
             else:
                 template = loader.get_template('calendar.html')
-                context =  {'event' : form_data, 'user_email': request.user.email}
+                context =  {'event' : form_data, 'calendar_id': request.user.preferences.calendar_id}
                 return HttpResponse(template.render(context, request))
 
 
@@ -125,7 +127,8 @@ def reschedule_view(request):
 
     # Populate list of rescheduling candidates with events.
     if request.method == "GET":
-        ids_and_titles = _get_calendar_events(request)
+        preferences = User.objects.get(email=request.user.email).preferences
+        ids_and_titles = _get_calendar_events(request, preferences)
         template = loader.get_template('reschedule.html')
         context =  {'events' : ids_and_titles, 'message': 'Select Events to Reschedule'}
         return HttpResponse(template.render(context, request))
@@ -138,26 +141,27 @@ def reschedule_view(request):
         event_ids = request.POST.get('mydata').split(",")
         selected_events = [event_map[eid] for eid in event_ids]
         deadline = request.POST.get('schedule', '')
+        preferences = User.objects.get(email=request.user.email).preferences
         credentials = Credentials(**request.session['credentials'])
-        if not reschedule(selected_events, deadline, credentials):
-            # Reschedule attempt failed - inform user.
-            request.session['credentials'] = _credentials_to_dict(credentials)
-            ids_and_titles = _get_calendar_events(request)
+        success = reschedule(selected_events, deadline, preferences, credentials)
+        request.session['credentials'] = _credentials_to_dict(credentials)
+        if not success:
+            ids_and_titles = _get_calendar_events(request, preferences)
             template = loader.get_template('reschedule.html')
             context = {'events': ids_and_titles, 'message': 'Looks like you\'re overbooked! Try again.'}
             return HttpResponse(template.render(context, request))
-        request.session['credentials'] = _credentials_to_dict(credentials)
-        template = loader.get_template('calendar.html')
-        template_events = [(event['summary'], dateTime_helper(event['start']['dateTime'])) for event in selected_events]
-        context = {'selected_events': template_events, 'user_email': request.user.email}
-        return HttpResponse(template.render(context, request))
+        else:
+            template = loader.get_template('calendar.html')
+            template_events = [(event['summary'], dateTime_helper(event['start']['dateTime'])) for event in selected_events]
+            context = {'selected_events': template_events, 'calendar_id': request.user.preferences.calendar_id}
+            return HttpResponse(template.render(context, request))
 
 
 @login_required
 def calendar_view(request):
     """Allows people to view their updated calendar schedule."""
     template = loader.get_template('calendar.html')
-    context = {'user_email': request.user.email}
+    context = {'calendar_id': request.user.preferences.calendar_id}
     return HttpResponse(template.render(context, request))
 
 
@@ -193,10 +197,10 @@ def _build_full_view_url(request, view):
     return 'http://' + request.environ['HTTP_HOST'] + reverse(view)
 
 
-def _get_calendar_events(request):
+def _get_calendar_events(request, preferences):
     """Returns list of (event_id, event_name) tuples of calendar events for current day."""
     credentials = Credentials(**request.session['credentials'])
-    ids_and_titles, event_map = get_events_current_day(credentials)
+    ids_and_titles, event_map = get_events_current_day(credentials, preferences)
     request.session['credentials'] = _credentials_to_dict(credentials)
     request.session['event_map'] = event_map
     return ids_and_titles
@@ -249,9 +253,9 @@ def save_wake_time(request):
     wake_time = request.POST['time']
     HH, MM = wake_time.split(':')
     wake_hour, wake_min = int(HH), int(MM)
+    w_time = time(hour=wake_hour, minute=wake_min)
     user = User.objects.get(email=request.user.email)
-    user.preferences.day_start_hour = wake_hour
-    user.preferences.day_start_min = wake_min
+    user.preferences.day_start_time = w_time
     user.save()
 
 
@@ -259,9 +263,9 @@ def save_sleep_time(request):
     sleep_time = request.POST['time']
     HH, MM = sleep_time.split(':')
     sleep_hour, sleep_min = int(HH), int(MM)
+    s_time = time(hour=sleep_hour, minute=sleep_min)
     user = User.objects.get(email=request.user.email)
-    user.preferences.day_end_hour = sleep_hour
-    user.preferences.day_end_min = sleep_min
+    user.preferences.day_end_time = s_time
     user.save()
 
 

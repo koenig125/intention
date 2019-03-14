@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from intention_app.scheduling.utils.datetime_utils import convert_to_military
+from datetime import time
 
 PERIOD_CHOICES = (('DAY', 'day'), ('WEEK', 'week'), ('MONTH', 'month'),)
 TIMEUNIT_CHOICES = (('HOURS', 'hours'), ('MINUTES', 'minutes'),)
@@ -14,10 +15,8 @@ WAKE_SLEEP_CHOICES = [(convert_to_military(h, m, ap), '%s:%s%s' % (h, m, ap)) fo
 class Preferences(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     calendar_id = models.CharField(max_length=200, default='primary')
-    day_start_hour = models.IntegerField(default=8)
-    day_start_min = models.IntegerField(default=0)
-    day_end_hour = models.IntegerField(default=0)
-    day_end_min = models.IntegerField(default=0)
+    day_start_time = models.TimeField(default=time(hour=8))
+    day_end_time = models.TimeField(default=time(hour=0))
 
 
 @receiver(post_save, sender=User)

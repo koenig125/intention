@@ -49,10 +49,10 @@ def unpack_form(form_data):
     return name, frequency, period, duration, timeunit, timerange
 
 
-def get_start_time(curr_time, timerange):
+def get_start_time(curr_time, timerange, day_start_time, day_end_time):
     """Returns first time available for scheduling within timerange."""
     next_hour = make_next_hour(curr_time)
-    range_start, range_end = get_timerange_start_end_time(curr_time, timerange)
+    range_start, range_end = get_timerange_start_end_time(curr_time, timerange, day_start_time, day_end_time)
     if next_hour > range_end: return range_start + timedelta(days=1)
     elif next_hour < range_start: return range_start
     else: return next_hour
@@ -72,50 +72,52 @@ def get_timedelta_to_future_period(day, period, num_periods, localtz):
     elif period == MONTH: return get_month_timedelta(day, num_periods, localtz)
 
 
-def get_start_of_next_period(curr_period_start_time, period, timerange, localtz):
+def get_start_of_next_period(curr_period_start_time, period, timerange, localtz, day_start_time):
     """Returns the first day of the next period set to start hour."""
-    if period == DAY: return get_start_of_next_day(curr_period_start_time, timerange, localtz)
-    elif period == WEEK: return get_start_of_next_week(curr_period_start_time, timerange, localtz)
-    elif period == MONTH: return get_start_of_next_month(curr_period_start_time, timerange, localtz)
+    if period == DAY: return get_start_of_next_day(curr_period_start_time, timerange, localtz, day_start_time)
+    elif period == WEEK: return get_start_of_next_week(curr_period_start_time, timerange, localtz, day_start_time)
+    elif period == MONTH: return get_start_of_next_month(curr_period_start_time, timerange, localtz, day_start_time)
 
 
-def get_start_of_next_event(curr_event_start_time, last_scheduled_event_end_time, period, timerange, localtz):
+def get_start_of_next_event(curr_event_start_time, last_scheduled_event_end_time, period, timerange, localtz,
+                            day_start_time):
     """Returns the first day on which the next event can be scheduled set to start hour."""
     if period == DAY: return last_scheduled_event_end_time
-    elif period == WEEK: return get_start_of_next_day(curr_event_start_time, timerange, localtz)
-    elif period == MONTH: return get_start_of_next_week(curr_event_start_time, timerange, localtz)
+    elif period == WEEK: return get_start_of_next_day(curr_event_start_time, timerange, localtz, day_start_time)
+    elif period == MONTH: return get_start_of_next_week(curr_event_start_time, timerange, localtz, day_start_time)
 
 
-def get_end_of_multi_period(day, period, timerange, localtz):
+def get_end_of_multi_period(day, period, timerange, localtz, day_start_time, day_end_time):
     """Returns the last day of the current multiperiod set to end hour."""
-    if period == DAY: return get_end_of_week(day, timerange, localtz)
-    elif period == WEEK: return get_end_of_month(day, timerange, localtz)
-    elif period == MONTH: return get_end_of_quarter(day, timerange, localtz)
+    if period == DAY: return get_end_of_week(day, timerange, localtz, day_start_time, day_end_time)
+    elif period == WEEK: return get_end_of_month(day, timerange, localtz, day_start_time, day_end_time)
+    elif period == MONTH: return get_end_of_quarter(day, timerange, localtz, day_start_time, day_end_time)
 
 
-def get_end_of_period(period_start_time, period, timerange, localtz):
+def get_end_of_period(period_start_time, period, timerange, localtz, day_start_time, day_end_time):
     """Returns the last day of the current period set to end hour."""
-    if period == DAY: return get_end_of_day(period_start_time, timerange)
-    elif period == WEEK: return get_end_of_week(period_start_time, timerange, localtz)
-    elif period == MONTH: return get_end_of_month(period_start_time, timerange, localtz)
+    if period == DAY: return get_end_of_day(period_start_time, timerange, day_start_time, day_end_time)
+    elif period == WEEK: return get_end_of_week(period_start_time, timerange, localtz, day_start_time, day_end_time)
+    elif period == MONTH: return get_end_of_month(period_start_time, timerange, localtz, day_start_time, day_end_time)
 
 
-def get_reschedule_start_time(day, deadline, localtz):
+def get_reschedule_start_time(day, deadline, localtz, day_start_time, day_end_time):
     """Returns the start time for the deadline provided, relative to the current time."""
-    if (DAY_END_HOUR <= day.hour < DAY_START_HOUR or
-        day.hour < DAY_START_HOUR < DAY_END_HOUR or
-        DAY_START_HOUR < DAY_END_HOUR <= day.hour):
-        day = get_start_of_next_day(day, "ANYTIME", localtz)
+    if (day_end_time <= day.time() < day_start_time or
+        day.time() < day_start_time < day_end_time or
+        day_start_time < day_end_time <= day.time()):
+        day = get_start_of_next_day(day, "ANYTIME", localtz, day_start_time)
     if deadline == TODAY: return make_next_hour(day)
-    elif deadline == THIS_WEEK: return get_start_of_next_day(day, "ANYTIME", localtz)
-    elif deadline == NEXT_WEEK: return get_start_of_next_week(day, "ANYTIME", localtz)
+    elif deadline == THIS_WEEK: return get_start_of_next_day(day, "ANYTIME", localtz, day_start_time)
+    elif deadline == NEXT_WEEK: return get_start_of_next_week(day, "ANYTIME", localtz, day_start_time)
 
 
-def get_reschedule_end_time(day, deadline, localtz):
+def get_reschedule_end_time(day, deadline, localtz, day_start_time, day_end_time):
     """Returns the end time for the deadline provided, relative to the current time."""
-    if deadline == TODAY: return make_day_end(day)
-    elif deadline == THIS_WEEK: return get_end_of_week(day, "ANYTIME", localtz)
-    elif deadline == NEXT_WEEK: return get_end_of_week(get_next_week(day, localtz), "ANYTIME", localtz)
+    if deadline == TODAY: return make_day_end(day, day_start_time, day_end_time)
+    elif deadline == THIS_WEEK: return get_end_of_week(day, "ANYTIME", localtz, day_start_time, day_end_time)
+    elif deadline == NEXT_WEEK: return get_end_of_week(get_next_week(day, localtz), "ANYTIME", localtz, day_start_time,
+                                                       day_end_time)
 
 
 def get_minimum_start_times(events, reschedule_start_time):
