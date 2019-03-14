@@ -69,8 +69,8 @@ def _schedule_events_consolidated_periods(form, preferences, credentials, localt
     day_end_time = preferences.day_end_time
     calendar_id = preferences.calendar_id
 
-    multi_period_end = get_end_of_multi_period(first_period_start, period, timerange, localtz, day_start_time,
-                                               day_end_time)
+    if period == MONTH: event_start_max = get_28th_of_month(first_period_start, timerange, day_start_time, day_end_time) - event_length
+    multi_period_end = get_end_of_multi_period(first_period_start, period, timerange, localtz, day_start_time, day_end_time)
     freebusy_ranges = get_freebusy_in_range(credentials, first_period_start, multi_period_end, calendar_id)
     consolidated = consolidate_multiple_periods(freebusy_ranges, first_period_start, first_period_end, period, localtz)
     events = _schedule_events_single_period(form, preferences, localtz, day_start, day_end, event_start, event_length,

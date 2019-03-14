@@ -34,6 +34,7 @@ is_whole_hour(dt)
 get_week_number(day)
 get_weekday_index(day)
 get_month_timedelta(day, num_periods, localtz)
+get_get_28th_of_month(day, timerange, day_start_time, day_end_time)
 convert_to_military(h, m, ap)
 """
 
@@ -184,6 +185,8 @@ def make_day_end(day, day_start_time, day_end_time):
     """Returns day set to start hour based on day_end_time, regardless of timerange."""
     if day_end_time < day_start_time and not day.time() < day_start_time:
         day += timedelta(days=1) # day_end_time is past midnight
+    if not day_end_time < day_start_time and day.time() < day_start_time:
+        day -= timedelta(days=1) # day.time() is past midnight
     return day.replace(hour=day_end_time.hour, minute=day_end_time.minute, second=0, microsecond=0)
 
 
@@ -242,14 +245,20 @@ def get_month_timedelta(day, num_periods, localtz):
     """
     month_first_day = get_next_month(day, localtz)
     for i in range(num_periods - 1):
-        month_first_day = get_next_month(day, localtz)
+        month_first_day = get_next_month(month_first_day, localtz)
     day_weekday_idx = get_weekday_index(day)
     mth_weekday_idx = get_weekday_index(month_first_day)
     day_difference = day_weekday_idx - mth_weekday_idx
     days_to_target = (day_difference if day_difference >= 0
                       else DAYS_IN_WEEK + day_difference)
-    total_days = get_week_number(day) * DAYS_IN_WEEK + days_to_target
+    total_days = (month_first_day - day).days + get_week_number(day) * DAYS_IN_WEEK + days_to_target
     return timedelta(days=total_days)
+
+
+def get_28th_of_month(day, timerange, day_start_time, day_end_time):
+    """Returns end of the 28th day of the current month realtive to day provided."""
+    day = day.replace(day=28)
+    return get_end_of_day(day, timerange, day_start_time, day_end_time)
 
 
 def _get_last_sunday_in_month(day, localtz):

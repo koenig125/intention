@@ -126,7 +126,11 @@ def reschedule_view(request):
         preferences = User.objects.get(email=request.user.email).preferences
         ids_and_titles = _get_calendar_events(request, preferences)
         template = loader.get_template('reschedule.html')
+<<<<<<< HEAD
         context =  {'events' : ids_and_titles, 'message': 'choose what you would like to reschedule'}
+=======
+        context =  {'events' : ids_and_titles, 'message': 'select events to reschedule'}
+>>>>>>> d285acc643ce938ccb5f8405a7555ae36ed900c8
         return HttpResponse(template.render(context, request))
 
     # Rescheduling initiated after events selected by user.
@@ -136,6 +140,7 @@ def reschedule_view(request):
         event_map = request.session['event_map']
         event_ids = request.POST.get('mydata').split(",")
         selected_events = [event_map[eid] for eid in event_ids]
+        selected_events.sort(key=lambda x: x['start']['dateTime'])
         deadline = request.POST.get('schedule', '')
         preferences = User.objects.get(email=request.user.email).preferences
         credentials = Credentials(**request.session['credentials'])

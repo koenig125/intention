@@ -38,6 +38,9 @@ def _reschedule_events(events, deadline, preferences, credentials):
 
     reschedule_start = get_reschedule_start_time(now, deadline, localtz, day_start_time, day_end_time)
     reschedule_end = get_reschedule_end_time(now, deadline, localtz, day_start_time, day_end_time)
+    if reschedule_start > reschedule_end:
+        # edge case - current time past day_end_time and rescheduled later today
+        return None
     events_with_min_times = get_minimum_start_times(events, reschedule_start)
     for event, start_time in events_with_min_times:
         # edge case (ie start_time=12:30am, deadline=12:00am)
@@ -118,10 +121,6 @@ def get_events_current_day(credentials, preferences):
 
     localtz = get_localtz(credentials, calendar_id)
     current_day = datetime.now(localtz)
-    if (day_end_time <= current_day.time() < day_start_time or
-        current_day.time() < day_start_time < day_end_time or
-        day_start_time < day_end_time <= current_day.time()):
-        current_day = get_start_of_next_day(current_day, "ANYTIME", localtz, day_start_time)
     events = get_events_in_range(credentials, make_day_start(current_day, day_start_time),
                                  make_day_end(current_day, day_start_time, day_end_time), calendar_id)
     return _filter_event_information(events)

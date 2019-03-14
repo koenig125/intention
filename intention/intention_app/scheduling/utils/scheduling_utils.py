@@ -103,10 +103,6 @@ def get_end_of_period(period_start_time, period, timerange, localtz, day_start_t
 
 def get_reschedule_start_time(day, deadline, localtz, day_start_time, day_end_time):
     """Returns the start time for the deadline provided, relative to the current time."""
-    if (day_end_time <= day.time() < day_start_time or
-        day.time() < day_start_time < day_end_time or
-        day_start_time < day_end_time <= day.time()):
-        day = get_start_of_next_day(day, "ANYTIME", localtz, day_start_time)
     if deadline == TODAY: return make_next_hour(day)
     elif deadline == THIS_WEEK: return get_start_of_next_day(day, "ANYTIME", localtz, day_start_time)
     elif deadline == NEXT_WEEK: return get_start_of_next_week(day, "ANYTIME", localtz, day_start_time)
