@@ -34,6 +34,7 @@ is_whole_hour(dt)
 get_week_number(day)
 get_weekday_index(day)
 get_month_timedelta(day, num_periods, localtz)
+get_get_28th_of_month(day, timerange, day_start_time, day_end_time)
 convert_to_military(h, m, ap)
 """
 
@@ -252,6 +253,12 @@ def get_month_timedelta(day, num_periods, localtz):
                       else DAYS_IN_WEEK + day_difference)
     total_days = (month_first_day - day).days + get_week_number(day) * DAYS_IN_WEEK + days_to_target
     return timedelta(days=total_days)
+
+
+def get_28th_of_month(day, timerange, day_start_time, day_end_time):
+    """Returns end of the 28th day of the current month realtive to day provided."""
+    day = day.replace(day=28)
+    return get_end_of_day(day, timerange, day_start_time, day_end_time)
 
 
 def _get_last_sunday_in_month(day, localtz):
