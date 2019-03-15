@@ -144,7 +144,7 @@ button,
 	color: #312450;
 	text-align: center;
 	line-height: 10em;
-	margin-left: calc(100% - 20em);
+	margin: auto;
 	transform: scale(.7);
 }
 
@@ -163,6 +163,7 @@ button,
 	margin: auto;
 	margin-right: 5em;
 	margin-left: 3em;
+	width: 30%;
 }
 
 .calendar_container {

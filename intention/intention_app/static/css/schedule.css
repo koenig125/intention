@@ -42,13 +42,14 @@ section, summary, time, mark, audio, video {
 
 div{
     letter-spacing: 0.2em;
+    font-size: 1.2em;
 }
 div.formstyle {
     margin-top: 120px;
 }
 
 #form_button {
-    margin-top: 100px;
+    margin-top: 10em;
     position: center;
 }
 
@@ -129,6 +130,7 @@ form {
     .form_title {
         padding-bottom: 4%;
         color: white;
+        font-size: 4em;
     }
     form > :last-child {
         margin-bottom: 0;
@@ -203,6 +205,7 @@ label {
     font-weight: bold;
     line-height: 2.2;
     display: block;
+    font-weight: 350;
     font-size: 3.1em;
 }
 label.form_label{
@@ -1951,7 +1954,7 @@ select {
 
     }
 
-    /* Type */
+    Type
 
 	body, input, select, textarea {
 		color: #rgba(0, 0, 0, 0.7);

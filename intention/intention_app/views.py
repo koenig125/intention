@@ -242,11 +242,13 @@ def dateTime_helper(datestr):
   month = dateobj.date().month
   day = dateobj.date().day
   hour = dateobj.time().hour
-  min = dateobj.time().minute
+  min = str(dateobj.time().minute)
   if hour > 12:
       am_pm = 'pm'
       hour = hour - 12
-  return str(month) + '/' + str(day) + ' at ' +  str(hour) + ':' + str(min)[0:2] + ' ' + am_pm
+  if int(min) < 9:
+      min = '0' + min
+  return str(month) + '/' + str(day) + ' at ' +  str(hour) + ':' + min + ' ' + am_pm
 
 
 def save_wake_time(request):
