@@ -59,19 +59,18 @@ def user_preferences_view(request):
         print(request.POST)
         if 'sleep_time' in request.POST:
             time_form = TimeForm(request.POST)
-            print("HERE")
             if time_form.is_valid():
-                print("I'm VALID")
                 save_sleep_time(request)
                 save_wake_time(request)
                 message = "sleep and wake times saved!"
-        elif 'main_cal' in request.POST:
+        elif 'calendar' in request.POST:
             save_calendar(request)
             message = "calendar choice saved!"
         context = {
             'message': message,
             'time_form': time_form,
-            'main_cal_form': main_cal_form
+            'main_cal_form': main_cal_form,
+            'all_cals_form': all_cals_form,
         }
         return HttpResponse(template.render(context, request))
 
@@ -237,16 +236,17 @@ def _unpack_form_data(request):
 
 
 def dateTime_helper(datestr):
-  dateobj = parse_datetime(datestr)
-  am_pm = 'am'
-  month = dateobj.date().month
-  day = dateobj.date().day
-  hour = dateobj.time().hour
-  min = dateobj.time().minute
-  if hour > 12:
+    dateobj = parse_datetime(datestr)
+    am_pm = 'am'
+    month = dateobj.date().month
+    day = dateobj.date().day
+    hour = dateobj.time().hour
+    min = dateobj.time().minute
+    if hour > 12:
       am_pm = 'pm'
       hour = hour - 12
-  return str(month) + '/' + str(day) + ' at ' +  str(hour) + ':' + str(min)[0:2] + ' ' + am_pm
+    minstr = str(min)[0:2] if min >= 10 else ('0' + str(min))
+    return str(month) + '/' + str(day) + ' at ' +  str(hour) + ':' + minstr + ' ' + am_pm
 
 
 def save_wake_time(request):

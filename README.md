@@ -33,7 +33,9 @@ Nichelle | nhall2@stanford.edu
 Rey | rbarcelo@stanford.edu
 Chris | koenig97@stanford.edu
 
-3. [Github](https://github.com/StanfordCS194/Team-5)
+3. Documentation: [Github Wiki](https://github.com/StanfordCS194/CozyCo/wiki)
+
+4. [Google Drive](https://drive.google.com/drive/u/0/folders/0AJ2wfnaU-0eoUk9PVA)
 
 # SGM Link
 

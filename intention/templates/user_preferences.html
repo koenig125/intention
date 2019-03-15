@@ -13,7 +13,7 @@
         <section id="schedule_goal" class="wrapper fullscreen style3 fade-up">
             <div class="formstyle">
                 <h1 class="form_title">{{ message }}</h1> 
-                <a href="{% url 'homepage' %}" class="button smaller">Back to Home</a>
+                <a href="{% url 'scheduling_options_view' %}" class="button smaller">Finished</a>
 
                 <form method="POST"> {% csrf_token %}
                         {% load crispy_forms_tags %}

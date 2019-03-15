@@ -19,6 +19,7 @@ class Preferences(models.Model):
     day_start_time = models.TimeField(default=time(hour=8))
     day_end_time = models.TimeField(default=time(hour=0))
 
+
 @receiver(post_save, sender=User)
 def create_user_preferences(sender, instance, created, **kwargs):
     if created:
