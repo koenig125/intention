@@ -242,7 +242,7 @@ def dateTime_helper(datestr):
   month = dateobj.date().month
   day = dateobj.date().day
   hour = dateobj.time().hour
-  min = dateobj.time().min
+  min = dateobj.time().minute
   if hour > 12:
       am_pm = 'pm'
       hour = hour - 12

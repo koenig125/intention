@@ -31,8 +31,8 @@ def save_user_preferences(sender, instance, **kwargs):
 
 
 class Time(models.Model):
-    wake_up_time = models.CharField(max_length=10, choices = WAKE_SLEEP_CHOICES)
-    sleep_time = models.CharField(max_length=10, choices = WAKE_SLEEP_CHOICES)
+    wake_up_time = models.CharField(max_length=10, default = 8, choices = WAKE_SLEEP_CHOICES)
+    sleep_time = models.CharField(max_length=10, default = 23, choices = WAKE_SLEEP_CHOICES)
 
 
 class Schedule(models.Model):
