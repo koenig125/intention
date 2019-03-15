@@ -11,6 +11,7 @@ TIMEUNIT_CHOICES = (('HOURS', 'hours'), ('MINUTES', 'minutes'),)
 TIMERANGE_CHOICES = (('ANYTIME', 'anytime'), ('MORNING', 'morning'), ('AFTERNOON', 'afternoon'), ('EVENING', 'evening'))
 WAKE_SLEEP_CHOICES = [(convert_to_military(h, m, ap), '%s:%s%s' % (h, m, ap)) for ap in ('am', 'pm')
                       for h in ([12] + list(range(1,12))) for m in ('00', '30')]
+STARTDATE_CHOICES = (('TODAY', 'today'), ('TOMORROW', 'tomorrow'), ('NEXT_WEEK', 'next week'))
 
 
 class Preferences(models.Model):
@@ -18,6 +19,7 @@ class Preferences(models.Model):
     calendar_id = models.CharField(max_length=200, default='primary')
     day_start_time = models.TimeField(default=time(hour=8))
     day_end_time = models.TimeField(default=time(hour=0))
+
 
 @receiver(post_save, sender=User)
 def create_user_preferences(sender, instance, created, **kwargs):
@@ -42,3 +44,4 @@ class Schedule(models.Model):
     duration = models.IntegerField(choices = [(x, x) for x in range(1, 61)], default = 1)
     timeunit = models.CharField(max_length=200, choices = TIMEUNIT_CHOICES, default="HOURS")
     timerange = models.CharField(max_length=200, choices = TIMERANGE_CHOICES, default="MORNING")
+    startdate = models.CharField(max_length=200, choices = STARTDATE_CHOICES, default="TOMORROW")

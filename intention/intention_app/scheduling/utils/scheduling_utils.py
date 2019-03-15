@@ -32,8 +32,9 @@ from intention_app.scheduling.utils.datetime_utils import *
 # Length scheduled when period is months.
 NUMBER_MONTHS_TO_SCHEDULE = 3
 
-# Rescheduling options.
+# Scheduling & rescheduling options.
 TODAY = "TODAY"
+TOMORROW = 'TOMORROW'
 THIS_WEEK = "THIS_WEEK"
 NEXT_WEEK = "NEXT_WEEK"
 
@@ -46,16 +47,20 @@ def unpack_form(form_data):
     duration = int(form_data['duration'])
     timeunit = form_data['timeunit']
     timerange = form_data['timerange']
-    return name, frequency, period, duration, timeunit, timerange
+    startdate = form_data['startdate']
+    return name, frequency, period, duration, timeunit, timerange, startdate
 
 
-def get_start_time(curr_time, timerange, day_start_time, day_end_time):
-    """Returns first time available for scheduling within timerange."""
-    next_hour = make_next_hour(curr_time)
-    range_start, range_end = get_timerange_start_end_time(curr_time, timerange, day_start_time, day_end_time)
-    if next_hour > range_end: return range_start + timedelta(days=1)
-    elif next_hour < range_start: return range_start
-    else: return next_hour
+def get_start_time(start_date, curr_time, timerange, localtz, day_start_time, day_end_time):
+    """Returns first time available for scheduling within timerange based on user provided start date."""
+    if start_date == TODAY:
+        next_hour = make_next_hour(curr_time)
+        range_start, range_end = get_timerange_start_end_time(curr_time, timerange, day_start_time, day_end_time)
+        if next_hour > range_end: return range_start + timedelta(days=1)
+        elif next_hour < range_start: return range_start
+        else: return next_hour
+    elif start_date == TOMORROW: return get_start_of_next_day(curr_time, timerange, localtz, day_start_time)
+    elif start_date == NEXT_WEEK: return get_start_of_next_week(curr_time, timerange, localtz, day_start_time)
 
 
 def get_number_periods(day, period, localtz):
@@ -101,9 +106,10 @@ def get_end_of_period(period_start_time, period, timerange, localtz, day_start_t
     elif period == MONTH: return get_end_of_month(period_start_time, timerange, localtz, day_start_time, day_end_time)
 
 
-def get_reschedule_start_time(day, deadline, localtz, day_start_time, day_end_time):
+def get_reschedule_start_time(day, deadline, localtz, day_start_time):
     """Returns the start time for the deadline provided, relative to the current time."""
     if deadline == TODAY: return make_next_hour(day)
+    elif deadline == TOMORROW: return get_start_of_next_day(day, "ANYTIME", localtz, day_start_time)
     elif deadline == THIS_WEEK: return get_start_of_next_day(day, "ANYTIME", localtz, day_start_time)
     elif deadline == NEXT_WEEK: return get_start_of_next_week(day, "ANYTIME", localtz, day_start_time)
 
@@ -111,6 +117,7 @@ def get_reschedule_start_time(day, deadline, localtz, day_start_time, day_end_ti
 def get_reschedule_end_time(day, deadline, localtz, day_start_time, day_end_time):
     """Returns the end time for the deadline provided, relative to the current time."""
     if deadline == TODAY: return make_day_end(day, day_start_time, day_end_time)
+    elif deadline == TOMORROW: return make_day_end(get_next_day(day, localtz), day_start_time, day_end_time)
     elif deadline == THIS_WEEK: return get_end_of_week(day, "ANYTIME", localtz, day_start_time, day_end_time)
     elif deadline == NEXT_WEEK: return get_end_of_week(get_next_week(day, localtz), "ANYTIME", localtz, day_start_time,
                                                        day_end_time)

@@ -59,19 +59,18 @@ def user_preferences_view(request):
         print(request.POST)
         if 'sleep_time' in request.POST:
             time_form = TimeForm(request.POST)
-            print("HERE")
             if time_form.is_valid():
-                print("I'm VALID")
                 save_sleep_time(request)
                 save_wake_time(request)
                 message = "sleep and wake times saved!"
-        elif 'main_cal' in request.POST:
+        elif 'calendar' in request.POST:
             save_calendar(request)
             message = "calendar choice saved!"
         context = {
             'message': message,
             'time_form': time_form,
-            'main_cal_form': main_cal_form
+            'main_cal_form': main_cal_form,
+            'all_cals_form': all_cals_form,
         }
         return HttpResponse(template.render(context, request))
 
@@ -231,7 +230,8 @@ def _unpack_form_data(request):
         'period': request.POST['period'],
         'duration': request.POST['duration'],
         'timeunit': request.POST['timeunit'],
-        'timerange': request.POST['timerange']
+        'timerange': request.POST['timerange'],
+        'startdate': request.POST['startdate']
     }
 
 

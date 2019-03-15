@@ -36,7 +36,7 @@ def _reschedule_events(events, deadline, preferences, credentials):
     localtz = get_localtz(credentials, calendar_id)
     now = datetime.now(localtz)
 
-    reschedule_start = get_reschedule_start_time(now, deadline, localtz, day_start_time, day_end_time)
+    reschedule_start = get_reschedule_start_time(now, deadline, localtz, day_start_time)
     reschedule_end = get_reschedule_end_time(now, deadline, localtz, day_start_time, day_end_time)
     if reschedule_start > reschedule_end:
         # edge case - current time past day_end_time and rescheduled later today
