@@ -6,6 +6,9 @@ body {
     font-family: "Source Sans Pro", Helvetica, sans-serif;
 }
 
+.heading{
+	width: 100%;
+}
 .outer_most_flex{
 	display: flex;
 	margin-left: 3em;

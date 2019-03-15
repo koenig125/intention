@@ -31,7 +31,6 @@ canvas, details, embed, figure, figcaption,
 footer, header, hgroup, menu, nav, output, ruby,
 section, summary, time, mark, audio, video {
     margin: 0;
-    padding: 0;
     border: 0;
     font-size: 100%;
     /* font: inherit; */
@@ -45,13 +44,13 @@ section, summary, time, mark, audio, video {
     margin-left: 3%;
 }
 div.formstyle {
-    margin-top: 120px;
+    margin-top: 3.5%;
 }
 
 .form_button {
     transform: scale(0.7);
     margin-top: 0.1em;
-    /* position: center; */
+    position: center;
     margin-left: 35.5em;
 }
 
@@ -61,7 +60,7 @@ strong, b {
 }
 
 h1 {
-	font-size: 3em;
+    font-size: 3em;
 }
 
 h2 {
@@ -179,7 +178,10 @@ label {
 	transform: scale(.7);
 	font-size: 1em;
 	line-height: 2.7em;
-    margin-bottom: 2%;
+    margin-bottom: 0.2%;
+    margin-top: 0.1%;
+    position: center;
+    margin-left: 1%;
 }
 
 .top{

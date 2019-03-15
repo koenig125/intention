@@ -12,25 +12,27 @@
     <body>
         <section id="schedule_goal" class="wrapper fullscreen style3 fade-up">
             <div class="formstyle">
+                    <a href="{% url 'scheduling_options_view' %}" class="button smaller">home</a>
+                <div class = "heading">
                 <h1 class="form_title">{{ message }}</h1> 
-                <a href="{% url 'scheduling_options_view' %}" class="button smaller">Finished</a>
+                </div>
 
                 <form method="POST"> {% csrf_token %}
                         {% load crispy_forms_tags %}
                         {% crispy time_form %}
-                    <button class="form_button" type='submit'>Submit</button><br />
+                    <button class="form_button" type='submit'>submit</button><br />
                 </form>
 
                 <form method="POST"> {% csrf_token %}
                         {% load crispy_forms_tags %}
                         {% crispy main_cal_form %} <br />
-                        <button  class="form_button"  type='submit'>Submit</button>
+                        <button  class="form_button"  type='submit'>submit</button>
                 </form>
                 
                 <form method="POST"> {% csrf_token %}
                     <div class = "checkboxes">
                         {{all_cals_form}}
-                        <button class="form_button" type='submit'>Submit</button><br />
+                        <button class="form_button" type='submit'>submit</button><br />
                     </div>
                 </form>
 
