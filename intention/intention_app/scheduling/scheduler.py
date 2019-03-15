@@ -39,8 +39,8 @@ def _schedule_events(form, preferences, credentials):
     calendar_id = preferences.calendar_id
     localtz = get_localtz(credentials, calendar_id)
 
-    period_start_time = get_start_time(datetime.now(localtz), timerange, day_start_time, day_end_time)
-    period_end_time = get_end_of_period(datetime.now(localtz), period, timerange, localtz, day_start_time, day_end_time)
+    period_start_time = get_start_time(startdate, datetime.now(localtz), timerange, localtz, day_start_time, day_end_time)
+    period_end_time = get_end_of_period(period_start_time, period, timerange, localtz, day_start_time, day_end_time)
     if period_start_time > period_end_time: return None # Can't schedule event by end of day/week
     day_start, day_end = get_timerange_start_end_time(period_start_time, timerange, day_start_time, day_end_time)
     event_start = period_start_time

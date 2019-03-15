@@ -32,8 +32,9 @@ from intention_app.scheduling.utils.datetime_utils import *
 # Length scheduled when period is months.
 NUMBER_MONTHS_TO_SCHEDULE = 3
 
-# Rescheduling options.
+# Scheduling & rescheduling options.
 TODAY = "TODAY"
+TOMORROW = 'TOMORROW'
 THIS_WEEK = "THIS_WEEK"
 NEXT_WEEK = "NEXT_WEEK"
 
@@ -50,13 +51,16 @@ def unpack_form(form_data):
     return name, frequency, period, duration, timeunit, timerange, startdate
 
 
-def get_start_time(curr_time, timerange, day_start_time, day_end_time):
-    """Returns first time available for scheduling within timerange."""
-    next_hour = make_next_hour(curr_time)
-    range_start, range_end = get_timerange_start_end_time(curr_time, timerange, day_start_time, day_end_time)
-    if next_hour > range_end: return range_start + timedelta(days=1)
-    elif next_hour < range_start: return range_start
-    else: return next_hour
+def get_start_time(start_date, curr_time, timerange, localtz, day_start_time, day_end_time):
+    """Returns first time available for scheduling within timerange based on user provided start date."""
+    if start_date == TODAY:
+        next_hour = make_next_hour(curr_time)
+        range_start, range_end = get_timerange_start_end_time(curr_time, timerange, day_start_time, day_end_time)
+        if next_hour > range_end: return range_start + timedelta(days=1)
+        elif next_hour < range_start: return range_start
+        else: return next_hour
+    elif start_date == TOMORROW: return get_start_of_next_day(curr_time, timerange, localtz, day_start_time)
+    elif start_date == NEXT_WEEK: return get_start_of_next_week(curr_time, timerange, localtz, day_start_time)
 
 
 def get_number_periods(day, period, localtz):
