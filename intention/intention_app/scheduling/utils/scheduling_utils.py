@@ -106,9 +106,10 @@ def get_end_of_period(period_start_time, period, timerange, localtz, day_start_t
     elif period == MONTH: return get_end_of_month(period_start_time, timerange, localtz, day_start_time, day_end_time)
 
 
-def get_reschedule_start_time(day, deadline, localtz, day_start_time, day_end_time):
+def get_reschedule_start_time(day, deadline, localtz, day_start_time):
     """Returns the start time for the deadline provided, relative to the current time."""
     if deadline == TODAY: return make_next_hour(day)
+    elif deadline == TOMORROW: return get_start_of_next_day(day, "ANYTIME", localtz, day_start_time)
     elif deadline == THIS_WEEK: return get_start_of_next_day(day, "ANYTIME", localtz, day_start_time)
     elif deadline == NEXT_WEEK: return get_start_of_next_week(day, "ANYTIME", localtz, day_start_time)
 
@@ -116,6 +117,7 @@ def get_reschedule_start_time(day, deadline, localtz, day_start_time, day_end_ti
 def get_reschedule_end_time(day, deadline, localtz, day_start_time, day_end_time):
     """Returns the end time for the deadline provided, relative to the current time."""
     if deadline == TODAY: return make_day_end(day, day_start_time, day_end_time)
+    elif deadline == TOMORROW: return make_day_end(get_next_day(day, localtz), day_start_time, day_end_time)
     elif deadline == THIS_WEEK: return get_end_of_week(day, "ANYTIME", localtz, day_start_time, day_end_time)
     elif deadline == NEXT_WEEK: return get_end_of_week(get_next_week(day, localtz), "ANYTIME", localtz, day_start_time,
                                                        day_end_time)

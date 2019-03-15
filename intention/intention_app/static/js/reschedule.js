@@ -19,18 +19,21 @@ $(document).ready(function() {
     $(".button").click(function(e) {
         var schedule;
 
-        if(typeof selectedList == 'undefined'){
+        if (typeof selectedList == 'undefined') {
             selectedList = [];
-        }else{
+        } else {
             selectedList = selectedList.filter(function (el) {
                 return el != null;
             });
             console.log(selectedList);
         }
 
-        if(this.id == 'today'){
+        if (this.id == 'today') {
             schedule = $("<input>").attr("type", "hidden")
-            .attr("name", "schedule").val("TODAY");
+                .attr("name", "schedule").val("TODAY");
+        } else if (this.id == 'tomorrow') {
+            schedule = $("<input>").attr("type", "hidden")
+            .attr("name", "schedule").val("TOMORROW");
         } else if (this.id == 'this_week') {
             schedule = $("<input>").attr("type", "hidden")
             .attr("name", "schedule").val("THIS_WEEK");
