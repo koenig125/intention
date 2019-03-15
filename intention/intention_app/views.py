@@ -230,7 +230,8 @@ def _unpack_form_data(request):
         'period': request.POST['period'],
         'duration': request.POST['duration'],
         'timeunit': request.POST['timeunit'],
-        'timerange': request.POST['timerange']
+        'timerange': request.POST['timerange'],
+        'startdate': request.POST['startdate']
     }
 
 

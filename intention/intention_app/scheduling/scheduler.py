@@ -33,7 +33,7 @@ def _schedule_events(form, preferences, credentials):
     schedules events weekly until the 2nd to last week of the current month. If
     month, schedules events monthly for the current month and 2 months further.
     """
-    name, frequency, period, duration, timeunit, timerange = unpack_form(form)
+    name, frequency, period, duration, timeunit, timerange, startdate = unpack_form(form)
     day_start_time = preferences.day_start_time
     day_end_time = preferences.day_end_time
     calendar_id = preferences.calendar_id
@@ -64,7 +64,7 @@ def _schedule_events_consolidated_periods(form, preferences, credentials, localt
     single period timeframe and attempts to schedule events within that timeframe.
     :param event_length:
     """
-    name, frequency, period, duration, timeunit, timerange = unpack_form(form)
+    name, frequency, period, duration, timeunit, timerange, startdate = unpack_form(form)
     day_start_time = preferences.day_start_time
     day_end_time = preferences.day_end_time
     calendar_id = preferences.calendar_id
@@ -89,7 +89,7 @@ def _schedule_events_multiple_periods(form, preferences, credentials, localtz, p
     :param event_length:
     """
     events = []
-    name, frequency, period, duration, timeunit, timerange = unpack_form(form)
+    name, frequency, period, duration, timeunit, timerange, startdate = unpack_form(form)
     day_start_time = preferences.day_start_time
     day_end_time = preferences.day_end_time
     calendar_id = preferences.calendar_id
@@ -117,7 +117,7 @@ def _schedule_events_single_period(form, preferences, localtz, day_start, day_en
     """
     events = []
     freebusy_index = 0
-    name, frequency, period, duration, timeunit, timerange = unpack_form(form)
+    name, frequency, period, duration, timeunit, timerange, startdate = unpack_form(form)
     day_start_time = preferences.day_start_time
     day_end_time = preferences.day_end_time
     calendar_id = preferences.calendar_id

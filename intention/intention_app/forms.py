@@ -84,12 +84,19 @@ class ScheduleForm(forms.ModelForm):
             Div('timerange', css_class="col-sm-2"),
             HTML("<label class=\"form_punctuation\">.</label>"),
             css_class='row',
+        ),
+
+        Div(
+            HTML("<label> i want to start doing this  </label>"),
+            Div('startdate', css_class="col-sm-2"),
+            HTML("<label class=\"form_punctuation\">.</label>"),
+            css_class='row',
         )
     )
 
     class Meta:
       model = Schedule
-      fields = ('name', 'frequency', 'period', 'duration', 'timeunit', 'timerange')
+      fields = ('name', 'frequency', 'period', 'duration', 'timeunit', 'timerange', 'startdate')
 
 
 class AllCalsForm(forms.Form):

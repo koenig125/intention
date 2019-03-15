@@ -46,7 +46,8 @@ def unpack_form(form_data):
     duration = int(form_data['duration'])
     timeunit = form_data['timeunit']
     timerange = form_data['timerange']
-    return name, frequency, period, duration, timeunit, timerange
+    startdate = form_data['startdate']
+    return name, frequency, period, duration, timeunit, timerange, startdate
 
 
 def get_start_time(curr_time, timerange, day_start_time, day_end_time):
