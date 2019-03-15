@@ -228,8 +228,8 @@ def _unpack_form_data(request):
         'name': request.POST['name'],
         'frequency': request.POST['frequency'],
         'period': request.POST['period'],
-        'duration': request.POST['duration'],
-        'timeunit': request.POST['timeunit'],
+        'hours': request.POST['hours'],
+        'minutes': request.POST['minutes'],
         'timerange': request.POST['timerange'],
         'startdate': request.POST['startdate']
     }

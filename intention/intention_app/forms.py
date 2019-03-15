@@ -72,14 +72,20 @@ class ScheduleForm(forms.ModelForm):
             Div('frequency', css_class="col-sm-2"),
             HTML("<label class=\"form_label\"> times a </label>"),
             Div('period', css_class="col-sm-2"),
-            HTML("<label class=\"form_punctuation\"> for </label>"),
-            Div('duration', css_class="col-xs-6"),
-            Div('timeunit', css_class="col-xs-6"),
-            HTML("<label class=\"form_label\">.</label>"),
+            HTML("<label class=\"form_punctuation\"> . </label>"),
             css_class='row',
         ),
 
-         Div(
+        Div(
+            HTML("<label> i want to do this for </label>"),
+            Div('hours', css_class="col-xs-6"),
+            HTML("<label class=\"form_punctuation\"> hours and </label>"),
+            Div('minutes', css_class="col-xs-6"),
+            HTML("<label class=\"form_label\"> minutes.</label>"),
+            css_class='row',
+        ),
+
+        Div(
             HTML("<label> i prefer to do this in the  </label>"),
             Div('timerange', css_class="col-sm-2"),
             HTML("<label class=\"form_punctuation\">.</label>"),
@@ -96,7 +102,7 @@ class ScheduleForm(forms.ModelForm):
 
     class Meta:
       model = Schedule
-      fields = ('name', 'frequency', 'period', 'duration', 'timeunit', 'timerange', 'startdate')
+      fields = ('name', 'frequency', 'period', 'hours', 'minutes', 'timerange', 'startdate')
 
 
 class AllCalsForm(forms.Form):

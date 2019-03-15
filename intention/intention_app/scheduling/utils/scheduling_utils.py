@@ -44,11 +44,11 @@ def unpack_form(form_data):
     name = form_data['name']
     frequency = int(form_data['frequency'])
     period = form_data['period']
-    duration = int(form_data['duration'])
-    timeunit = form_data['timeunit']
+    hours = int(form_data['hours'])
+    minutes = int(form_data['minutes'])
     timerange = form_data['timerange']
     startdate = form_data['startdate']
-    return name, frequency, period, duration, timeunit, timerange, startdate
+    return name, frequency, period, hours, minutes, timerange, startdate
 
 
 def get_start_time(start_date, curr_time, timerange, localtz, day_start_time, day_end_time):
@@ -146,10 +146,10 @@ def get_event_length(event):
     return event_original_end_time - event_original_start_time
 
 
-def get_event_duration(timeunit, duration):
+def get_event_duration(hours, minutes):
     """Returns the length of an event based on its timeunit and duration."""
-    if timeunit == HOURS: return timedelta(hours=duration)
-    elif timeunit == MINUTES: return timedelta(minutes=duration)
+    total_minutes = hours * MINUTES_IN_HOUR + minutes
+    return timedelta(minutes=total_minutes)
 
 
 def is_conflicting(range_start, range_end, event_start, event_end):
