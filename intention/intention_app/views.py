@@ -41,6 +41,7 @@ def user_preferences_view(request):
         return HttpResponseRedirect('authorize')
     template = loader.get_template('user_preferences.html')
     calendars = _get_calendar_list(request)
+    all_cals_form = AllCalsForm(calendars=calendars)
     time_form = TimeForm()
     main_cal_form = MainCalForm(calendars=calendars)
 
@@ -48,7 +49,8 @@ def user_preferences_view(request):
         context = {
             'message': 'tell us about yourself',
             'time_form': time_form,
-            'main_cal_form': main_cal_form
+            'main_cal_form': main_cal_form,
+            'all_cals_form': all_cals_form, 
         }
         return HttpResponse(template.render(context, request))
 
@@ -126,11 +128,7 @@ def reschedule_view(request):
         preferences = User.objects.get(email=request.user.email).preferences
         ids_and_titles = _get_calendar_events(request, preferences)
         template = loader.get_template('reschedule.html')
-<<<<<<< HEAD
         context =  {'events' : ids_and_titles, 'message': 'choose what you would like to reschedule'}
-=======
-        context =  {'events' : ids_and_titles, 'message': 'select events to reschedule'}
->>>>>>> d285acc643ce938ccb5f8405a7555ae36ed900c8
         return HttpResponse(template.render(context, request))
 
     # Rescheduling initiated after events selected by user.

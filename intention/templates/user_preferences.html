@@ -18,13 +18,20 @@
                 <form method="POST"> {% csrf_token %}
                         {% load crispy_forms_tags %}
                         {% crispy time_form %}
-                    <button type='submit'>Submit</button><br />
+                    <button class="form_button" type='submit'>Submit</button><br />
                 </form>
 
                 <form method="POST"> {% csrf_token %}
                         {% load crispy_forms_tags %}
                         {% crispy main_cal_form %} <br />
-                        <button name = "main_cal" type='submit'>Submit</button><br />
+                        <button  class="form_button"  type='submit'>Submit</button>
+                </form>
+                
+                <form method="POST"> {% csrf_token %}
+                    <div class = "checkboxes">
+                        {{all_cals_form}}
+                        <button class="form_button" type='submit'>Submit</button><br />
+                    </div>
                 </form>
 
             </div>

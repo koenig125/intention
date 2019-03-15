@@ -1,4 +1,5 @@
 from django.db import models
+from django import forms
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -17,7 +18,6 @@ class Preferences(models.Model):
     calendar_id = models.CharField(max_length=200, default='primary')
     day_start_time = models.TimeField(default=time(hour=8))
     day_end_time = models.TimeField(default=time(hour=0))
-
 
 @receiver(post_save, sender=User)
 def create_user_preferences(sender, instance, created, **kwargs):

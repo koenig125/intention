@@ -1,6 +1,5 @@
 from django import forms
 from .models import *
-
 from crispy_forms.helper import FormHelper
 from crispy_forms.bootstrap import Div
 from crispy_forms.layout import Layout, HTML
@@ -17,20 +16,18 @@ class TimeForm(forms.ModelForm):
 
         self.helper.layout = Layout(
         Div(
-            HTML("<label> i usually wake up at </label>"),
+            HTML("<label class = \"time\"> i usually wake up at </label>"),
             Div('wake_up_time', css_class="col-xs-6"),
-            HTML("<label class=\"form_label\"> and go to sleep at </label>"),
+            HTML("<label class = \"time\"> and go to sleep at </label>"),
             Div('sleep_time', css_class="col-sm-2"),
-            HTML("<label class=\"form_label\"> . </label>"),
+            HTML("<label class = \"time punctuation\"> . </label>"),
             css_class='row',
         ),
     )
 
-
     class Meta:
-        model = Time
         fields = ('wake_up_time','sleep_time')
-
+        model = Time
 
 
 class MainCalForm(forms.Form):
@@ -46,9 +43,9 @@ class MainCalForm(forms.Form):
         self.fields['calendar'] = forms.ChoiceField(choices=cals)
         self.helper.layout = Layout(
         Div(
-            HTML("<label class = \"cal\"> I want my events to be scheduled on my </label>"),
+            HTML("<label class = \"cal\"> i want my events to be scheduled on my </label>"),
             Div('calendar', css_class="col-xs-6"),
-            HTML("<label class=\"form_label\"> calendar. </label>"),
+            HTML("<label class = \"cal\"> calendar. </label>"),
             css_class='row',
         ),
     )
@@ -93,3 +90,15 @@ class ScheduleForm(forms.ModelForm):
     class Meta:
       model = Schedule
       fields = ('name', 'frequency', 'period', 'duration', 'timeunit', 'timerange')
+
+
+class AllCalsForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+      cals = kwargs.pop('calendars')
+      super(AllCalsForm, self).__init__(*args, **kwargs)
+      self.fields['I want to include the events of the following calendars'] = forms.MultipleChoiceField(choices=cals, widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+      fields = ('i want to include the events of the following calendars',)
+
+
