@@ -35,7 +35,7 @@
                                     {% endif %}</p><br />
 
                                 <a href="{% url 'scheduling_options_view' %}" id = "link" class="button"> get started</a><br />
-
+                                <a href="{% url 'calendar_view' %}" id = "link" class="button">view your calendar</a><br />
 
                                 <form method="post" action="{% url 'account_logout' %}">
                                     {% csrf_token %}
