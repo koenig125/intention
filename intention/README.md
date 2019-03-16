@@ -14,7 +14,7 @@ In addition, technically specific documentaion is provided in module-level READM
 * The [intention_app](https://github.com/StanfordCS194/CozyCo/tree/documentation/intention/intention_app) README details application views, forms, and models.
 * The [scheduling](https://github.com/StanfordCS194/CozyCo/tree/documentation/intention/intention_app/scheduling) README details scheduler and rescheduler implementations.
 
-## Local Installation:
+## Installation and Local Deployment:
 
 ### Getting the Code
 1. Clone the [CozyCo repository](https://github.com/StanfordCS194/CozyCo.git) to your local machine.
@@ -22,12 +22,12 @@ In addition, technically specific documentaion is provided in module-level READM
 3. With the virtual environment activated, run ```pip install -r requirements.txt``` to install project dependencies.
 4. While the virtual environment is still activated, run ```manage.py makemigrations``` and ```manage.py migrate```. 
 
-### Setting up Google Authentication and Authorization
+### Integrating with Google
 Intention integrates with Google extensively. Follow the steps in the wiki to do the following:
 1. Create a [Google Application Client](https://github.com/StanfordCS194/CozyCo/wiki/Google-Application-Client).
 2. Enable [Google Sign-In](https://github.com/StanfordCS194/CozyCo/wiki/Google-Sign-In,-Allauth,-and-User-Management) with django-allauth.
 3. Enable [Google Calendar API](https://github.com/StanfordCS194/CozyCo/wiki/Google-Calendar-API) requests.
 
-### Running the Application
+### Deploying with Django
 1. In the "CozyCo/intention" directory, run manage.py runserver 8000.
 2. Navigate to http://127.0.0.1:8000/ in your browser to access the application.
