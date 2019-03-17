@@ -1,26 +1,16 @@
-## Application Overview
+The views, forms, and models files are the foundation of the application. There are two significant components of the application that are particularly concentrated in these files: Google OAuth 2.0 authorization and user preferences.
 
-Intention operates with a traditional web application infrastructure powered by Django. There are four files of note:
+### Google Authorization
 
-- **urls** specifies the addresses to each of the application's pages.
-- **views** coordinates the interaction between each web page and the user.
-- **forms** details the Django forms for task, project, and habit scheduling.
-- **models** defines schemas for user preference information stored in the database.
+As detailed in the Google Calendar API [wiki page](https://github.com/StanfordCS194/CozyCo/wiki/Google-Calendar-API), Intention follows standard OAuth 2.0 protocol to access user Google Calendar resources. This protocol is initiated in the **authorize** function in views.py if the user tries is routed to any view that leads to a page that requires access to a user's Google Calendar. Because the authorization process could be initiated from several different views, the initating view stores its url path in the session as **endurl**. This path is then accessed by the **oauth2callback** function, which is called to handle the response after the user confirms or denies access to their Google Calendar. If authorization is successful, the oauth2callback function reroutes the user to the initiator path stored in the session. A refresh token is requested in the authorization process and stored along with the authorization credentials upon success. The refresh token enables the application to renew expired access tokens so that the user only has to authorize the application once post-login. For additional details about access tokens, refresh tokens, and the OAuth 2.0 process, see the [official documentation](https://developers.google.com/identity/protocols/OAuth2).
 
-The **scheduling** module contains the back-end logic for scheduling and rescheduling requests. This module has 3 main responsibilities:
+### User Preferences
 
-1. Communicating with the database to retrieve user preferences.
-2. Interfacing with Google Calendar API to access and add to user calendars.
-3. Intelligently scheduling new events and tasks according to user constraints.
+The application requests user preferences to better guide scheduling decisions. These preferences are persisted in Django's built-in SQLite database. There are four preference fields as defined in the Preferences class in models.py:
 
-Details of these responsibilities and implementation documentation is provided in the module's readme. 
+1. Wake time - Time at which user typically wakes.
+2. Sleep time - TIme at which user typically sleeps.
+3. Main Calendar - Calendar to which events will be added when scheduled or rescheduled.
+4. Calendar list - List of calendars from which to take events into account when scheduling.
 
-Outside of the scheduling module, the application also communicates with Google Oauth during the login process. Users are required to login with their Google account when they first access the site in order to facilitate scheduling functionality and persistence of user preferences. 
-
-## Application Architecture
-
-The components of the application described above come together as represented in the architecture diagram below:
-
-<img src="https://github.com/StanfordCS194/Team-5/blob/master/team-photos/architecture-diagram.jpg" width="800">
-
-We have sketched out the front end flow and design on figma. You can check out our prototype here: https://www.figma.com/file/d5jsjBeO4UWY6lmy3op35G2S/CozyCo?node-id=0%3A1
+Users input the information for these fields through the TimeForm, MainCalForm, and AllCalsForm forms specified in forms.py. If a user does not specify a main calendar, the primary calendar for their google account is utilized for both their main calendar and calendar list. See the user testing [wiki page](https://github.com/StanfordCS194/CozyCo/wiki/User-Testing) for details on user preferences motivation.

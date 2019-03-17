@@ -11,7 +11,7 @@ The [wiki](https://github.com/StanfordCS194/CozyCo/wiki) contains the bulk of th
 
 In addition, technically specific documentaion is provided in module-level READMEs throughout this project.
 * The [intention](https://github.com/StanfordCS194/CozyCo/tree/documentation/intention/intention) README details integration with django-allauth.
-* The [intention_app](https://github.com/StanfordCS194/CozyCo/tree/documentation/intention/intention_app) README details application views, forms, and models.
+* The [intention_app](https://github.com/StanfordCS194/CozyCo/tree/documentation/intention/intention_app) README details Google authorization and user preferences.
 * The [scheduling](https://github.com/StanfordCS194/CozyCo/tree/documentation/intention/intention_app/scheduling) README details scheduler and rescheduler implementations.
 
 ## Installation and Local Deployment:
