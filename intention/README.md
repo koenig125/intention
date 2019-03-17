@@ -10,9 +10,9 @@ The [wiki](https://github.com/StanfordCS194/CozyCo/wiki) contains the bulk of th
 * Project process, including benchmarking, need finding, and user testing.
 
 In addition, technically specific documentaion is provided in module-level READMEs throughout this project.
-* The [intention](https://github.com/StanfordCS194/CozyCo/tree/documentation/intention/intention) README details integration with django-allauth.
-* The [intention_app](https://github.com/StanfordCS194/CozyCo/tree/documentation/intention/intention_app) README details Google authorization and user preferences.
-* The [scheduling](https://github.com/StanfordCS194/CozyCo/tree/documentation/intention/intention_app/scheduling) README details scheduler and rescheduler implementation notes.
+* The [intention](https://github.com/StanfordCS194/CozyCo/tree/master/intention/intention) README details integration with django-allauth.
+* The [intention_app](https://github.com/StanfordCS194/CozyCo/tree/master/intention/intention_app) README details Google authorization and user preferences.
+* The [scheduling](https://github.com/StanfordCS194/CozyCo/tree/master/intention/intention_app/scheduling) README details scheduler and rescheduler implementation notes.
 
 ## Installation and Local Deployment:
 
@@ -29,5 +29,5 @@ Intention integrates with Google extensively. Follow the steps in the wiki to do
 3. Enable [Google Calendar API](https://github.com/StanfordCS194/CozyCo/wiki/Google-Calendar-API) requests.
 
 ### Deploying with Django
-1. In the "CozyCo/intention" directory, run manage.py runserver 8000.
+1. In the "CozyCo/intention" directory, run ```manage.py runserver 8000```.
 2. Navigate to http://127.0.0.1:8000/ in your browser to access the application.
