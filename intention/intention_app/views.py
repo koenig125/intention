@@ -112,7 +112,9 @@ def schedule_view(request):
                 return HttpResponse(template.render(context, request))
             else:
                 template = loader.get_template('calendar.html')
-                context =  {'event' : form_data, 'calendar_id': request.user.preferences.calendar_id}
+                cid = request.user.preferences.calendar_id
+                if cid == 'primary': cid = request.user.email
+                context =  {'event' : form_data, 'calendar_id': cid}
                 return HttpResponse(template.render(context, request))
 
 
@@ -160,7 +162,9 @@ def reschedule_view(request):
 def calendar_view(request):
     """Allows people to view their updated calendar schedule."""
     template = loader.get_template('calendar.html')
-    context = {'calendar_id': request.user.preferences.calendar_id}
+    cid = request.user.preferences.calendar_id
+    if cid == 'primary': cid = request.user.email
+    context = {'calendar_id': cid}
     return HttpResponse(template.render(context, request))
 
 
