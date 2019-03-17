@@ -29,5 +29,5 @@ Intention integrates with Google extensively. Follow the steps in the wiki to do
 3. Enable [Google Calendar API](https://github.com/StanfordCS194/CozyCo/wiki/Google-Calendar-API) requests.
 
 ### Deploying with Django
-1. In the "CozyCo/intention" directory, run manage.py runserver 8000.
+1. In the "CozyCo/intention" directory, run ```manage.py runserver 8000```.
 2. Navigate to http://127.0.0.1:8000/ in your browser to access the application.
