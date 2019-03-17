@@ -1,3 +1,4 @@
+import json
 from datetime import time
 
 from django.contrib.auth.models import User
@@ -18,8 +19,15 @@ STARTDATE_CHOICES = (('TODAY', 'today'), ('TOMORROW', 'tomorrow'), ('NEXT_WEEK',
 class Preferences(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     calendar_id = models.CharField(max_length=200, default='primary')
+    calendars = models.TextField(default=json.dumps('primary'))
     day_start_time = models.TimeField(default=time(hour=8))
     day_end_time = models.TimeField(default=time(hour=0))
+
+    def set_calendars(self, calendars):
+        self.calendars = json.dumps(calendars)
+
+    def get_calendars(self):
+        return json.loads(self.calendars)
 
 
 @receiver(post_save, sender=User)

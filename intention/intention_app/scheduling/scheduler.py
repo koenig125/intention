@@ -36,7 +36,7 @@ def _schedule_events(form, preferences, credentials):
     month, schedules events monthly for the current month and 2 months further.
     """
     name, frequency, period, hours, minutes, timerange, startdate = unpack_form(form)
-    day_start_time, day_end_time, calendar_id = unpack_preferences(preferences)
+    day_start_time, day_end_time, calendar_id, calendars = unpack_preferences(preferences)
     localtz = get_localtz(credentials, calendar_id)
 
     period_start_time = get_start_time(startdate, datetime.now(localtz), timerange, localtz, day_start_time, day_end_time)
@@ -64,10 +64,10 @@ def _schedule_events_consolidated_periods(form, preferences, credentials, localt
     single period timeframe and attempts to schedule events within that timeframe.
     """
     name, frequency, period, hours, minutes, timerange, startdate = unpack_form(form)
-    day_start_time, day_end_time, calendar_id = unpack_preferences(preferences)
+    day_start_time, day_end_time, calendar_id, calendars = unpack_preferences(preferences)
     if period == MONTH: event_start_max = get_28th_of_month(first_period_start, timerange, day_start_time, day_end_time) - event_length
     multi_period_end = get_end_of_multi_period(first_period_start, period, timerange, localtz, day_start_time, day_end_time)
-    freebusy_ranges = get_freebusy_in_range(credentials, first_period_start, multi_period_end, calendar_id)
+    freebusy_ranges = get_freebusy_in_range(credentials, first_period_start, multi_period_end, calendars)
     consolidated = consolidate_multiple_periods(freebusy_ranges, first_period_start, first_period_end, period, localtz)
     events = _schedule_events_single_period(form, preferences, localtz, day_start, day_end, event_start, event_length,
                                             event_start_max, consolidated)
@@ -85,9 +85,8 @@ def _schedule_events_multiple_periods(form, preferences, credentials, localtz, p
     """
     events = []
     name, frequency, period, hours, minutes, timerange, startdate = unpack_form(form)
-    day_start_time, day_end_time, calendar_id = unpack_preferences(preferences)
-
-    freebusy_ranges = get_freebusy_in_range(credentials, period_start_time, period_end_time, calendar_id)
+    day_start_time, day_end_time, calendar_id, calendars = unpack_preferences(preferences)
+    freebusy_ranges = get_freebusy_in_range(credentials, period_start_time, period_end_time, calendars)
     num_periods = get_number_periods(period_start_time, period, localtz)
     for i in range(num_periods):
         events_for_single_period = _schedule_events_single_period(form, preferences, localtz, day_start, day_end,
@@ -99,7 +98,7 @@ def _schedule_events_multiple_periods(form, preferences, credentials, localtz, p
         event_start = period_start_time
         event_start_max = period_end_time - event_length
         day_start, day_end = get_timerange_start_end_time(period_start_time, timerange, day_start_time, day_end_time)
-        freebusy_ranges = get_freebusy_in_range(credentials, period_start_time, period_end_time, calendar_id)
+        freebusy_ranges = get_freebusy_in_range(credentials, period_start_time, period_end_time, calendars)
     return events
 
 
@@ -109,8 +108,7 @@ def _schedule_events_single_period(form, preferences, localtz, day_start, day_en
     events = []
     freebusy_index = 0
     name, frequency, period, hours, minutes, timerange, startdate = unpack_form(form)
-    day_start_time, day_end_time, calendar_id = unpack_preferences(preferences)
-
+    day_start_time, day_end_time, calendar_id, calendars = unpack_preferences(preferences)
     for i in range(frequency):
         if event_start > event_start_max: return None
         success, start_time = _find_time_for_single_event(localtz, day_start, day_end, event_start, event_length,

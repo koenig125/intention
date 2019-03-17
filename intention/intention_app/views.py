@@ -55,7 +55,6 @@ def user_preferences_view(request):
 
     elif request.method == "POST":
         message = "Sorry, preferences could not be saved. Please try again!"
-        print(request.POST)
         if 'sleep_time' in request.POST:
             time_form = TimeForm(request.POST)
             if time_form.is_valid():
@@ -65,6 +64,9 @@ def user_preferences_view(request):
         elif 'calendar' in request.POST:
             save_calendar(request)
             message = "calendar choice saved!"
+        elif 'calendars' in request.POST:
+            save_calendars(request)
+            message = "calendars saved!"
         context = {
             'message': message,
             'time_form': time_form,
@@ -140,7 +142,7 @@ def reschedule_view(request):
         deadline = request.POST.get('schedule', '')
         preferences = User.objects.get(email=request.user.email).preferences
         credentials = Credentials(**request.session['credentials'])
-        success = reschedule(selected_events, deadline, preferences, credentials)
+        success, cid = reschedule(selected_events, deadline, preferences, credentials)
         request.session['credentials'] = _credentials_to_dict(credentials)
         if not success:
             ids_and_titles = _get_calendar_events(request, preferences)
@@ -150,7 +152,7 @@ def reschedule_view(request):
         else:
             template = loader.get_template('calendar.html')
             template_events = [(event['summary'], convert_to_ampm(event['start']['dateTime'])) for event in selected_events]
-            context = {'selected_events': template_events, 'calendar_id': request.user.preferences.calendar_id}
+            context = {'selected_events': template_events, 'calendar_id': cid}
             return HttpResponse(template.render(context, request))
 
 
@@ -261,4 +263,12 @@ def save_calendar(request):
     calendar_id = request.POST['calendar']
     user = User.objects.get(email=request.user.email)
     user.preferences.calendar_id = calendar_id
+    user.save()
+
+
+def save_calendars(request):
+    """Given request, saves calendars from which to include events to database."""
+    cals = request.POST.getlist('calendars')
+    user = User.objects.get(email = request.user.email)
+    user.preferences.set_calendars(cals)
     user.save()

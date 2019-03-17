@@ -55,6 +55,17 @@ class MainCalForm(forms.Form):
         fields = ('calendar',)
 
 
+class AllCalsForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        cals = kwargs.pop('calendars')
+        super(AllCalsForm, self).__init__(*args, **kwargs)
+        self.fields['calendars'] = forms.MultipleChoiceField(choices=cals, widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+      fields = ('calendars',)
+
+
 class ScheduleForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
@@ -104,15 +115,3 @@ class ScheduleForm(forms.ModelForm):
     class Meta:
       model = Schedule
       fields = ('name', 'frequency', 'period', 'hours', 'minutes', 'timerange', 'startdate')
-
-
-class AllCalsForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-      cals = kwargs.pop('calendars')
-      super(AllCalsForm, self).__init__(*args, **kwargs)
-      self.fields['i want to include the events of the following calendars'] = forms.MultipleChoiceField(choices=cals, widget=forms.CheckboxSelectMultiple)
-
-    class Meta:
-      fields = ('i want to include the events of the following calendars',)
-
-

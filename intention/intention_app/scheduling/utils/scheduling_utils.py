@@ -55,7 +55,7 @@ def unpack_form(form_data):
 
 
 def unpack_preferences(preferences):
-    return preferences.day_start_time, preferences.day_end_time, preferences.calendar_id
+    return preferences.day_start_time, preferences.day_end_time, preferences.calendar_id, preferences.get_calendars()
 
 
 def get_start_time(start_date, curr_time, timerange, localtz, day_start_time, day_end_time):
