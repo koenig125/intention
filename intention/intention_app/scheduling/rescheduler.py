@@ -5,14 +5,16 @@ these updates to the Google Calendar API to reflect in the user cal.
 
 Exported Functions
 ------------------
-reschedule(events, deadline, credentials)
-get_events_current_day(credentials)
+reschedule(events, deadline, preferences, credentials)
+get_events_current_day(credentials, preferences)
 """
 
 from __future__ import print_function
+
+from datetime import datetime
+
 from intention_app.scheduling.utils.googleapi_utils import *
 from intention_app.scheduling.utils.scheduling_utils import *
-from datetime import datetime
 
 
 def reschedule(events, deadline, preferences, credentials):
@@ -23,6 +25,16 @@ def reschedule(events, deadline, preferences, credentials):
     return True
 
 
+def get_events_current_day(credentials, preferences):
+    """Returns events from DAY_START_HOUR to DAY_END_HOUR for user indicated in credentials."""
+    day_start_time, day_end_time, calendar_id = unpack_preferences(preferences)
+    localtz = get_localtz(credentials, calendar_id)
+    current_day = datetime.now(localtz)
+    events = get_events_in_range(credentials, make_day_start(current_day, day_start_time),
+                                 make_day_end(current_day, day_start_time, day_end_time), calendar_id)
+    return _filter_event_information(events)
+
+
 def _reschedule_events(events, deadline, preferences, credentials):
     """Reschedules provided list of events by the deadline provided.
 
@@ -30,9 +42,7 @@ def _reschedule_events(events, deadline, preferences, credentials):
     later than the current time. Events with start times after the
     current time must be scheduled after their original start time.
     """
-    day_start_time = preferences.day_start_time
-    day_end_time = preferences.day_end_time
-    calendar_id = preferences.calendar_id
+    day_start_time, day_end_time, calendar_id = unpack_preferences(preferences)
     localtz = get_localtz(credentials, calendar_id)
     now = datetime.now(localtz)
 
@@ -53,10 +63,7 @@ def _reschedule_events(events, deadline, preferences, credentials):
 
 def _reschedule_multiple_events(events, deadline, preferences, existing_events, localtz):
     """Finds new times to rschedule multiple events by provided deadline."""
-    day_start_time = preferences.day_start_time
-    day_end_time = preferences.day_end_time
-    calendar_id = preferences.calendar_id
-
+    day_start_time, day_end_time, calendar_id = unpack_preferences(preferences)
     rescheduled_events = []
     for event, event_start in events:
         event_length = get_event_length(event)
@@ -111,19 +118,6 @@ def _replace_event_times(rescheduled_events):
         event['start']['dateTime'] = new_start.isoformat()
         event['end']['dateTime'] = new_end.isoformat()
     return [event for event, new_start, new_end in rescheduled_events]
-
-
-def get_events_current_day(credentials, preferences):
-    """Returns events from DAY_START_HOUR to DAY_END_HOUR for user indicated in credentials."""
-    day_start_time = preferences.day_start_time
-    day_end_time = preferences.day_end_time
-    calendar_id = preferences.calendar_id
-
-    localtz = get_localtz(credentials, calendar_id)
-    current_day = datetime.now(localtz)
-    events = get_events_in_range(credentials, make_day_start(current_day, day_start_time),
-                                 make_day_end(current_day, day_start_time, day_end_time), calendar_id)
-    return _filter_event_information(events)
 
 
 def _filter_event_information(events):

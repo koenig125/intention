@@ -7,21 +7,24 @@ periods - week, month, and quarter for day, week, and month, respectively.
 Exported Functions
 ------------------
 unpack_form(form_data)
-get_start_time(curr_time, timerange)
+unpack_preferences(preferences)
+get_start_time(start_date, curr_time, timerange, localtz, day_start_time, day_end_time)
 get_number_periods(day, period, localtz)
-get_timedelta_to_future_period(day, period, num_periods_in_future, localtz)
-get_start_of_next_period(curr_period_start_time, period, timerange, localtz)
-get_start_of_next_event(curr_event_start_time, last_scheduled_event_end_time, period, timerange, localtz)
-get_end_of_multi_period(day, period, timerange, localtz)
-get_end_of_period(period_start_time, period, timerange, localtz)
-get_reschedule_end_time(day, deadline, localtz)
-get_minimum_start_times(events, current_time)
+get_timedelta_to_future_period(day, period, num_periods, localtz)
+get_start_of_next_period(curr_period_start_time, period, timerange, localtz, day_start_time)
+get_start_of_next_event(curr_event_start_time, last_scheduled_event_end_time, period, timerange, localtz, day_start_time)
+get_end_of_multi_period(day, period, timerange, localtz, day_start_time, day_end_time)
+get_end_of_period(period_start_time, period, timerange, localtz, day_start_time, day_end_time)
+get_reschedule_start_time(day, deadline, localtz, day_start_time)
+get_reschedule_end_time(day, deadline, localtz, day_start_time, day_end_time)
+get_minimum_start_times(events, reschedule_start_time)
 get_event_length(event)
-get_event_duration(timeunit, duration)
+get_event_duration(hours, minutes)
 is_conflicting(range_start, range_end, event_start, event_end)
 in_timerange(range_start, range_end, event_start, event_end)
-get_range_freebusy(timerange, localtz)
-get_range_gcal_events(timerange, localtz)
+get_range_freebusy(index, freebusy_ranges, localtz)
+get_range_gcal_events(index, gcal_events, localtz)
+get_range_rescheduled(index, rescheduled_events)
 update_index_freebusy(index, freebusy_ranges, threshold_time)
 update_index_gcal_events(index, gcal_events, threshold_time)
 update_index_rescheduled(index, rescheduled_events, threshold_time)
@@ -49,6 +52,10 @@ def unpack_form(form_data):
     timerange = form_data['timerange']
     startdate = form_data['startdate']
     return name, frequency, period, hours, minutes, timerange, startdate
+
+
+def unpack_preferences(preferences):
+    return preferences.day_start_time, preferences.day_end_time, preferences.calendar_id
 
 
 def get_start_time(start_date, curr_time, timerange, localtz, day_start_time, day_end_time):

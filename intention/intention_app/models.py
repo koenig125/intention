@@ -1,10 +1,11 @@
-from django.db import models
-from django import forms
+from datetime import time
+
 from django.contrib.auth.models import User
+from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
 from intention_app.scheduling.utils.datetime_utils import convert_to_military
-from datetime import time
 
 PERIOD_CHOICES = (('DAY', 'day'), ('WEEK', 'week'), ('MONTH', 'month'),)
 TIMEUNIT_CHOICES = (('HOURS', 'hours'), ('MINUTES', 'minutes'),)

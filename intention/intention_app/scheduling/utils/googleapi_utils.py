@@ -7,9 +7,10 @@ Exported Functions
 get_localtz(credentials, cid='primary')
 add_events_to_calendar(credentials, events, cid='primary')
 update_events_in_calendar(credentials, events, cid="primary")
+get_calendars(credentials)
 get_freebusy_in_range(credentials, timeMin, timeMax, cid='primary')
 get_events_in_range(credentials, timeMin, timeMax, cid='primary')
-create_event(name, start, end)
+create_event(event_name, start_time, end_time)
 """
 
 from googleapiclient.discovery import build

@@ -1,8 +1,9 @@
-from django import forms
-from .models import *
-from crispy_forms.helper import FormHelper
 from crispy_forms.bootstrap import Div
+from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, HTML
+from django import forms
+
+from .models import *
 
 
 class TimeForm(forms.ModelForm):

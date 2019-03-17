@@ -1,22 +1,21 @@
-from django.http import HttpResponse, HttpResponseRedirect
-from django.template import loader
-from django.shortcuts import render
-from django.urls import reverse
-from .forms import *
-from intention_app.scheduling.scheduler import schedule
-from intention_app.scheduling.rescheduler import get_events_current_day, reschedule
 from django.contrib.auth.decorators import login_required
-from google_auth_oauthlib.flow import InstalledAppFlow
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render
+from django.template import loader
+from django.urls import reverse
 from google.oauth2.credentials import Credentials
-from intention_app.scheduling.utils.datetime_utils import parse_datetime
-from intention_app.scheduling.utils.googleapi_utils import get_calendars
-from django.contrib.auth.models import User
-from datetime import time
+from google_auth_oauthlib.flow import InstalledAppFlow
 
+from intention_app.scheduling.rescheduler import get_events_current_day, reschedule
+from intention_app.scheduling.scheduler import schedule
+from intention_app.scheduling.utils.datetime_utils import convert_to_ampm
+from intention_app.scheduling.utils.googleapi_utils import get_calendars
+from .forms import *
 
 CLIENT_SECRETS_FILE = 'client_secret.json'
 SCOPES = ['https://www.googleapis.com/auth/calendar']
-MONTHS = {'01': 'January', '02': 'February', '03': 'March', '04': 'April', '05': 'May', '06': 'June', '07': 'July', '08': 'August', '09':'September', '10': 'October', '11': 'November', '12': 'December'}
+MONTHS = {'01': 'January', '02': 'February', '03': 'March', '04': 'April', '05': 'May', '06': 'June',
+          '07': 'July', '08': 'August', '09':'September', '10': 'October', '11': 'November', '12': 'December'}
 
 
 def homepage_view(request):
@@ -150,7 +149,7 @@ def reschedule_view(request):
             return HttpResponse(template.render(context, request))
         else:
             template = loader.get_template('calendar.html')
-            template_events = [(event['summary'], dateTime_helper(event['start']['dateTime'])) for event in selected_events]
+            template_events = [(event['summary'], convert_to_ampm(event['start']['dateTime'])) for event in selected_events]
             context = {'selected_events': template_events, 'calendar_id': request.user.preferences.calendar_id}
             return HttpResponse(template.render(context, request))
 
@@ -235,23 +234,8 @@ def _unpack_form_data(request):
     }
 
 
-
-def dateTime_helper(datestr):
-  dateobj = parse_datetime(datestr)
-  am_pm = 'am'
-  month = dateobj.date().month
-  day = dateobj.date().day
-  hour = dateobj.time().hour
-  min = str(dateobj.time().minute)
-  if hour > 12:
-      am_pm = 'pm'
-      hour = hour - 12
-  if int(min) < 9:
-      min = '0' + min
-  return str(month) + '/' + str(day) + ' at ' +  str(hour) + ':' + min + ' ' + am_pm
-
-
 def save_wake_time(request):
+    """Given request, saves user wake time preference to database."""
     wake_time = request.POST['wake_up_time']
     HH, MM = wake_time.split(':')
     wake_hour, wake_min = int(HH), int(MM)
@@ -262,6 +246,7 @@ def save_wake_time(request):
 
 
 def save_sleep_time(request):
+    """Given request, saves user sleep time preference to database."""
     sleep_time = request.POST['sleep_time']
     HH, MM = sleep_time.split(':')
     sleep_hour, sleep_min = int(HH), int(MM)
@@ -272,6 +257,7 @@ def save_sleep_time(request):
 
 
 def save_calendar(request):
+    """Given request, saves user main calendar preference to databsse."""
     calendar_id = request.POST['calendar']
     user = User.objects.get(email=request.user.email)
     user.preferences.calendar_id = calendar_id
