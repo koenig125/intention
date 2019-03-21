@@ -4,14 +4,14 @@ Manipulates datetime objects over days, weeks, and months.
 
 Exported Functions
 ------------------
-get_start_of_day(day, timerange)
-get_start_of_next_day(day, timerange, localtz)
-get_start_of_next_week(day, timerange, localtz)
-get_start_of_next_month(day, timerange, localtz)
-get_end_of_day(day, timerange)
-get_end_of_week(day, timerange, localtz)
-get_end_of_month(day, timerange, localtz)
-get_end_of_quarter(day, timerange, localtz)
+get_start_of_day(day, timerange, day_start_time)
+get_start_of_next_day(day, timerange, localtz, day_start_time)
+get_start_of_next_week(day, timerange, localtz, day_start_time)
+get_start_of_next_month(day, timerange, localtz, day_start_time)
+get_end_of_day(day, timerange, day_start_time, day_end_time)
+get_end_of_week(day, timerange, localtz, day_start_time, day_end_time)
+get_end_of_month(day, timerange, localtz, day_start_time, day_end_time)
+get_end_of_quarter(day, timerange, localtz, day_start_time, day_end_time)
 get_next_day(day, localtz)
 get_next_week(day, localtz)
 get_next_month(day, localtz)
@@ -20,13 +20,13 @@ get_days_left_in_week(day)
 get_days_left_in_month(day)
 get_days_left_in_quarter(day)
 get_weeks_left_in_month(day, localtz)
-make_start_hour(day, timerange)
-make_end_hour(day, timerange)
-make_day_start(day)
-make_day_end(day)
+make_start_hour(day, timerange, day_start_time)
+make_end_hour(day, timerange, day_start_time, day_end_time)
+make_day_start(day, day_start_time)
+make_day_end(day, day_start_time, day_end_time)
 make_next_hour(day)
-get_timerange_start_end_time(day, timerange)
-get_day_start_end_time(day)
+get_timerange_start_end_time(day, timerange, day_start_time, day_end_time)
+get_day_start_end_time(day, day_start_time, day_end_time)
 add_timedelta(td, dt, localtz)
 parse_datetime(dt_str)
 is_dst(dt, localtz)
@@ -34,8 +34,9 @@ is_whole_hour(dt)
 get_week_number(day)
 get_weekday_index(day)
 get_month_timedelta(day, num_periods, localtz)
-get_get_28th_of_month(day, timerange, day_start_time, day_end_time)
+get_28th_of_month(day, timerange, day_start_time, day_end_time)
 convert_to_military(h, m, ap)
+convert_to_ampm(dt_str)
 """
 
 from datetime import timedelta, time
@@ -261,6 +262,29 @@ def get_28th_of_month(day, timerange, day_start_time, day_end_time):
     return get_end_of_day(day, timerange, day_start_time, day_end_time)
 
 
+def convert_to_military(h, m, ap):
+    """Returns string of given hour, minute, and am/pm indicator converted to military time."""
+    if h == 12 and ap == 'am': h = 0
+    if ap == 'pm': h += 12
+    return '%s:%s' % (h, m)
+
+
+def convert_to_ampm(dt_str):
+    """Returns string of datetime time information converted from military to am/pm time."""
+    dt = parse_datetime(dt_str)
+    month = dt.date().month
+    day = dt.date().day
+    hour = dt.time().hour
+    min = str(dt.time().minute)
+    am_pm = 'am'
+    if hour > 12:
+        am_pm = 'pm'
+        hour = hour - 12
+    if int(min) < 9:
+        min = '0' + min
+    return str(month) + '/' + str(day) + ' at ' +  str(hour) + ':' + min + ' ' + am_pm
+
+
 def _get_last_sunday_in_month(day, localtz):
     """Returns the last Sunday in the current month."""
     end_of_month = get_next_month(day, localtz)
@@ -281,10 +305,3 @@ def _get_dst_correction(base_dt, new_dt, localtz):
         return timedelta(hours=1)
     else:
         return timedelta(hours=0)
-
-
-def convert_to_military(h, m, ap):
-    """Returns string of given hour, minute, and am/pm indicator converted to military time."""
-    if h == 12 and ap == 'am': h = 0
-    if ap == 'pm': h += 12
-    return '%s:%s' % (h, m)

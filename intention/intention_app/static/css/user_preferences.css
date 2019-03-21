@@ -51,12 +51,12 @@ div.formstyle {
     transform: scale(0.7);
     margin-top: 0.1em;
     position: 50%;
-    margin-left: 35.5em;
 }
 
 .bottom{
     margin-left: 40em;
 }
+
 
 strong, b {
     color: #E09C19;;
@@ -155,11 +155,11 @@ button,
     
     
     .checkboxes{
-        width:90%;
+        width:100%;
         white-space: pre-line;  
         overflow: auto;
         overflow-x:scroll;   
-        margin-left: 5% 
+        margin-left:2%
     }
 
 label {

@@ -8,8 +8,10 @@ Exported Functions
 consolidate_multiple_periods(busy_ranges, first_period_start, first_period_end, period, localtz)
 """
 
-import numpy as np
 from datetime import timedelta
+
+import numpy as np
+
 from intention_app.scheduling.utils.datetime_utils import add_timedelta, get_weekday_index, get_week_number, \
     is_dst, DAY, WEEK, MONTH, SECONDS_IN_MINUTE, MINUTES_IN_HOUR, HOURS_IN_DAY, DAYS_IN_WEEK
 from intention_app.scheduling.utils.scheduling_utils import get_range_freebusy

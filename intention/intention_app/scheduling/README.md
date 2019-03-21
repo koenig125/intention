@@ -1,0 +1,6 @@
+The scheduler, consolidator, and rescheduler modules implement the core backend logic of the application. Documentation for the overview, motivation, input, and output of each module can be found on the [scheduler](https://github.com/StanfordCS194/CozyCo/wiki/Scheduler), [consolidator](https://github.com/StanfordCS194/CozyCo/wiki/Consolidator), and [rescheduler](https://github.com/StanfordCS194/CozyCo/wiki/Rescheduler) wiki pages, respectively.
+
+### Implementation Notes
+
+#### Daylight Savings Time
+When implementing new scheduling features, it is important to account for potential daylight savings time bugs that may arise from attempts to schedule that begin before a daylight savings pivot day (in Spring and Autumn) but end after the daylight savings pivot. For example, if a user is scheduling events on a monthly basis, the scheduler will add recurring instances of that event up to three months in advance. In this case, one could easily envision a situation in which the start of the scheduling peiod is before a daylight savings pivot but the end of the period is after. This should be dealt with by always converting to UTC standard time when adding a timedelta to a datetime instance, and then converting back to the local timzeone (if needed) after the resulting time has been calculated.
