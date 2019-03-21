@@ -16,7 +16,7 @@ class TimeForm(forms.ModelForm):
 
         self.helper.layout = Layout(
         Div(
-            HTML("<label class = \"time\"> I usually wake up at </label>"),
+            HTML("<label class = \"time\"> i usually wake up at </label>"),
             Div('wake_up_time', css_class="drop_down"),
             HTML("<label class = \"time\"> and go to sleep at </label>"),
             Div('sleep_time', css_class="drop_down"),
@@ -43,10 +43,10 @@ class MainCalForm(forms.Form):
         self.fields['calendar'] = forms.ChoiceField(choices=cals)
         self.helper.layout = Layout(
         Div(
-            HTML("<label class = \"cal\"> I want my events to be scheduled on my </label>"),
+            HTML("<label class = \"cal\"> i want my events to be scheduled on my </label>"),
             Div('calendar', css_class="col-xs-6"),
             HTML("<label class = \"cal\"> calendar.</label>"),
-            css_class='row',
+            css_class='row bottom',
         ),
     )
 
@@ -109,9 +109,9 @@ class AllCalsForm(forms.Form):
     def __init__(self, *args, **kwargs):
       cals = kwargs.pop('calendars')
       super(AllCalsForm, self).__init__(*args, **kwargs)
-      self.fields['i want to include the events of the following calendars'] = forms.MultipleChoiceField(choices=cals, widget=forms.CheckboxSelectMultiple)
+      self.fields['    i want to include the events of the following calendars'] = forms.MultipleChoiceField(choices=cals, widget=forms.CheckboxSelectMultiple)
 
     class Meta:
-      fields = ('i want to include the events of the following calendars',)
+      fields = ('    i want to include the events of the following calendars',)
 
 
