@@ -1,10 +1,10 @@
 # CozyCo
 
-<img src="https://github.com/StanfordCS194/Team-5/blob/master/team-photos/cozyco-logo.png" width="325">
+<img src="https://github.com/koenig125/intention/blob/master/team-photos/cozyco-logo.png" width="325">
 
 # Documentation
 
-1. [Github Wiki](https://github.com/StanfordCS194/CozyCo/wiki)
+1. [Github Wiki](https://github.com/koenig125/intention/wiki)
 
 2. [Google Drive](https://drive.google.com/drive/u/0/folders/0AJ2wfnaU-0eoUk9PVA)
 
@@ -12,10 +12,10 @@
 
 Member | Photograph
 -------|-----------
-Alison | <img src="https://github.com/StanfordCS194/Team-5/blob/master/team-photos/alison.jpg" width="200">
-Nichelle | <img src="https://github.com/StanfordCS194/Team-5/blob/master/team-photos/nichelle.jpg" width="200">
-Rey | <img src="https://github.com/StanfordCS194/Team-5/blob/master/team-photos/rey.JPG" width="200">
-Chris | <img src="https://github.com/StanfordCS194/Team-5/blob/master/team-photos/chris.jpg" width="200">
+Alison | <img src="https://github.com/koenig125/intention/blob/master/team-photos/alison.jpg" width="200">
+Nichelle | <img src="https://github.com/koenig125/intention/blob/master/team-photos/nichelle.jpg" width="200">
+Rey | <img src="https://github.com/koenig125/intention/blob/master/team-photos/rey.JPG" width="200">
+Chris | <img src="https://github.com/koenig125/intention/blob/master/team-photos/chris.jpg" width="200">
 
 # Team Skills Matrix
 
